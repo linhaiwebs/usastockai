@@ -82,6 +82,33 @@ frontend:
 **解决方案**：
 新的 Dockerfile 已添加调试输出，重新构建后会显示更多信息。
 
+#### 问题 4: 后端 API 返回 429 错误 ✅ 已修复
+
+**症状**：
+```
+Search error: Client error '429 Too Many Requests'
+Quote error for SPY: Client error '429 Too Many Requests'
+```
+
+**原因**：
+- Yahoo Finance API 速率限制
+- 缺少缓存机制
+- 并发请求过多
+
+**解决方案**（已实施）：
+- ✅ 添加 60 秒缓存机制
+- ✅ 实施速率限制（每 0.5 秒一个请求）
+- ✅ 限制并发请求（最多 2 个）
+- ✅ 添加模拟数据作为后备
+- ✅ 使用浏览器 User-Agent
+
+**更新代码后重新部署**：
+```bash
+git pull
+docker-compose build --no-cache backend
+docker-compose up -d
+```
+
 ### 📝 完整的重启流程
 
 ```bash
@@ -186,14 +213,55 @@ docker-compose logs --tail 100 frontend
 ### ✅ 最新的修复
 
 已推送到 GitHub 的更新包括：
-- 改进的 Dockerfile，添加了调试输出
-- 更好的错误处理和日志记录
-- 构建产物验证
-- Next.js 配置优化
+- ✅ **股票服务修复**：添加缓存和速率限制，解决 429 错误
+- ✅ **后端健康检查**：添加 curl 工具
+- ✅ **前端 Docker 优化**：改进错误处理和调试输出
+- ✅ **Google Fonts 替换**：使用系统字体避免超时
+- ✅ **Public 目录创建**：修复构建错误
 
 请拉取最新代码并重新构建：
 ```bash
 git pull
-docker-compose build --no-cache frontend
+docker-compose build --no-cache
 docker-compose up
 ```
+
+### 📈 性能优化建议
+
+#### 股票数据缓存
+新的实现已包含：
+- **内存缓存**：60 秒 TTL
+- **速率限制**：每 0.5 秒一个请求
+- **并发控制**：最多 2 个并发请求
+- **后备数据**：API 失败时返回模拟数据
+
+#### 生产环境建议
+1. **使用 Redis 缓存**：
+   ```yaml
+   # docker-compose.yml 添加
+   redis:
+     image: redis:alpine
+     networks:
+       - stockai-network
+   ```
+
+2. **配置环境变量**：
+   ```bash
+   REDIS_URL=redis://redis:6379
+   CACHE_TTL=300  # 5分钟
+   ```
+
+3. **监控和日志**：
+   - 使用 Docker 日志驱动
+   - 配置日志轮转
+   - 监控容器资源使用
+
+### 🔐 安全建议
+
+生产环境请务必：
+- ✅ 修改默认数据库密码
+- ✅ 配置防火墙规则
+- ✅ 启用 HTTPS
+- ✅ 设置 CORS 白名单
+- ✅ 定期备份数据库
+- ✅ 使用环境变量管理敏感信息
