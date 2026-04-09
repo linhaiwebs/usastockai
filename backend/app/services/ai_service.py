@@ -1,6 +1,6 @@
 """
-AI 分析服务 - 基于 SiliconFlow DeepSeek R1
-强制英文输出，多种诊断格式
+AI Analysis Service - Based on SiliconFlow DeepSeek R1
+Forces English output, multiple diagnostic formats
 """
 import json
 import random
@@ -216,16 +216,18 @@ CRITICAL: You MUST respond entirely in English. No Chinese characters allowed.""
         
         system_prompt = """You are a professional US stock investment advisor AI assistant.
 
-STRICT RULES:
-1. You MUST respond entirely in English - no Chinese characters
-2. You MUST follow the EXACT template structure provided
+ABSOLUTELY CRITICAL RULES - VIOLATION WILL CAUSE REJECTION:
+1. You MUST respond entirely in English - NO Chinese characters EVER
+2. You MUST follow the EXACT template structure provided - NO modifications
 3. You can ONLY replace text inside [brackets] with actual data
-4. Do NOT add, remove, or modify ANY other text, emojis, symbols, or structure
-5. Do NOT add introduction or conclusion
-6. Do NOT add any commentary outside the template
-7. Output ONLY the filled template - nothing more, nothing less
+4. Do NOT add ANY text, emojis, symbols, or formatting outside the template
+5. Do NOT add introduction, conclusion, or commentary
+6. Do NOT modify ANY emojis, symbols, or structural elements in the template
+7. Output ONLY the filled template - NOTHING more, NOTHING less
+8. Start your response IMMEDIATELY with the first line of the template
+9. End your response IMMEDIATELY after the last line of the template
 
-The template has been carefully designed. Your job is to fill in the placeholders with real analysis and data, while keeping all other elements exactly as they are."""
+The template structure is SACRED. Your ONLY job is to fill in [brackets] with real data while keeping EVERYTHING else exactly as is."""
 
         try:
             stream = await self.client.chat.completions.create(
@@ -235,8 +237,8 @@ The template has been carefully designed. Your job is to fill in the placeholder
                     {"role": "user", "content": prompt}
                 ],
                 stream=True,
-                temperature=0.3,  # 降低温度以减少创造性，确保格式一致性
-                max_tokens=1000
+                temperature=0.1,  # 极低温度确保格式完全一致
+                max_tokens=800
             )
             
             async for chunk in stream:
@@ -272,8 +274,9 @@ IMPORTANT:
 - Do NOT add any additional content"""
 
         system_prompt = """You are a professional US stock investment advisor AI assistant.
-CRITICAL: You MUST respond entirely in English with the EXACT format provided.
-Do NOT add any additional content or analysis beyond the specified format."""
+ABSOLUTELY CRITICAL: You MUST respond entirely in English with the EXACT format provided.
+Do NOT add ANY additional content, analysis, or text beyond the specified format.
+Start IMMEDIATELY with 🔍 and end IMMEDIATELY after the last line."""
 
         try:
             stream = await self.client.chat.completions.create(
@@ -283,8 +286,8 @@ Do NOT add any additional content or analysis beyond the specified format."""
                     {"role": "user", "content": prompt}
                 ],
                 stream=True,
-                temperature=0.3,  # 低温度确保格式一致
-                max_tokens=150
+                temperature=0.1,  # 极低温度确保格式一致
+                max_tokens=120
             )
             
             async for chunk in stream:

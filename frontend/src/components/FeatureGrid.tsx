@@ -3,35 +3,35 @@
 const features = [
   {
     icon: '📊',
-    title: '实时行情',
-    description: '毫秒级延迟，全球股市实时数据'
+    title: 'Real-time Quotes',
+    description: 'Millisecond latency, global stock market data'
   },
   {
     icon: '🤖',
-    title: 'AI 分析',
-    description: 'DeepSeek R1 推理模型，专业投资建议'
+    title: 'AI Analysis',
+    description: 'DeepSeek R1 reasoning model, professional investment advice'
   },
   {
     icon: '📈',
-    title: '技术指标',
-    description: 'MACD、RSI、布林带等专业指标'
+    title: 'Technical Indicators',
+    description: 'MACD, RSI, Bollinger Bands and more'
   },
   {
     icon: '🎯',
-    title: '风险提示',
-    description: '智能风控，投资风险评估'
+    title: 'Risk Assessment',
+    description: 'Smart risk control, investment risk evaluation'
   }
 ]
 
 /**
- * 功能特性网格
+ * Feature Grid
  */
 export function FeatureGrid() {
   return (
     <div className="mb-8">
       <h2 className="text-xl font-bold text-text mb-4 flex items-center gap-2">
         <span className="text-2xl">✨</span>
-        核心功能
+        Core Features
       </h2>
       
       <div className="grid grid-cols-2 gap-3">

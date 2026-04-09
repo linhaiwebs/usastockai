@@ -18,7 +18,7 @@ interface StockGridProps {
 }
 
 /**
- * 热门股票网格 - 显示前4个，其余轮播
+ * Hot Stocks Grid - Shows top 4, others rotate
  */
 export function StockGrid({ onStockClick }: StockGridProps) {
   const [stocks, setStocks] = useState<StockData[]>([])
@@ -29,13 +29,13 @@ export function StockGrid({ onStockClick }: StockGridProps) {
     fetchStocks()
   }, [])
 
-  // 自动轮播
+  // Auto carousel
   useEffect(() => {
     if (stocks.length <= 4) return
     
     const timer = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % (stocks.length - 4 + 1))
-    }, 5000) // 每5秒轮播一次
+    }, 5000) // Rotate every 5 seconds
 
     return () => clearInterval(timer)
   }, [stocks.length])
@@ -56,7 +56,7 @@ export function StockGrid({ onStockClick }: StockGridProps) {
       <div className="mb-8">
         <h2 className="text-lg font-bold text-text mb-3 flex items-center gap-2">
           <span className="text-xl">🔥</span>
-          热门股票
+          Hot Stocks
         </h2>
         <div className="grid grid-cols-2 gap-2">
           {[1, 2, 3, 4].map((i) => (
@@ -70,7 +70,7 @@ export function StockGrid({ onStockClick }: StockGridProps) {
     )
   }
 
-  // 显示的股票（前4个固定 + 轮播）
+  // Display stocks (first 4 fixed + rotating)
   const displayStocks = stocks.length > 4 
     ? [...stocks.slice(0, 4), ...stocks.slice(currentIndex, currentIndex + Math.min(4, stocks.length - 4))]
     : stocks
@@ -79,10 +79,10 @@ export function StockGrid({ onStockClick }: StockGridProps) {
     <div className="mb-8">
       <h2 className="text-lg font-bold text-text mb-3 flex items-center gap-2">
         <span className="text-xl">🔥</span>
-        热门股票
+        Hot Stocks
         {stocks.length > 4 && (
           <span className="text-xs text-text-secondary font-normal ml-auto">
-            自动轮播中
+            Auto-rotating
           </span>
         )}
       </h2>
@@ -98,7 +98,7 @@ export function StockGrid({ onStockClick }: StockGridProps) {
         ))}
       </div>
 
-      {/* 轮播指示器 */}
+      {/* Carousel indicators */}
       {stocks.length > 4 && (
         <div className="flex justify-center gap-1.5 mt-3">
           {Array.from({ length: Math.ceil((stocks.length - 4) / 4) + 1 }).map((_, i) => (

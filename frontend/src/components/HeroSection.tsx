@@ -1,22 +1,22 @@
 'use client'
 
 /**
- * Hero 区域 - 蓝色渐变标题
+ * Hero Section - Blue gradient title
  */
 export function HeroSection() {
   return (
     <div className="pt-12 pb-8 text-center">
-      {/* 主标题 */}
+      {/* Main title */}
       <h1 className="text-4xl font-bold mb-3 bg-clip-text text-transparent bg-hero-gradient">
-        AI 驱动的股票诊断
+        AI-Powered Stock Diagnosis
       </h1>
       
-      {/* 副标题 */}
+      {/* Subtitle */}
       <p className="text-text-secondary text-base leading-relaxed">
-        实时行情 · 智能分析 · 投资决策
+        Real-time Quotes · Intelligent Analysis · Investment Decisions
       </p>
       
-      {/* 装饰元素 */}
+      {/* Decorative elements */}
       <div className="mt-6 flex justify-center gap-2">
         <div className="w-12 h-1 bg-primary rounded-full" />
         <div className="w-3 h-1 bg-secondary rounded-full" />

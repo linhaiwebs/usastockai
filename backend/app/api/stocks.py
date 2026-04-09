@@ -1,5 +1,5 @@
 """
-股票数据 API 端点
+Stock Data API Endpoints
 """
 from fastapi import APIRouter, HTTPException
 from ..services.stock_service import stock_service
@@ -9,7 +9,7 @@ router = APIRouter(prefix="/api", tags=["stocks"])
 
 @router.get("/search")
 async def search_stocks(q: str):
-    """搜索股票自动补全"""
+    """Search stocks with autocomplete"""
     if not q or len(q) < 1:
         return {"results": []}
     
@@ -19,14 +19,14 @@ async def search_stocks(q: str):
 
 @router.get("/stocks/hot")
 async def get_hot_stocks():
-    """获取热门股票列表"""
+    """Get hot stocks list"""
     stocks = await stock_service.get_hot_stocks()
     return {"stocks": stocks}
 
 
 @router.get("/stocks/{symbol}")
 async def get_stock_detail(symbol: str):
-    """获取股票详情"""
+    """Get stock detail"""
     quote = await stock_service.get_quote(symbol)
     
     if not quote:

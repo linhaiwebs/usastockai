@@ -1,7 +1,7 @@
 'use client'
 
 /**
- * 合作品牌区域
+ * Brand Section
  */
 export function BrandSection() {
   const brands = [
@@ -11,7 +11,7 @@ export function BrandSection() {
   return (
     <div className="mb-8 py-6">
       <p className="text-center text-text-secondary text-sm mb-4">
-        数据来源
+        Data Sources
       </p>
       <div className="flex flex-wrap justify-center gap-4">
         {brands.map((brand, index) => (

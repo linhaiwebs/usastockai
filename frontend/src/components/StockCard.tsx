@@ -16,7 +16,7 @@ interface StockCardProps {
 }
 
 /**
- * 股票卡片组件
+ * Stock Card Component
  */
 export function StockCard({ stock, onClick, compact = false }: StockCardProps) {
   const isProfit = stock.change >= 0
@@ -33,13 +33,13 @@ export function StockCard({ stock, onClick, compact = false }: StockCardProps) {
   }
 
   if (compact) {
-    // 紧凑版本
+    // Compact version
     return (
       <button
         onClick={onClick}
         className="w-full p-3 bg-surface border border-gray-700 rounded-lg hover:border-primary hover:shadow-md transition-all text-left group"
       >
-        {/* 股票代码和价格 */}
+        {/* Stock symbol and price */}
         <div className="flex items-center justify-between mb-1">
           <h3 className="text-base font-bold text-primary group-hover:text-accent transition-colors">
             {stock.symbol}
@@ -49,7 +49,7 @@ export function StockCard({ stock, onClick, compact = false }: StockCardProps) {
           </p>
         </div>
 
-        {/* 涨跌幅 */}
+        {/* Change percentage */}
         <div className={`flex items-center gap-1 text-sm ${changeColor}`}>
           <span>{isProfit ? '▲' : '▼'}</span>
           <span className="font-medium">
@@ -63,13 +63,13 @@ export function StockCard({ stock, onClick, compact = false }: StockCardProps) {
     )
   }
 
-  // 完整版本
+  // Full version
   return (
     <button
       onClick={onClick}
       className="w-full p-4 bg-surface border border-gray-700 rounded-xl hover:border-primary hover:shadow-lg hover:shadow-primary/10 transition-all text-left group"
     >
-      {/* 股票代码和名称 */}
+      {/* Stock symbol and name */}
       <div className="mb-2">
         <h3 className="text-lg font-bold text-primary group-hover:text-accent transition-colors">
           {stock.symbol}
@@ -77,14 +77,14 @@ export function StockCard({ stock, onClick, compact = false }: StockCardProps) {
         <p className="text-sm text-text-secondary truncate">{stock.name}</p>
       </div>
 
-      {/* 价格 */}
+      {/* Price */}
       <div className="mb-2">
         <p className="text-2xl font-bold text-text">
           ${stock.price.toFixed(2)}
         </p>
       </div>
 
-      {/* 涨跌幅 */}
+      {/* Change percentage */}
       <div className="flex items-center justify-between">
         <div className={`flex items-center gap-1 ${changeColor}`}>
           <span className="text-lg">
@@ -98,7 +98,7 @@ export function StockCard({ stock, onClick, compact = false }: StockCardProps) {
           </span>
         </div>
 
-        {/* 成交量 */}
+        {/* Volume */}
         <div className="text-xs text-text-secondary">
           Vol: {formatVolume(stock.volume)}
         </div>

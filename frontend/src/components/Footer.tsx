@@ -1,7 +1,7 @@
 'use client'
 
 /**
- * 页脚组件
+ * Footer Component
  */
 export function Footer() {
   return (
@@ -11,14 +11,14 @@ export function Footer() {
           © 2024 Stock AI Diagnostic System
         </p>
         <p className="text-text-secondary text-xs">
-          仅供学习和参考，不构成投资建议
+          For learning and reference only, not investment advice
         </p>
         <div className="mt-4 flex justify-center gap-4 text-xs text-text-secondary">
-          <a href="#" className="hover:text-primary transition-colors">隐私政策</a>
+          <a href="#" className="hover:text-primary transition-colors">Privacy Policy</a>
           <span>·</span>
-          <a href="#" className="hover:text-primary transition-colors">使用条款</a>
+          <a href="#" className="hover:text-primary transition-colors">Terms of Use</a>
           <span>·</span>
-          <a href="#" className="hover:text-primary transition-colors">联系我们</a>
+          <a href="#" className="hover:text-primary transition-colors">Contact Us</a>
         </div>
       </div>
     </footer>

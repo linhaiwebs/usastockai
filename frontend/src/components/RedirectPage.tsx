@@ -8,7 +8,7 @@ interface RedirectPageProps {
 }
 
 /**
- * 分流中间页 - 显示目标URL预览和确认
+ * Redirect Intermediate Page - Shows target URL preview and confirmation
  */
 export function RedirectPage({ id }: RedirectPageProps) {
   const [targetUrl, setTargetUrl] = useState<string>('')
@@ -36,7 +36,7 @@ export function RedirectPage({ id }: RedirectPageProps) {
       setLoading(false)
     } catch (err: any) {
       console.error('Failed to fetch redirect info:', err)
-      setError(err.message || '链接不存在')
+      setError(err.message || 'Link does not exist')
       setLoading(false)
     }
   }
@@ -47,7 +47,7 @@ export function RedirectPage({ id }: RedirectPageProps) {
       window.location.href = targetUrl
     } catch (err) {
       console.error('Failed to record click:', err)
-      // 即使记录失败也跳转
+      // Redirect even if recording fails
       window.location.href = targetUrl
     }
   }
@@ -57,7 +57,7 @@ export function RedirectPage({ id }: RedirectPageProps) {
       <div className="min-h-screen bg-background flex items-center justify-center p-4">
         <div className="w-full max-w-md bg-surface border border-gray-700 rounded-2xl p-8 text-center">
           <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-text-secondary">加载中...</p>
+          <p className="text-text-secondary">Loading...</p>
         </div>
       </div>
     )
@@ -68,13 +68,13 @@ export function RedirectPage({ id }: RedirectPageProps) {
       <div className="min-h-screen bg-background flex items-center justify-center p-4">
         <div className="w-full max-w-md bg-surface border border-loss/30 rounded-2xl p-8 text-center">
           <div className="text-5xl mb-4">⚠️</div>
-          <h2 className="text-xl font-bold text-text mb-2">链接无效</h2>
+          <h2 className="text-xl font-bold text-text mb-2">Invalid Link</h2>
           <p className="text-text-secondary">{error}</p>
           <button
             onClick={() => window.history.back()}
             className="mt-6 px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/80 transition-colors"
           >
-            返回上一页
+            Go Back
           </button>
         </div>
       </div>
@@ -84,49 +84,49 @@ export function RedirectPage({ id }: RedirectPageProps) {
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="w-full max-w-md bg-surface border border-gray-700 rounded-2xl p-8 text-center">
-        {/* 图标 */}
+        {/* Icon */}
         <div className="text-6xl mb-4">🔗</div>
 
-        {/* 标题 */}
+        {/* Title */}
         <h2 className="text-xl font-bold text-text mb-2">
-          即将跳转
+          Redirecting
         </h2>
 
-        {/* 目标URL */}
+        {/* Target URL */}
         <div className="mb-6 p-3 bg-background border border-gray-700 rounded-lg">
-          <p className="text-xs text-text-secondary mb-1">目标地址</p>
+          <p className="text-xs text-text-secondary mb-1">Target Address</p>
           <p className="text-sm text-primary break-all">{targetUrl}</p>
         </div>
 
-        {/* 倒计时 */}
+        {/* Countdown */}
         <div className="mb-6">
           <div className="text-4xl font-bold text-primary mb-2">
             {countdown}
           </div>
           <p className="text-sm text-text-secondary">
-            秒后自动跳转
+            seconds until auto redirect
           </p>
         </div>
 
-        {/* 操作按钮 */}
+        {/* Action buttons */}
         <div className="flex gap-3">
           <button
             onClick={() => window.history.back()}
             className="flex-1 py-3 bg-gray-700 text-text rounded-lg hover:bg-gray-600 transition-colors"
           >
-            取消
+            Cancel
           </button>
           <button
             onClick={handleRedirect}
             className="flex-1 py-3 bg-hero-gradient text-white rounded-lg hover:shadow-lg transition-all"
           >
-            立即跳转
+            Redirect Now
           </button>
         </div>
 
-        {/* 安全提示 */}
+        {/* Security notice */}
         <p className="mt-6 text-xs text-text-secondary">
-          请确认目标地址安全后再继续
+          Please verify the target address is safe before continuing
         </p>
       </div>
     </div>

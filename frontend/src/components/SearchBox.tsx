@@ -15,8 +15,8 @@ interface SearchBoxProps {
 }
 
 /**
- * 搜索框组件 - 带自动补全和分页
- * 改进：500ms防抖，最少2字符，默认显示4个结果，分页显示其他
+ * Search Box Component - With autocomplete and pagination
+ * Improved: 500ms debounce, minimum 2 characters, default 4 results, paginated display
  */
 export function SearchBox({ onAnalyze }: SearchBoxProps) {
   const [query, setQuery] = useState('')
@@ -28,7 +28,7 @@ export function SearchBox({ onAnalyze }: SearchBoxProps) {
   
   const RESULTS_PER_PAGE = 4
 
-  // 防抖搜索 (500ms, 最少2字符)
+  // Debounce search (500ms, minimum 2 characters)
   useEffect(() => {
     if (debounceTimer.current) {
       clearTimeout(debounceTimer.current)
@@ -48,7 +48,7 @@ export function SearchBox({ onAnalyze }: SearchBoxProps) {
         } finally {
           setLoading(false)
         }
-      }, 500) // 增加到500ms防抖
+      }, 500) // Increased to 500ms debounce
     } else {
       setResults([])
       setShowResults(false)
@@ -83,17 +83,17 @@ export function SearchBox({ onAnalyze }: SearchBoxProps) {
 
   return (
     <div className="relative mb-8">
-      {/* 搜索输入框 */}
+      {/* Search input */}
       <div className="relative">
         <input
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="搜索股票代码或名称 (至少2个字符)"
+          placeholder="Search stock symbol or name (min 2 characters)"
           className="w-full px-4 py-3.5 pl-12 bg-surface border border-gray-700 rounded-xl text-text placeholder-text-secondary focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
         />
         
-        {/* 搜索图标 */}
+        {/* Search icon */}
         <svg
           className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-text-secondary"
           fill="none"
@@ -108,7 +108,7 @@ export function SearchBox({ onAnalyze }: SearchBoxProps) {
           />
         </svg>
 
-        {/* 加载动画 */}
+        {/* Loading animation */}
         {loading && (
           <div className="absolute right-4 top-1/2 -translate-y-1/2">
             <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
@@ -116,7 +116,7 @@ export function SearchBox({ onAnalyze }: SearchBoxProps) {
         )}
       </div>
 
-      {/* 搜索结果下拉 */}
+      {/* Search results dropdown */}
       {showResults && results.length > 0 && (
         <div className="absolute top-full left-0 right-0 mt-2 bg-surface border border-gray-700 rounded-xl shadow-xl z-10 overflow-hidden">
           {currentResults.map((result, index) => (
@@ -140,7 +140,7 @@ export function SearchBox({ onAnalyze }: SearchBoxProps) {
             </button>
           ))}
           
-          {/* 分页控制 */}
+          {/* Pagination controls */}
           {totalPages > 1 && (
             <div className="flex items-center justify-between px-4 py-2 bg-background/50 border-t border-gray-700">
               <button
@@ -148,37 +148,37 @@ export function SearchBox({ onAnalyze }: SearchBoxProps) {
                 disabled={currentPage === 0}
                 className="px-3 py-1 text-sm text-text-secondary hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                ← 上一页
+                ← Previous
               </button>
               <span className="text-sm text-text-secondary">
-                {currentPage + 1} / {totalPages} ({results.length} 结果)
+                {currentPage + 1} / {totalPages} ({results.length} results)
               </span>
               <button
                 onClick={() => setCurrentPage(Math.min(totalPages - 1, currentPage + 1))}
                 disabled={currentPage === totalPages - 1}
                 className="px-3 py-1 text-sm text-text-secondary hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                下一页 →
+                Next →
               </button>
             </div>
           )}
         </div>
       )}
 
-      {/* 无结果提示 */}
+      {/* No results message */}
       {showResults && query.length >= 2 && !loading && results.length === 0 && (
         <div className="absolute top-full left-0 right-0 mt-2 bg-surface border border-gray-700 rounded-xl shadow-xl z-10 p-4 text-center text-text-secondary">
-          未找到 "{query}" 的结果
+          No results found for "{query}"
         </div>
       )}
 
-      {/* 分析按钮 */}
+      {/* Analyze button */}
       <button
         onClick={handleSubmit}
         disabled={!query.trim()}
         className="w-full mt-3 py-3.5 bg-hero-gradient text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        开始 AI 诊断
+        Start AI Diagnosis
       </button>
     </div>
   )

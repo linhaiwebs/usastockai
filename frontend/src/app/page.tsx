@@ -11,7 +11,7 @@ import { Footer } from '@/components/Footer'
 import { AnalysisModal } from '@/components/AnalysisModal'
 
 /**
- * 主页面
+ * Main Page
  */
 export default function Home() {
   const [modalOpen, setModalOpen] = useState(false)
@@ -30,10 +30,10 @@ export default function Home() {
         <StockGrid onStockClick={handleAnalyze} />
         <BrandSection />
         <FeatureGrid />
-        <CTAButton onClick={() => handleAnalyze('当前市场趋势分析')} />
+        <CTAButton onClick={() => handleAnalyze('Current market trend analysis')} />
         <Footer />
         
-        {/* AI 分析弹窗 */}
+        {/* AI Analysis Modal */}
         <AnalysisModal
           query={analyzeQuery}
           isOpen={modalOpen}

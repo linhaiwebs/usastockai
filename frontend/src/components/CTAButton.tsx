@@ -5,7 +5,7 @@ interface CTAButtonProps {
 }
 
 /**
- * 行动召唤按钮
+ * Call to Action Button
  */
 export function CTAButton({ onClick }: CTAButtonProps) {
   return (
@@ -17,7 +17,7 @@ export function CTAButton({ onClick }: CTAButtonProps) {
         Meet Your AI Agent Team →
       </button>
       <p className="mt-3 text-sm text-text-secondary">
-        开启智能投资之旅
+        Start your intelligent investment journey
       </p>
     </div>
   )
