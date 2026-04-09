@@ -30,7 +30,7 @@ export default function Home() {
         <StockGrid onStockClick={handleAnalyze} />
         <BrandSection />
         <FeatureGrid />
-        <CTAButton onClick={() => handleAnalyze('Current market trend analysis')} />
+        <CTAButton />
         <Footer />
         
         {/* AI Analysis Modal */}
