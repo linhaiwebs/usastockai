@@ -14,9 +14,9 @@ class Settings(BaseSettings):
     SILICONFLOW_MODEL: str = "deepseek-ai/DeepSeek-R1-0528-Qwen3-8B"
     
     # Finance Query API (股票数据源)
-    # 选项1: 使用托管版本（免费，推荐）
-    FINANCE_QUERY_URL: str = "https://finance-query.com"
-    # 选项2: 使用自部署版本（需要自己部署 finance-query-server）
+    # 使用本地部署的 finance-query 服务
+    FINANCE_QUERY_URL: str = "http://finance-query:8000"
+    # 如果在本地开发环境（非Docker），使用 localhost
     # FINANCE_QUERY_URL: str = "http://localhost:8002"
     
     # App
