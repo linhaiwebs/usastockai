@@ -1,6 +1,6 @@
 """
-股票数据服务 - 基于 Yahoo Finance API
-添加缓存和速率限制以避免 429 错误
+股票数据服务 - 基于 finance-query 自部署或托管服务
+支持自部署或使用托管版本：https://finance-query.com
 """
 import asyncio
 from typing import List, Dict, Optional
@@ -15,9 +15,12 @@ class StockService:
     """股票数据服务"""
     
     def __init__(self):
-        # Yahoo Finance API endpoints
-        self.base_url = "https://query1.finance.yahoo.com/v1/finance/search"
-        self.quote_url = "https://query1.finance.yahoo.com/v7/finance/quote"
+        # Finance Query API endpoint
+        # 选项1: 使用托管版本（免费，无需自部署）
+        self.base_url = getattr(settings, 'FINANCE_QUERY_URL', 'https://finance-query.com')
+        
+        # 选项2: 使用自部署版本（如果配置了）
+        # self.base_url = getattr(settings, 'FINANCE_QUERY_URL', 'http://localhost:8002')
         
         # 缓存配置
         self.cache: Dict[str, Dict] = {}
@@ -25,14 +28,13 @@ class StockService:
         
         # 速率限制
         self.last_request_time = 0
-        self.min_request_interval = 0.5  # 每个请求最少间隔0.5秒
-        self.request_semaphore = asyncio.Semaphore(2)  # 最多同时2个请求
+        self.min_request_interval = 0.3  # finance-query 性能更好，可以更快
+        self.request_semaphore = asyncio.Semaphore(5)  # 支持更多并发
         
-        # 请求头（模拟浏览器）
+        # 请求头
         self.headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+            'User-Agent': 'StockAI/1.0',
             'Accept': 'application/json',
-            'Accept-Language': 'en-US,en;q=0.9',
         }
     
     def _is_cache_valid(self, cache_key: str) -> bool:
@@ -67,10 +69,10 @@ class StockService:
             
             self.last_request_time = asyncio.get_event_loop().time()
     
-    async def _make_request(self, url: str, params: dict) -> Optional[dict]:
+    async def _make_request(self, endpoint: str, params: dict = None) -> Optional[dict]:
         """发送HTTP请求（带缓存和速率限制）"""
         # 生成缓存键
-        cache_key = f"{url}?{sorted(params.items())}"
+        cache_key = f"{endpoint}?{sorted(params.items()) if params else ''}"
         
         # 检查缓存
         cached_data = self._get_from_cache(cache_key)
@@ -80,6 +82,8 @@ class StockService:
         # 速率限制
         await self._rate_limit()
         
+        url = f"{self.base_url}{endpoint}"
+        
         async with httpx.AsyncClient(headers=self.headers, timeout=10.0) as client:
             try:
                 response = await client.get(url, params=params)
@@ -87,8 +91,7 @@ class StockService:
                 # 处理速率限制
                 if response.status_code == 429:
                     print(f"Rate limited, waiting before retry...")
-                    await asyncio.sleep(2)  # 等待2秒
-                    # 返回缓存的模拟数据或空数据
+                    await asyncio.sleep(1)
                     return None
                 
                 response.raise_for_status()
@@ -107,20 +110,17 @@ class StockService:
         if not query or len(query) < 1:
             return []
         
-        params = {
-            "q": query,
-            "quotesCount": 10,
-            "newsCount": 0,
-            "lang": "en-US"
-        }
-        
-        data = await self._make_request(self.base_url, params)
+        # 使用 finance-query 的 search 端点
+        data = await self._make_request("/v2/search", {"q": query})
         
         if not data:
             return []
         
         results = []
-        for item in data.get("quotes", []):
+        
+        # finance-query 返回格式
+        quotes = data.get("quotes", [])
+        for item in quotes[:10]:  # 限制返回10个结果
             results.append({
                 "symbol": item.get("symbol", ""),
                 "name": item.get("shortname", item.get("longname", "")),
@@ -132,32 +132,58 @@ class StockService:
     
     async def get_quote(self, symbol: str) -> Optional[Dict]:
         """获取股票实时报价"""
-        params = {
-            "symbols": symbol.upper(),
-            "fields": "regularMarketPrice,regularMarketChange,regularMarketChangePercent,regularMarketVolume,shortName"
-        }
-        
-        data = await self._make_request(self.quote_url, params)
+        # 使用 finance-query 的 quote 端点
+        data = await self._make_request(f"/v2/quote/{symbol.upper()}")
         
         if not data:
             # 返回模拟数据（避免前端报错）
             return self._get_mock_quote(symbol)
         
-        quote_response = data.get("quoteResponse", {})
-        quotes = quote_response.get("result", [])
-        
-        if not quotes:
+        try:
+            # finance-query 返回格式
+            price = None
+            if "regular_market_price" in data:
+                price_data = data["regular_market_price"]
+                if isinstance(price_data, dict):
+                    price = price_data.get("raw")
+                else:
+                    price = price_data
+            
+            change = None
+            if "regular_market_change" in data:
+                change_data = data["regular_market_change"]
+                if isinstance(change_data, dict):
+                    change = change_data.get("raw")
+                else:
+                    change = change_data
+            
+            change_percent = None
+            if "regular_market_change_percent" in data:
+                percent_data = data["regular_market_change_percent"]
+                if isinstance(percent_data, dict):
+                    change_percent = percent_data.get("raw")
+                else:
+                    change_percent = percent_data
+            
+            volume = None
+            if "regular_market_volume" in data:
+                volume_data = data["regular_market_volume"]
+                if isinstance(volume_data, dict):
+                    volume = volume_data.get("raw")
+                else:
+                    volume = volume_data
+            
+            return {
+                "symbol": symbol.upper(),
+                "name": data.get("shortName", data.get("longName", "")),
+                "price": price or 0,
+                "change": change or 0,
+                "change_percent": change_percent or 0,
+                "volume": volume or 0
+            }
+        except Exception as e:
+            print(f"Parse quote error: {e}")
             return self._get_mock_quote(symbol)
-        
-        quote = quotes[0]
-        return {
-            "symbol": symbol.upper(),
-            "name": quote.get("shortName", ""),
-            "price": quote.get("regularMarketPrice", 0),
-            "change": quote.get("regularMarketChange", 0),
-            "change_percent": quote.get("regularMarketChangePercent", 0),
-            "volume": quote.get("regularMarketVolume", 0)
-        }
     
     def _get_mock_quote(self, symbol: str) -> Dict:
         """返回模拟报价数据（当API不可用时）"""
@@ -195,14 +221,74 @@ class StockService:
         # 热门美股列表
         hot_symbols = ["SPY", "QQQ", "AAPL", "MSFT", "TSLA", "NVDA", "AMZN", "GOOGL", "META", "AMD"]
         
-        # 批量获取（减少API调用）
-        quotes = []
-        for symbol in hot_symbols:
-            quote = await self.get_quote(symbol)
-            if quote:
-                quotes.append(quote)
+        # 使用 finance-query 的批量 quotes 端点
+        symbols_str = ",".join(hot_symbols)
+        data = await self._make_request("/v2/quotes", {"symbols": symbols_str})
         
-        return quotes
+        if not data:
+            # 逐个获取作为后备
+            quotes = []
+            for symbol in hot_symbols:
+                quote = await self.get_quote(symbol)
+                if quote:
+                    quotes.append(quote)
+            return quotes
+        
+        try:
+            # finance-query 批量返回格式
+            quotes = []
+            quotes_data = data.get("quotes", {})
+            
+            for symbol in hot_symbols:
+                if symbol in quotes_data:
+                    quote_data = quotes_data[symbol]
+                    
+                    price = None
+                    if "regular_market_price" in quote_data:
+                        price_data = quote_data["regular_market_price"]
+                        if isinstance(price_data, dict):
+                            price = price_data.get("raw")
+                        else:
+                            price = price_data
+                    
+                    change = None
+                    if "regular_market_change" in quote_data:
+                        change_data = quote_data["regular_market_change"]
+                        if isinstance(change_data, dict):
+                            change = change_data.get("raw")
+                        else:
+                            change = change_data
+                    
+                    change_percent = None
+                    if "regular_market_change_percent" in quote_data:
+                        percent_data = quote_data["regular_market_change_percent"]
+                        if isinstance(percent_data, dict):
+                            change_percent = percent_data.get("raw")
+                        else:
+                            change_percent = percent_data
+                    
+                    volume = None
+                    if "regular_market_volume" in quote_data:
+                        volume_data = quote_data["regular_market_volume"]
+                        if isinstance(volume_data, dict):
+                            volume = volume_data.get("raw")
+                        else:
+                            volume = volume_data
+                    
+                    quotes.append({
+                        "symbol": symbol,
+                        "name": quote_data.get("shortName", quote_data.get("longName", "")),
+                        "price": price or 0,
+                        "change": change or 0,
+                        "change_percent": change_percent or 0,
+                        "volume": volume or 0
+                    })
+            
+            return quotes
+        except Exception as e:
+            print(f"Parse hot stocks error: {e}")
+            # 返回模拟数据
+            return [self._get_mock_quote(symbol) for symbol in hot_symbols]
 
 
 # 创建全局实例
