@@ -4,11 +4,13 @@
 
 ## 🎯 功能特性
 
-- ✅ **股票搜索自动补全** - 实时搜索股票代码和名称
+- ✅ **股票搜索自动补全** - 实时搜索股票代码和名称，智能防抖
 - ✅ **流式AI分析** - DeepSeek R1 推理模型，支持 `<think/>` 推理过程展示
-- ✅ **热门股票展示** - 实时行情数据，无 API 调用限制
+- ✅ **热门股票展示** - 实时行情数据，自动轮播显示
 - ✅ **分流链接管理** - 中间页跳转 + 权重分配算法
+- ✅ **多语言支持** - 英语/日语，自动检测浏览器语言
 - ✅ **Docker 一键部署** - 前后端分离架构，开箱即用
+- ✅ **本地数据源** - 自部署 Finance Query，无 API 限制
 
 ## 🛠️ 技术栈
 
@@ -20,8 +22,9 @@
 ### 后端
 - **框架**: FastAPI
 - **数据库**: PostgreSQL 15
+- **缓存**: Redis 7
 - **AI**: SiliconFlow DeepSeek R1
-- **数据源**: Yahoo Finance API (免费、无限制)
+- **数据源**: Finance Query (自部署)
 
 ### 部署
 - **容器化**: Docker + Docker Compose
@@ -32,8 +35,9 @@
 ### 1. 克隆项目
 
 ```bash
-git clone <repo_url>
+git clone https://github.com/linhaiwebs/usastockai.git
 cd usastockai
+git checkout feature/stock-ai-diagnostic-system
 ```
 
 ### 2. 配置环境变量
@@ -42,12 +46,20 @@ cd usastockai
 # 复制环境变量模板
 cp .env.example .env
 
-# 编辑 .env 文件，填入 SiliconFlow API Key
+# 编辑 .env 文件
 nano .env
 ```
 
-必需的环境变量：
+**必需配置**：
 ```bash
+# SiliconFlow API Key
+SILICONFLOW_API_KEY=your_api_key_here
+
+# 后端 API 地址
+# 开发环境: http://localhost:8000
+# 生产环境: https://api.yourdomain.com
+NEXT_PUBLIC_API_URL=http://localhost:8000
+```
 SILICONFLOW_API_KEY=your_api_key_here
 ```
 

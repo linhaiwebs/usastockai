@@ -25,7 +25,7 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     ports:
-      - "${BACKEND_PORT:-8000}:8000"
+      - "8000:8000"
     environment:
       - DATABASE_URL=postgresql+asyncpg://${DB_USER:-stockai}:${DB_PASSWORD:-stockai123}@db:5432/${DB_NAME:-stockai}
       - SILICONFLOW_API_KEY=${SILICONFLOW_API_KEY}
@@ -49,8 +49,6 @@ services:
   # 数据库服务 - PostgreSQL
   db:
     image: postgres:15-alpine
-    ports:
-      - "${DB_PORT:-5432}:5432"
     environment:
       POSTGRES_USER: ${DB_USER:-stockai}
       POSTGRES_PASSWORD: ${DB_PASSWORD:-stockai123}
@@ -70,12 +68,9 @@ services:
   # Finance Query Server - 股票数据API服务
   finance-query:
     image: ghcr.io/verdenroz/finance-query:latest
-    container_name: finance-query-server
-    ports:
-      - "${FINANCE_QUERY_PORT:-8002}:8000"
     environment:
       - RUST_LOG=info
-      - RATE_LIMIT_PER_MINUTE=${RATE_LIMIT:-120}
+      - RATE_LIMIT_PER_MINUTE=120
       - REDIS_URL=redis://redis:6379
     depends_on:
       redis:
@@ -93,9 +88,6 @@ services:
   # Redis 缓存服务
   redis:
     image: redis:7-alpine
-    container_name: stockai-redis
-    ports:
-      - "${REDIS_PORT:-6379}:6379"
     volumes:
       - redis_data:/data
     command: redis-server --appendonly yes
