@@ -21,6 +21,41 @@ export function AnalysisModal({ query, isOpen, onClose }: AnalysisModalProps) {
   const [progress, setProgress] = useState(0)
   const [loadingText, setLoadingText] = useState('Initializing AI analysis...')
   const contentRef = useRef<HTMLDivElement>(null)
+  const eventSourceRef = useRef<EventSource | null>(null)
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const progressIntervalRef = useRef<NodeJS.Timeout | null>(null)
+
+  // Cleanup function to abort AI streaming
+  const cleanup = () => {
+    if (eventSourceRef.current) {
+      eventSourceRef.current.close()
+      eventSourceRef.current = null
+    }
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current)
+      timeoutRef.current = null
+    }
+    if (progressIntervalRef.current) {
+      clearInterval(progressIntervalRef.current)
+      progressIntervalRef.current = null
+    }
+  }
+
+  // Cleanup when modal closes
+  useEffect(() => {
+    if (!isOpen) {
+      cleanup()
+      setContent('')
+      setLoading(false)
+      setError(null)
+      setProgress(0)
+    }
+  }, [isOpen])
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => cleanup()
+  }, [])
 
   useEffect(() => {
     if (isOpen && query) {
@@ -39,7 +74,7 @@ export function AnalysisModal({ query, isOpen, onClose }: AnalysisModalProps) {
       ]
       let textIndex = 0
       
-      const progressInterval = setInterval(() => {
+      progressIntervalRef.current = setInterval(() => {
         setProgress(prev => {
           if (prev >= 90) return prev
           return prev + Math.random() * 10
@@ -48,10 +83,11 @@ export function AnalysisModal({ query, isOpen, onClose }: AnalysisModalProps) {
         textIndex = (textIndex + 1) % texts.length
         setLoadingText(texts[textIndex])
       }, 1500)
-
-      return () => clearInterval(progressInterval)
     } else {
       setProgress(100)
+      if (progressIntervalRef.current) {
+        clearInterval(progressIntervalRef.current)
+      }
     }
   }, [loading])
 
@@ -66,27 +102,27 @@ export function AnalysisModal({ query, isOpen, onClose }: AnalysisModalProps) {
 
     try {
       const url = getAnalyzeStreamUrl(query)
-      const eventSource = new EventSource(url)
+      eventSourceRef.current = new EventSource(url)
 
-      eventSource.onmessage = (event) => {
+      eventSourceRef.current.onmessage = (event) => {
         const chunk = event.data
         setContent((prev) => prev + chunk)
         setLoading(false)
       }
 
-      eventSource.onerror = (err) => {
+      eventSourceRef.current.onerror = (err) => {
         console.error('SSE Error:', err)
         setError('Connection interrupted, please retry')
-        eventSource.close()
+        cleanup()
         setLoading(false)
         loadRedirectUrl()
       }
 
       // Timeout after 30 seconds
-      const timeout = setTimeout(() => {
+      timeoutRef.current = setTimeout(() => {
         if (loading) {
-          eventSource.close()
           setError('Analysis timeout, please retry')
+          cleanup()
           setLoading(false)
           loadRedirectUrl()
         }
@@ -94,14 +130,10 @@ export function AnalysisModal({ query, isOpen, onClose }: AnalysisModalProps) {
 
       // Load redirect URL in parallel
       setTimeout(() => loadRedirectUrl(), 500)
-
-      return () => {
-        eventSource.close()
-        clearTimeout(timeout)
-      }
     } catch (err: any) {
       console.error('Analysis error:', err)
       setError(err.message || 'Analysis failed')
+      cleanup()
       setLoading(false)
       loadRedirectUrl()
     }

@@ -12,7 +12,7 @@ settings = get_settings()
 
 
 class AIService:
-    """AI 分析服务"""
+    """AI Analysis Service"""
     
     def __init__(self):
         self.client = AsyncOpenAI(
@@ -21,120 +21,140 @@ class AIService:
         )
         self.model = settings.SILICONFLOW_MODEL
         
-        # 5种诊断格式模板
+        # 5种诊断格式模板 - 使用完整示例
         self.diagnostic_templates = [
-            self._template_comprehensive,      # 版本1: 深度诊断型
-            self._template_narrative,          # 版本2: 叙事引导型
-            self._template_qa,                 # 版本3: 问答对话型
-            self._template_data_table,         # 版本4: 数据表格型
-            self._template_minimalist          # 版本5: 极简精华型
+            self._template_comprehensive,
+            self._template_narrative,
+            self._template_qa,
+            self._template_data_table,
+            self._template_minimalist
         ]
     
     def _template_comprehensive(self, symbol: str, quote_data: dict) -> str:
-        """版本1: 深度诊断型 - 极简prompt"""
+        """版本1: 深度诊断型 - 使用完整示例"""
         price = quote_data.get('price', 0)
-        return f"""Fill this template for {symbol} stock. Keep all emojis and structure exactly as shown.
+        return f"""Copy this exact format for {symbol}. Replace the example data with real {symbol} data.
 
-🍎 {symbol} · ${price:.2f} · Market Cap: [cap]
+Example for AAPL at $178.50:
+
+🍎 AAPL · $178.50 · Market Cap: $2.8T
 
 ——————————
-📊 AI Score: [0-100]/100
+📊 AI Score: 85/100
 ——————————
 
 ✅ Strengths:
-• [strength 1]
-• [strength 2]
+• Strong iPhone 15 sales, up 12% YoY
+• Services revenue hit $22B quarterly
 
 ⚠️ Risks:
-• [risk 1]
-• [risk 2]
+• China market slowdown, -8% revenue
+• Regulatory pressure in EU
 
 📍 Technical:
-Support $[price] · Resistance $[price]"""
+Support $175 · Resistance $182
+
+Now generate the EXACT same format for {symbol} at ${price:.2f}. Use real data. Keep emojis and structure identical. No extra text."""
 
     def _template_narrative(self, symbol: str, quote_data: dict) -> str:
-        """版本2: 叙事引导型 - 极简prompt"""
+        """版本2: 叙事引导型 - 使用完整示例"""
         price = quote_data.get('price', 0)
-        return f"""Fill this template for {symbol} stock. Keep all emojis and structure exactly as shown.
+        return f"""Copy this exact format for {symbol}. Replace example data with real {symbol} data.
 
-🔍 {symbol} Analysis
+Example for AAPL at $178.50:
+
+🔍 AAPL Analysis
 
 📈 Bullish:
-[2 sentences max]
+iPhone 15 sales exceeded expectations with 12% growth. Services segment growing at 15% annually with strong subscription revenue.
 
 📉 Bearish:
-[2 sentences max]
+China market declined 8% due to competition. EU regulatory pressure could impact App Store revenue by $5B annually.
 
-🎯 AI Score: [0-100]/100
-Strategy: [1 sentence]"""
+🎯 AI Score: 85/100
+Strategy: Buy on dips below $175, target $190.
+
+Now generate the EXACT same format for {symbol} at ${price:.2f}. Use real data. Keep emojis and structure identical."""
 
     def _template_qa(self, symbol: str, quote_data: dict) -> str:
-        """版本3: 问答对话型 - 极简prompt"""
+        """版本3: 问答对话型 - 使用完整示例"""
         price = quote_data.get('price', 0)
-        return f"""Fill this template for {symbol} stock. Keep all emojis and structure exactly as shown.
+        return f"""Copy this exact format for {symbol}. Replace example data with real {symbol} data.
 
-💬 {symbol} Quick Analysis
+Example for AAPL at $178.50:
+
+💬 AAPL Quick Analysis
 
 ❓ Growth?
-[1 sentence]
+iPhone 15 sales up 12% YoY. Services revenue grew 15% to $22B quarterly.
 
 ❓ Valuation?
-[1 sentence]
+P/E ratio at 28x is reasonable for 15% growth rate. Free cash flow yield of 4% is attractive.
 
 ❓ Biggest Risk?
-[1 sentence]
+China market slowdown and EU regulatory pressure could reduce revenue by $8B annually.
 
 ❓ Buy?
-[Yes/No + 1 reason]"""
+Yes, strong fundamentals support current valuation. Entry point: $175-180.
+
+Now generate the EXACT same format for {symbol} at ${price:.2f}. Use real data. Keep emojis and structure identical."""
 
     def _template_data_table(self, symbol: str, quote_data: dict) -> str:
-        """版本4: 数据表格型 - 极简prompt"""
+        """版本4: 数据表格型 - 使用完整示例"""
         price = quote_data.get('price', 0)
-        return f"""Fill this template for {symbol} stock. Keep all emojis and structure exactly as shown.
+        return f"""Copy this exact format for {symbol}. Replace example data with real {symbol} data.
 
-📊 {symbol} Diagnostic
+Example for AAPL at $178.50:
+
+📊 AAPL Diagnostic
 
 ┌─────────────────┐
-│ Price: ${price:.2f}
-│ Fair: $[low]-$[high]
-│ Score: [0-100]/100
-│ Risk: [Low/Med/High]
+│ Price: $178.50
+│ Fair: $165-$195
+│ Score: 85/100
+│ Risk: Medium
 └─────────────────┘
 
 📈 Fundamentals:
-• Profit: ⭐⭐⭐⭐⭐
-• Growth: ⭐⭐⭐⭐
-• Value: ⭐⭐⭐
+• Profit: ⭐⭐⭐⭐⭐ (25% margin)
+• Growth: ⭐⭐⭐⭐ (12% YoY)
+• Value: ⭐⭐⭐ (P/E 28x)
 
 🔥 Catalysts:
-1. [catalyst]
-2. [catalyst]
+1. iPhone 15 launch
+2. Services growth 15%
 
 ⚠️ Risks:
-1. [risk]
-2. [risk]
+1. China slowdown
+2. EU regulation
 
 📍 Technical:
-RSI [number] · Support $[price] · Resistance $[price]"""
+RSI 55 · Support $175 · Resistance $182
+
+Now generate the EXACT same format for {symbol} at ${price:.2f}. Use real data. Keep emojis and structure identical."""
 
     def _template_minimalist(self, symbol: str, quote_data: dict) -> str:
-        """版本5: 极简精华型 - 极简prompt"""
+        """版本5: 极简精华型 - 使用完整示例"""
         price = quote_data.get('price', 0)
-        return f"""Fill this template for {symbol} stock. Keep all emojis and structure exactly as shown.
+        return f"""Copy this exact format for {symbol}. Replace example data with real {symbol} data.
 
-🍎 {symbol} · ${price:.2f}
+Example for AAPL at $178.50:
 
-Summary: [1 sentence]
+🍎 AAPL · $178.50
+
+Summary: Strong iPhone 15 sales and growing services revenue support bullish outlook.
 
 🔥 Buy reason:
-[1 sentence]
+iPhone 15 exceeded sales expectations by 12%, services growing 15% annually.
 
 ⚠️ Risk:
-[1 sentence]
+China market down 8%, EU regulation threatens $5B revenue.
 
-🎯 Score: [0-100]/100
+🎯 Score: 85/100
 
-📊 Support $[price] · Resistance $[price] · RSI [number]"""
+📊 Support $175 · Resistance $182 · RSI 55
+
+Now generate the EXACT same format for {symbol} at ${price:.2f}. Use real data. Keep emojis and structure identical."""
     
     async def analyze_stream(self, query: str) -> AsyncGenerator[str, None]:
         """
@@ -171,20 +191,23 @@ CRITICAL: You MUST respond entirely in English. No Chinese characters allowed.""
     
     async def analyze_stock(self, symbol: str, quote_data: dict) -> AsyncGenerator[str, None]:
         """
-        分析特定股票 - 随机选择一种诊断格式
-        严格限制：只填充模板，不添加任何额外内容
+        Analyze specific stock with strict format control
         """
         # 随机选择一个模板
         template_func = random.choice(self.diagnostic_templates)
         prompt = template_func(symbol, quote_data)
         
-        system_prompt = """You are a stock analyst AI. STRICT RULES:
-1. Output ONLY the filled template
-2. Keep ALL emojis and structure EXACTLY as shown
-3. Replace [brackets] with real data
-4. NO extra text before or after
-5. NO explanations or introductions
-6. Be concise - 1-2 sentences max per section"""
+        system_prompt = """You are a concise stock analyst. OUTPUT RULES:
+1. Start with emoji (🍎, 🔍, 💬, 📊)
+2. Maximum 15 lines total
+3. Use ONLY these sections: Strengths, Risks, Technical OR Bullish, Bearish, Score
+4. NO headers like "Investment Advice" or "Fundamental Analysis"
+5. NO disclaimers
+6. NO extra explanations
+7. One sentence per bullet point maximum
+8. End with technical levels or score
+
+CRITICAL: Output ONLY the diagnostic format. NO introductions or conclusions."""
 
         try:
             stream = await self.client.chat.completions.create(
@@ -194,11 +217,12 @@ CRITICAL: You MUST respond entirely in English. No Chinese characters allowed.""
                     {"role": "user", "content": prompt}
                 ],
                 stream=True,
-                temperature=0.05,  # 极低温度
-                max_tokens=400,    # 大幅减少token
-                top_p=0.9,
-                frequency_penalty=0.3,
-                presence_penalty=0.3
+                temperature=0.01,  # 几乎确定性
+                max_tokens=300,     # 更严格的限制
+                top_p=0.95,
+                frequency_penalty=0.5,
+                presence_penalty=0.5,
+                stop=["\n\n\n", "Disclaimer:", "Investment Advice:", "Note:"]  # 停止符
             )
             
             async for chunk in stream:
