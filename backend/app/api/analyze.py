@@ -14,7 +14,7 @@ settings = get_settings()
 
 @router.get("/analyze")
 async def analyze_query(q: str):
-    """流式AI分析"""
+    """流式AI分析（非股票代码格式）"""
     if not q:
         raise HTTPException(status_code=400, detail="Query parameter 'q' is required")
     
@@ -40,7 +40,7 @@ async def analyze_query(q: str):
 
 @router.get("/analyze/{symbol}")
 async def analyze_stock(symbol: str):
-    """分析特定股票"""
+    """分析特定股票（随机选择一种诊断格式）"""
     if not ai_service:
         raise HTTPException(status_code=503, detail="AI service not configured")
     
@@ -53,6 +53,32 @@ async def analyze_stock(symbol: str):
         """生成SSE事件流"""
         try:
             async for chunk in ai_service.analyze_stock(symbol, quote):
+                yield {
+                    "event": "message",
+                    "data": chunk
+                }
+        except Exception as e:
+            yield {
+                "event": "error",
+                "data": str(e)
+            }
+    
+    return EventSourceResponse(event_generator())
+
+
+@router.get("/analyze-general/{stock_name}")
+async def analyze_general(stock_name: str, price: float = 100.0):
+    """
+    非输入框的通用分析（Meet Your AI Agent Team按钮）
+    固定格式输出
+    """
+    if not ai_service:
+        raise HTTPException(status_code=503, detail="AI service not configured")
+    
+    async def event_generator():
+        """生成SSE事件流"""
+        try:
+            async for chunk in ai_service.analyze_general(stock_name, price):
                 yield {
                     "event": "message",
                     "data": chunk
