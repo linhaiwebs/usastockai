@@ -30,11 +30,10 @@ services:
       - DATABASE_URL=postgresql+asyncpg://${DB_USER:-stockai}:${DB_PASSWORD:-stockai123}@db:5432/${DB_NAME:-stockai}
       - SILICONFLOW_API_KEY=${SILICONFLOW_API_KEY}
       - SILICONFLOW_BASE_URL=https://api.siliconflow.cn/v1
-      - FINANCE_QUERY_URL=http://finance-query:8000
+      # 使用托管的 Finance Query 服务（免费，无需认证）
+      - FINANCE_QUERY_URL=https://finance-query.com
     depends_on:
       db:
-        condition: service_healthy
-      finance-query:
         condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
@@ -65,27 +64,7 @@ services:
       - stockai-network
     restart: unless-stopped
 
-  # Finance Query Server - 股票数据API服务
-  finance-query:
-    image: ghcr.io/verdenroz/finance-query:latest
-    environment:
-      - RUST_LOG=info
-      - RATE_LIMIT_PER_MINUTE=120
-      - REDIS_URL=redis://redis:6379
-    depends_on:
-      redis:
-        condition: service_healthy
-    restart: unless-stopped
-    networks:
-      - stockai-network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/v2/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 10s
-
-  # Redis 缓存服务
+  # Redis 缓存服务（可选，用于后端缓存）
   redis:
     image: redis:7-alpine
     volumes:
