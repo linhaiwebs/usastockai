@@ -12,12 +12,13 @@ interface StockData {
 interface StockCardProps {
   stock: StockData
   onClick?: () => void
+  compact?: boolean
 }
 
 /**
  * 股票卡片组件
  */
-export function StockCard({ stock, onClick }: StockCardProps) {
+export function StockCard({ stock, onClick, compact = false }: StockCardProps) {
   const isProfit = stock.change >= 0
   const changeColor = isProfit ? 'text-profit' : 'text-loss'
   const changeSymbol = isProfit ? '+' : ''
@@ -31,6 +32,38 @@ export function StockCard({ stock, onClick }: StockCardProps) {
     return vol.toString()
   }
 
+  if (compact) {
+    // 紧凑版本
+    return (
+      <button
+        onClick={onClick}
+        className="w-full p-3 bg-surface border border-gray-700 rounded-lg hover:border-primary hover:shadow-md transition-all text-left group"
+      >
+        {/* 股票代码和价格 */}
+        <div className="flex items-center justify-between mb-1">
+          <h3 className="text-base font-bold text-primary group-hover:text-accent transition-colors">
+            {stock.symbol}
+          </h3>
+          <p className="text-lg font-bold text-text">
+            ${stock.price.toFixed(2)}
+          </p>
+        </div>
+
+        {/* 涨跌幅 */}
+        <div className={`flex items-center gap-1 text-sm ${changeColor}`}>
+          <span>{isProfit ? '▲' : '▼'}</span>
+          <span className="font-medium">
+            {changeSymbol}{stock.change.toFixed(2)}
+          </span>
+          <span>
+            ({changeSymbol}{stock.change_percent.toFixed(2)}%)
+          </span>
+        </div>
+      </button>
+    )
+  }
+
+  // 完整版本
   return (
     <button
       onClick={onClick}
