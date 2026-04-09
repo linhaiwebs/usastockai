@@ -158,15 +158,19 @@ Now generate the EXACT same format for {symbol} at ${price:.2f}. Use real data. 
     
     async def analyze_stream(self, query: str) -> AsyncGenerator[str, None]:
         """
-        流式分析股票查询（非股票代码格式）
+        Stream analysis for general queries (non-stock code format)
+        Also uses concise format to prevent long output
         """
-        system_prompt = """You are a professional US stock investment advisor AI assistant. Your task is to:
-1. Analyze stock-related questions from users
-2. Provide professional, objective, and rational analysis
-3. Include technical and fundamental analysis
-4. Provide risk warnings and investment advice
+        system_prompt = """You are a concise stock analyst AI. OUTPUT RULES:
+1. Maximum 20 lines total
+2. Be direct and concise - 1-2 sentences per point
+3. NO headers like "Investment Advice" or "Fundamental Analysis"
+4. NO disclaimers
+5. NO extra explanations
+6. Use simple structure with bullet points if needed
+7. End with actionable insight or summary
 
-CRITICAL: You MUST respond entirely in English. No Chinese characters allowed."""
+CRITICAL: Keep response SHORT and to the point. No lengthy analysis."""
 
         try:
             stream = await self.client.chat.completions.create(
@@ -176,8 +180,12 @@ CRITICAL: You MUST respond entirely in English. No Chinese characters allowed.""
                     {"role": "user", "content": f"Analyze: {query}"}
                 ],
                 stream=True,
-                temperature=0.7,
-                max_tokens=2000
+                temperature=0.3,  # Lower temperature for consistency
+                max_tokens=500,   # Reduced from 2000
+                top_p=0.95,
+                frequency_penalty=0.3,
+                presence_penalty=0.3,
+                stop=["\n\n\n", "Disclaimer:", "Investment Advice:", "Note:"]
             )
             
             async for chunk in stream:

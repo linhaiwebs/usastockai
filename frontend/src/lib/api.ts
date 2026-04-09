@@ -104,10 +104,28 @@ export async function assignRedirect() {
 }
 
 /**
- * 获取AI分析流式URL
+ * Check if query is a stock symbol (1-5 uppercase letters)
+ */
+function isStockSymbol(query: string): boolean {
+  const symbolPattern = /^[A-Z]{1,5}$/
+  return symbolPattern.test(query.trim().toUpperCase())
+}
+
+/**
+ * Get AI analysis stream URL - intelligently choose endpoint
+ * - Stock symbol (e.g., AAPL, TSLA) → /api/analyze/{symbol}
+ * - General query → /api/analyze?q=...
  */
 export function getAnalyzeStreamUrl(query: string) {
   const apiBase = getApiBase()
+  const trimmedQuery = query.trim().toUpperCase()
+  
+  // If it's a stock symbol, use the stock analysis endpoint
+  if (isStockSymbol(query)) {
+    return `${apiBase}/api/analyze/${trimmedQuery}`
+  }
+  
+  // Otherwise, use the general query endpoint
   return `${apiBase}/api/analyze?q=${encodeURIComponent(query)}`
 }
 
