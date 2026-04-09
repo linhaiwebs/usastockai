@@ -1,5 +1,7 @@
 'use client'
 
+import Link from 'next/link'
+
 /**
  * Footer Component
  */
@@ -14,11 +16,11 @@ export function Footer() {
           For learning and reference only, not investment advice
         </p>
         <div className="mt-4 flex justify-center gap-4 text-xs text-text-secondary">
-          <a href="#" className="hover:text-primary transition-colors">Privacy Policy</a>
+          <Link href="/privacy" className="hover:text-primary transition-colors">Privacy Policy</Link>
           <span>·</span>
-          <a href="#" className="hover:text-primary transition-colors">Terms of Use</a>
+          <Link href="/terms" className="hover:text-primary transition-colors">Terms of Use</Link>
           <span>·</span>
-          <a href="#" className="hover:text-primary transition-colors">Contact Us</a>
+          <Link href="/contact" className="hover:text-primary transition-colors">Contact Us</Link>
         </div>
       </div>
     </footer>
