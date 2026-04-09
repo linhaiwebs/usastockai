@@ -7,16 +7,11 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
     ports:
-      - "3000:3000"
+      - "${FRONTEND_PORT:-3000}:3000"
     environment:
-      # 服务器端使用的内部网络地址（Docker内部通信）
       - NEXT_PUBLIC_API_URL_INTERNAL=http://backend:8000
-      # 客户端使用的外部地址（浏览器访问）
-      # 如果使用自定义端口映射，请修改此配置
-      # 例如：前端在 59877 端口，后端在 51915 端口
-      # 则设置为：NEXT_PUBLIC_API_URL=http://localhost:51915
-      # 或使用实际的服务器IP/域名
       - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://localhost:8000}
+      - NEXT_PUBLIC_DEFAULT_LOCALE=${DEFAULT_LOCALE:-en}
     depends_on:
       backend:
         condition: service_healthy
@@ -30,12 +25,11 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     ports:
-      - "8000:8000"
+      - "${BACKEND_PORT:-8000}:8000"
     environment:
       - DATABASE_URL=postgresql+asyncpg://stockai:stockai123@db:5432/stockai
       - SILICONFLOW_API_KEY=${SILICONFLOW_API_KEY}
       - SILICONFLOW_BASE_URL=https://api.siliconflow.cn/v1
-      # Finance Query 本地部署地址
       - FINANCE_QUERY_URL=http://finance-query:8000
     depends_on:
       db:
@@ -55,6 +49,8 @@ services:
   # 数据库服务 - PostgreSQL
   db:
     image: postgres:15-alpine
+    ports:
+      - "${DB_PORT:-5432}:5432"
     environment:
       POSTGRES_USER: stockai
       POSTGRES_PASSWORD: stockai123
@@ -76,11 +72,14 @@ services:
     image: ghcr.io/verdenroz/finance-query:latest
     container_name: finance-query-server
     ports:
-      - "8002:8000"
+      - "${FINANCE_QUERY_PORT:-8002}:8000"
     environment:
       - RUST_LOG=info
       - RATE_LIMIT_PER_MINUTE=120
-      # - REDIS_URL=redis://redis:6379  # 可选：启用Redis缓存
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      redis:
+        condition: service_healthy
     restart: unless-stopped
     networks:
       - stockai-network
@@ -91,8 +90,27 @@ services:
       retries: 3
       start_period: 10s
 
+  # Redis 缓存服务
+  redis:
+    image: redis:7-alpine
+    container_name: stockai-redis
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+    networks:
+      - stockai-network
+    restart: unless-stopped
+
 volumes:
   postgres_data:
+  redis_data:
 
 networks:
   stockai-network:

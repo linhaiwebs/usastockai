@@ -1,6 +1,5 @@
 """
 股票数据服务 - 基于 finance-query 自部署或托管服务
-支持自部署或使用托管版本：https://finance-query.com
 """
 import asyncio
 from typing import List, Dict, Optional
@@ -16,20 +15,16 @@ class StockService:
     
     def __init__(self):
         # Finance Query API endpoint
-        # 选项1: 使用托管版本（免费，无需自部署）
-        self.base_url = getattr(settings, 'FINANCE_QUERY_URL', 'https://finance-query.com')
-        
-        # 选项2: 使用自部署版本（如果配置了）
-        # self.base_url = getattr(settings, 'FINANCE_QUERY_URL', 'http://localhost:8002')
+        self.base_url = getattr(settings, 'FINANCE_QUERY_URL', 'http://finance-query:8000')
         
         # 缓存配置
         self.cache: Dict[str, Dict] = {}
-        self.cache_ttl = 60  # 60秒缓存
+        self.cache_ttl = 300  # 5分钟缓存
         
         # 速率限制
         self.last_request_time = 0
-        self.min_request_interval = 0.3  # finance-query 性能更好，可以更快
-        self.request_semaphore = asyncio.Semaphore(5)  # 支持更多并发
+        self.min_request_interval = 0.1  # 100ms
+        self.request_semaphore = asyncio.Semaphore(10)
         
         # 请求头
         self.headers = {
@@ -88,7 +83,6 @@ class StockService:
             try:
                 response = await client.get(url, params=params)
                 
-                # 处理速率限制
                 if response.status_code == 429:
                     print(f"Rate limited, waiting before retry...")
                     await asyncio.sleep(1)
@@ -130,48 +124,33 @@ class StockService:
         
         return results
     
+    def _parse_price_field(self, field) -> Optional[float]:
+        """解析价格字段（可能是数值或字典）"""
+        if field is None:
+            return None
+        
+        if isinstance(field, dict):
+            return field.get("raw")
+        else:
+            try:
+                return float(field)
+            except (ValueError, TypeError):
+                return None
+    
     async def get_quote(self, symbol: str) -> Optional[Dict]:
         """获取股票实时报价"""
         # 使用 finance-query 的 quote 端点
         data = await self._make_request(f"/v2/quote/{symbol.upper()}")
         
         if not data:
-            # 返回模拟数据（避免前端报错）
             return self._get_mock_quote(symbol)
         
         try:
-            # finance-query 返回格式
-            price = None
-            if "regular_market_price" in data:
-                price_data = data["regular_market_price"]
-                if isinstance(price_data, dict):
-                    price = price_data.get("raw")
-                else:
-                    price = price_data
-            
-            change = None
-            if "regular_market_change" in data:
-                change_data = data["regular_market_change"]
-                if isinstance(change_data, dict):
-                    change = change_data.get("raw")
-                else:
-                    change = change_data
-            
-            change_percent = None
-            if "regular_market_change_percent" in data:
-                percent_data = data["regular_market_change_percent"]
-                if isinstance(percent_data, dict):
-                    change_percent = percent_data.get("raw")
-                else:
-                    change_percent = percent_data
-            
-            volume = None
-            if "regular_market_volume" in data:
-                volume_data = data["regular_market_volume"]
-                if isinstance(volume_data, dict):
-                    volume = volume_data.get("raw")
-                else:
-                    volume = volume_data
+            # 解析价格字段（支持多种格式）
+            price = self._parse_price_field(data.get("regularMarketPrice"))
+            change = self._parse_price_field(data.get("regularMarketChange"))
+            change_percent = self._parse_price_field(data.get("regularMarketChangePercent"))
+            volume = self._parse_price_field(data.get("regularMarketVolume"))
             
             return {
                 "symbol": symbol.upper(),
@@ -179,10 +158,10 @@ class StockService:
                 "price": price or 0,
                 "change": change or 0,
                 "change_percent": change_percent or 0,
-                "volume": volume or 0
+                "volume": int(volume) if volume else 0
             }
         except Exception as e:
-            print(f"Parse quote error: {e}")
+            print(f"Parse quote error for {symbol}: {e}")
             return self._get_mock_quote(symbol)
     
     def _get_mock_quote(self, symbol: str) -> Dict:
@@ -191,16 +170,16 @@ class StockService:
         
         # 模拟价格数据
         mock_prices = {
-            'SPY': 450.0,
-            'QQQ': 380.0,
-            'AAPL': 175.0,
-            'MSFT': 370.0,
+            'SPY': 675.0,
+            'QQQ': 450.0,
+            'AAPL': 200.0,
+            'MSFT': 420.0,
             'TSLA': 250.0,
-            'NVDA': 480.0,
-            'AMZN': 145.0,
-            'GOOGL': 140.0,
-            'META': 320.0,
-            'AMD': 150.0
+            'NVDA': 880.0,
+            'AMZN': 185.0,
+            'GOOGL': 175.0,
+            'META': 500.0,
+            'AMD': 165.0
         }
         
         base_price = mock_prices.get(symbol.upper(), random.uniform(50, 200))
@@ -243,37 +222,10 @@ class StockService:
                 if symbol in quotes_data:
                     quote_data = quotes_data[symbol]
                     
-                    price = None
-                    if "regular_market_price" in quote_data:
-                        price_data = quote_data["regular_market_price"]
-                        if isinstance(price_data, dict):
-                            price = price_data.get("raw")
-                        else:
-                            price = price_data
-                    
-                    change = None
-                    if "regular_market_change" in quote_data:
-                        change_data = quote_data["regular_market_change"]
-                        if isinstance(change_data, dict):
-                            change = change_data.get("raw")
-                        else:
-                            change = change_data
-                    
-                    change_percent = None
-                    if "regular_market_change_percent" in quote_data:
-                        percent_data = quote_data["regular_market_change_percent"]
-                        if isinstance(percent_data, dict):
-                            change_percent = percent_data.get("raw")
-                        else:
-                            change_percent = percent_data
-                    
-                    volume = None
-                    if "regular_market_volume" in quote_data:
-                        volume_data = quote_data["regular_market_volume"]
-                        if isinstance(volume_data, dict):
-                            volume = volume_data.get("raw")
-                        else:
-                            volume = volume_data
+                    price = self._parse_price_field(quote_data.get("regularMarketPrice"))
+                    change = self._parse_price_field(quote_data.get("regularMarketChange"))
+                    change_percent = self._parse_price_field(quote_data.get("regularMarketChangePercent"))
+                    volume = self._parse_price_field(quote_data.get("regularMarketVolume"))
                     
                     quotes.append({
                         "symbol": symbol,
@@ -281,7 +233,7 @@ class StockService:
                         "price": price or 0,
                         "change": change or 0,
                         "change_percent": change_percent or 0,
-                        "volume": volume or 0
+                        "volume": int(volume) if volume else 0
                     })
             
             return quotes

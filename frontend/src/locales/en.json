@@ -1,0 +1,57 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "retry": "Retry",
+    "search": "Search",
+    "analyze": "Analyze",
+    "close": "Close"
+  },
+  "hero": {
+    "title": "AI-Powered Stock Analysis",
+    "subtitle": "Real-time stock data and intelligent investment insights powered by AI",
+    "searchPlaceholder": "Search stock symbol or company name..."
+  },
+  "search": {
+    "placeholder": "Enter stock symbol...",
+    "noResults": "No results found",
+    "showMore": "Show more",
+    "showLess": "Show less"
+  },
+  "stock": {
+    "price": "Price",
+    "change": "Change",
+    "volume": "Volume",
+    "marketCap": "Market Cap",
+    "hotStocks": "Hot Stocks",
+    "viewAll": "View All"
+  },
+  "features": {
+    "title": "Powerful Features",
+    "subtitle": "Everything you need for smart investing",
+    "realTime": {
+      "title": "Real-time Data",
+      "description": "Live stock prices and market updates"
+    },
+    "ai": {
+      "title": "AI Analysis",
+      "description": "Deep insights from advanced AI models"
+    },
+    "security": {
+      "title": "Secure",
+      "description": "Your data is always protected"
+    }
+  },
+  "analysis": {
+    "title": "AI Analysis",
+    "generating": "AI is analyzing...",
+    "thinking": "Thinking process",
+    "analysis": "Analysis result",
+    "disclaimer": "This analysis is for reference only and does not constitute investment advice."
+  },
+  "footer": {
+    "rights": "All rights reserved",
+    "disclaimer": "For educational purposes only. Not investment advice.",
+    "dataSource": "Data source: Yahoo Finance"
+  }
+}

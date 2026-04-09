@@ -15,27 +15,32 @@ interface SearchBoxProps {
 }
 
 /**
- * 搜索框组件 - 带自动补全
+ * 搜索框组件 - 带自动补全和分页
+ * 改进：500ms防抖，最少2字符，默认显示4个结果，分页显示其他
  */
 export function SearchBox({ onAnalyze }: SearchBoxProps) {
   const [query, setQuery] = useState('')
   const [results, setResults] = useState<SearchResult[]>([])
   const [showResults, setShowResults] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [currentPage, setCurrentPage] = useState(0)
   const debounceTimer = useRef<NodeJS.Timeout | null>(null)
+  
+  const RESULTS_PER_PAGE = 4
 
-  // 防抖搜索 (300ms)
+  // 防抖搜索 (500ms, 最少2字符)
   useEffect(() => {
     if (debounceTimer.current) {
       clearTimeout(debounceTimer.current)
     }
 
-    if (query.length > 0) {
+    if (query.length >= 2) {
       debounceTimer.current = setTimeout(async () => {
         setLoading(true)
         try {
           const data = await searchStocks(query)
-          setResults(data.results || [])
+          setResults(data.results || data || [])
+          setCurrentPage(0)
           setShowResults(true)
         } catch (error) {
           console.error('Search error:', error)
@@ -43,7 +48,7 @@ export function SearchBox({ onAnalyze }: SearchBoxProps) {
         } finally {
           setLoading(false)
         }
-      }, 300)
+      }, 500) // 增加到500ms防抖
     } else {
       setResults([])
       setShowResults(false)
@@ -70,6 +75,12 @@ export function SearchBox({ onAnalyze }: SearchBoxProps) {
     }
   }
 
+  const totalPages = Math.ceil(results.length / RESULTS_PER_PAGE)
+  const currentResults = results.slice(
+    currentPage * RESULTS_PER_PAGE,
+    (currentPage + 1) * RESULTS_PER_PAGE
+  )
+
   return (
     <div className="relative mb-8">
       {/* 搜索输入框 */}
@@ -78,7 +89,7 @@ export function SearchBox({ onAnalyze }: SearchBoxProps) {
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="搜索股票代码或名称 (如: AAPL, 苹果)"
+          placeholder="搜索股票代码或名称 (至少2个字符)"
           className="w-full px-4 py-3.5 pl-12 bg-surface border border-gray-700 rounded-xl text-text placeholder-text-secondary focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
         />
         
@@ -108,9 +119,9 @@ export function SearchBox({ onAnalyze }: SearchBoxProps) {
       {/* 搜索结果下拉 */}
       {showResults && results.length > 0 && (
         <div className="absolute top-full left-0 right-0 mt-2 bg-surface border border-gray-700 rounded-xl shadow-xl z-10 overflow-hidden">
-          {results.map((result, index) => (
+          {currentResults.map((result, index) => (
             <button
-              key={index}
+              key={`${result.symbol}-${index}`}
               onClick={() => handleSelect(result)}
               className="w-full px-4 py-3 text-left hover:bg-primary/10 transition-colors border-b border-gray-700/50 last:border-0"
             >
@@ -121,13 +132,43 @@ export function SearchBox({ onAnalyze }: SearchBoxProps) {
                   <span className="text-text">{result.name}</span>
                 </div>
                 {result.exchange && (
-                  <span className="text-xs text-text-secondary bg-surface px-2 py-1 rounded">
+                  <span className="text-xs text-text-secondary bg-background px-2 py-1 rounded">
                     {result.exchange}
                   </span>
                 )}
               </div>
             </button>
           ))}
+          
+          {/* 分页控制 */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-between px-4 py-2 bg-background/50 border-t border-gray-700">
+              <button
+                onClick={() => setCurrentPage(Math.max(0, currentPage - 1))}
+                disabled={currentPage === 0}
+                className="px-3 py-1 text-sm text-text-secondary hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                ← 上一页
+              </button>
+              <span className="text-sm text-text-secondary">
+                {currentPage + 1} / {totalPages} ({results.length} 结果)
+              </span>
+              <button
+                onClick={() => setCurrentPage(Math.min(totalPages - 1, currentPage + 1))}
+                disabled={currentPage === totalPages - 1}
+                className="px-3 py-1 text-sm text-text-secondary hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                下一页 →
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* 无结果提示 */}
+      {showResults && query.length >= 2 && !loading && results.length === 0 && (
+        <div className="absolute top-full left-0 right-0 mt-2 bg-surface border border-gray-700 rounded-xl shadow-xl z-10 p-4 text-center text-text-secondary">
+          未找到 "{query}" 的结果
         </div>
       )}
 
