@@ -31,146 +31,110 @@ class AIService:
         ]
     
     def _template_comprehensive(self, symbol: str, quote_data: dict) -> str:
-        """版本1: 深度诊断型（推荐）"""
+        """版本1: 深度诊断型 - 极简prompt"""
         price = quote_data.get('price', 0)
-        return f"""You are a stock analyst. Analyze {symbol} and fill in the template below.
+        return f"""Fill this template for {symbol} stock. Keep all emojis and structure exactly as shown.
 
-CRITICAL: You MUST follow this EXACT format. Only replace the bracketed placeholders with actual data and analysis. Do NOT change any other text, symbols, or structure.
-
-🍎 {symbol} · ${price:.2f} · Market Cap [Insert market cap]
+🍎 {symbol} · ${price:.2f} · Market Cap: [cap]
 
 ——————————
-📊 AI Comprehensive Score: [Insert score 0-100]/100
+📊 AI Score: [0-100]/100
 ——————————
 
-✅ Core Strengths:
-• [Insert strength 1 with specific data]
-• [Insert strength 2 with specific data]
-• [Insert strength 3 with specific data]
+✅ Strengths:
+• [strength 1]
+• [strength 2]
 
-⚠️ Major Risks:
-• [Insert risk 1 with specific data]
-• [Insert risk 2 with specific data]
-• [Insert risk 3 with specific data]
+⚠️ Risks:
+• [risk 1]
+• [risk 2]
 
-🔥 Catalysts:
-• [Insert catalyst 1]
-• [Insert catalyst 2]
-
-📍 Technical Levels:
-Support $[Insert price] · Resistance $[Insert price] · Stop Loss $[Insert price]
-
-IMPORTANT: Output ONLY the filled template above. Do NOT add any introduction, conclusion, or additional analysis. Start directly with 🍎 and end with the Technical Levels line."""
+📍 Technical:
+Support $[price] · Resistance $[price]"""
 
     def _template_narrative(self, symbol: str, quote_data: dict) -> str:
-        """版本2: 叙事引导型"""
+        """版本2: 叙事引导型 - 极简prompt"""
         price = quote_data.get('price', 0)
-        return f"""You are a stock analyst. Analyze {symbol} and fill in the template below.
+        return f"""Fill this template for {symbol} stock. Keep all emojis and structure exactly as shown.
 
-CRITICAL: You MUST follow this EXACT format. Only replace the bracketed placeholders with actual data and analysis. Do NOT change any other text, symbols, or structure.
+🔍 {symbol} Analysis
 
-🔍 Let AI analyze {symbol} for you
+📈 Bullish:
+[2 sentences max]
 
-47 indicators reveal:
+📉 Bearish:
+[2 sentences max]
 
-📈 Bullish Logic:
-[Insert detailed bullish analysis with specific data points and reasoning in 2-3 sentences]
-
-📉 Bearish Logic:
-[Insert detailed bearish analysis with specific risks and concerns in 2-3 sentences]
-
-🤖 AI Conclusion: [Insert score 0-100]/100
-Strategy: [Insert specific trading strategy with entry/exit points]
-
-IMPORTANT: Output ONLY the filled template above. Do NOT add any introduction, conclusion, or additional analysis. Start directly with 🔍 and end with the Strategy line."""
+🎯 AI Score: [0-100]/100
+Strategy: [1 sentence]"""
 
     def _template_qa(self, symbol: str, quote_data: dict) -> str:
-        """版本3: 问答对话型"""
+        """版本3: 问答对话型 - 极简prompt"""
         price = quote_data.get('price', 0)
-        return f"""You are a stock analyst. Analyze {symbol} and fill in the template below.
+        return f"""Fill this template for {symbol} stock. Keep all emojis and structure exactly as shown.
 
-CRITICAL: You MUST follow this EXACT format. Only replace the bracketed placeholders with actual data and analysis. Do NOT change any other text, symbols, or structure.
+💬 {symbol} Quick Analysis
 
-💬 Asking about {symbol}?
+❓ Growth?
+[1 sentence]
 
-AI discovered these key insights:
+❓ Valuation?
+[1 sentence]
 
-❓ Is the company still growing?
-[Insert answer with specific data and growth metrics in 1-2 sentences]
+❓ Biggest Risk?
+[1 sentence]
 
-❓ Is the valuation reasonable?
-[Insert answer with PE ratio, historical comparison, and valuation analysis in 1-2 sentences]
-
-❓ What's the biggest risk?
-[Insert answer with specific risk factors and potential impact in 1-2 sentences]
-
-❓ Should I buy?
-AI Recommendation: [Insert clear buy/sell/hold recommendation with specific price levels]
-
-IMPORTANT: Output ONLY the filled template above. Do NOT add any introduction, conclusion, or additional analysis. Start directly with 💬 and end with the AI Recommendation line."""
+❓ Buy?
+[Yes/No + 1 reason]"""
 
     def _template_data_table(self, symbol: str, quote_data: dict) -> str:
-        """版本4: 数据表格型"""
+        """版本4: 数据表格型 - 极简prompt"""
         price = quote_data.get('price', 0)
-        return f"""You are a stock analyst. Analyze {symbol} and fill in the template below.
+        return f"""Fill this template for {symbol} stock. Keep all emojis and structure exactly as shown.
 
-CRITICAL: You MUST follow this EXACT format. Only replace the bracketed placeholders with actual data and analysis. Do NOT change any other text, symbols, or structure.
+📊 {symbol} Diagnostic
 
-📊 {symbol} AI Diagnostic Report
-
-┌─────────────────────────┐
-│ Current Price: ${price:.2f}
-│ Fair Range: $[Insert low]-$[Insert high]
-│ AI Score: [Insert score 0-100]/100
-│ Risk Level: [Insert Low/Medium/High]
-└─────────────────────────┘
+┌─────────────────┐
+│ Price: ${price:.2f}
+│ Fair: $[low]-$[high]
+│ Score: [0-100]/100
+│ Risk: [Low/Med/High]
+└─────────────────┘
 
 📈 Fundamentals:
-• Profitability: ⭐⭐⭐⭐⭐ ([Insert specific margin%])
-• Growth: ⭐⭐⭐⭐ ([Insert growth rate%])
-• Cash Flow: ⭐⭐⭐⭐⭐ ([Insert amount])
-• Valuation: ⭐⭐⭐ ([Insert analysis])
+• Profit: ⭐⭐⭐⭐⭐
+• Growth: ⭐⭐⭐⭐
+• Value: ⭐⭐⭐
 
-🔥 Top 3 Catalysts:
-1. [Insert catalyst 1]
-2. [Insert catalyst 2]
-3. [Insert catalyst 3]
+🔥 Catalysts:
+1. [catalyst]
+2. [catalyst]
 
-⚠️ Top 3 Risks:
-1. [Insert risk 1]
-2. [Insert risk 2]
-3. [Insert risk 3]
+⚠️ Risks:
+1. [risk]
+2. [risk]
 
-📍 Technical Indicators:
-RSI [Insert number] ([Insert status]) · MACD [Insert status]
-Support $[Insert price] · Resistance $[Insert price]
-
-IMPORTANT: Output ONLY the filled template above. Do NOT add any introduction, conclusion, or additional analysis. Start directly with 📊 and end with the Support line."""
+📍 Technical:
+RSI [number] · Support $[price] · Resistance $[price]"""
 
     def _template_minimalist(self, symbol: str, quote_data: dict) -> str:
-        """版本5: 极简精华型"""
+        """版本5: 极简精华型 - 极简prompt"""
         price = quote_data.get('price', 0)
-        return f"""You are a stock analyst. Analyze {symbol} and fill in the template below.
+        return f"""Fill this template for {symbol} stock. Keep all emojis and structure exactly as shown.
 
-CRITICAL: You MUST follow this EXACT format. Only replace the bracketed placeholders with actual data and analysis. Do NOT change any other text, symbols, or structure.
+🍎 {symbol} · ${price:.2f}
 
-🍎 {symbol} · AI Deep Analysis
+Summary: [1 sentence]
 
-One-sentence summary (key points only):
+🔥 Buy reason:
+[1 sentence]
 
-🔥 Why buy?
-[Insert single most compelling bull case with data in 1 sentence]
+⚠️ Risk:
+[1 sentence]
 
-⚠️ Why hesitate?
-[Insert single biggest concern with data in 1 sentence]
+🎯 Score: [0-100]/100
 
-🎯 AI Conclusion: [Insert score 0-100]/100
-Strategy: [Insert specific entry point and strategy in 1 sentence]
-
-📊 Technical Snapshot:
-Support $[Insert price] · Resistance $[Insert price] · RSI [Insert number]
-
-IMPORTANT: Output ONLY the filled template above. Do NOT add any introduction, conclusion, or additional analysis. Start directly with 🍎 and end with the RSI number."""
+📊 Support $[price] · Resistance $[price] · RSI [number]"""
     
     async def analyze_stream(self, query: str) -> AsyncGenerator[str, None]:
         """
@@ -214,20 +178,13 @@ CRITICAL: You MUST respond entirely in English. No Chinese characters allowed.""
         template_func = random.choice(self.diagnostic_templates)
         prompt = template_func(symbol, quote_data)
         
-        system_prompt = """You are a professional US stock investment advisor AI assistant.
-
-ABSOLUTELY CRITICAL RULES - VIOLATION WILL CAUSE REJECTION:
-1. You MUST respond entirely in English - NO Chinese characters EVER
-2. You MUST follow the EXACT template structure provided - NO modifications
-3. You can ONLY replace text inside [brackets] with actual data
-4. Do NOT add ANY text, emojis, symbols, or formatting outside the template
-5. Do NOT add introduction, conclusion, or commentary
-6. Do NOT modify ANY emojis, symbols, or structural elements in the template
-7. Output ONLY the filled template - NOTHING more, NOTHING less
-8. Start your response IMMEDIATELY with the first line of the template
-9. End your response IMMEDIATELY after the last line of the template
-
-The template structure is SACRED. Your ONLY job is to fill in [brackets] with real data while keeping EVERYTHING else exactly as is."""
+        system_prompt = """You are a stock analyst AI. STRICT RULES:
+1. Output ONLY the filled template
+2. Keep ALL emojis and structure EXACTLY as shown
+3. Replace [brackets] with real data
+4. NO extra text before or after
+5. NO explanations or introductions
+6. Be concise - 1-2 sentences max per section"""
 
         try:
             stream = await self.client.chat.completions.create(
@@ -237,8 +194,11 @@ The template structure is SACRED. Your ONLY job is to fill in [brackets] with re
                     {"role": "user", "content": prompt}
                 ],
                 stream=True,
-                temperature=0.1,  # 极低温度确保格式完全一致
-                max_tokens=800
+                temperature=0.05,  # 极低温度
+                max_tokens=400,    # 大幅减少token
+                top_p=0.9,
+                frequency_penalty=0.3,
+                presence_penalty=0.3
             )
             
             async for chunk in stream:
@@ -247,7 +207,7 @@ The template structure is SACRED. Your ONLY job is to fill in [brackets] with re
                     yield content
             
         except Exception as e:
-            error_msg = f"\n\n[Error] AI analysis service temporarily unavailable: {str(e)}"
+            error_msg = f"\n\n[Error] AI service unavailable: {str(e)}"
             yield error_msg
     
     async def analyze_general(self, stock_name: str, price: float) -> AsyncGenerator[str, None]:
@@ -255,12 +215,9 @@ The template structure is SACRED. Your ONLY job is to fill in [brackets] with re
         非输入框的通用分析（Meet Your AI Agent Team按钮）
         固定格式输出
         """
-        prompt = f"""Generate a brief analysis for {stock_name} at ${price:.2f}.
-
-Use this EXACT format:
+        prompt = f"""Fill this template. Keep emojis and structure exactly as shown.
 
 🔍 {stock_name} · ${price:.2f}
-
 
 You see: Stock price movements, news noise.
 
@@ -268,15 +225,12 @@ AI sees: Institutional money flow, chip concentration, key support/resistance le
 
 👉 Where's the gap? Click WhatsApp, send the code, get your AI perspective report.
 
-IMPORTANT: 
-- Respond entirely in English
-- Keep it concise and impactful
-- Do NOT add any additional content"""
+STRICT RULES:
+- Output ONLY the template above
+- NO extra text
+- Keep it concise"""
 
-        system_prompt = """You are a professional US stock investment advisor AI assistant.
-ABSOLUTELY CRITICAL: You MUST respond entirely in English with the EXACT format provided.
-Do NOT add ANY additional content, analysis, or text beyond the specified format.
-Start IMMEDIATELY with 🔍 and end IMMEDIATELY after the last line."""
+        system_prompt = """You are a stock analyst AI. Output ONLY the exact template provided. NO additional text or explanations."""
 
         try:
             stream = await self.client.chat.completions.create(
@@ -286,8 +240,9 @@ Start IMMEDIATELY with 🔍 and end IMMEDIATELY after the last line."""
                     {"role": "user", "content": prompt}
                 ],
                 stream=True,
-                temperature=0.1,  # 极低温度确保格式一致
-                max_tokens=120
+                temperature=0.05,  # 极低温度
+                max_tokens=100,
+                top_p=0.9
             )
             
             async for chunk in stream:
@@ -298,7 +253,6 @@ Start IMMEDIATELY with 🔍 and end IMMEDIATELY after the last line."""
         except Exception as e:
             # 如果AI失败，返回固定格式
             fallback = f"""🔍 {stock_name} · ${price:.2f}
-
 
 You see: Stock price movements, news noise.
 

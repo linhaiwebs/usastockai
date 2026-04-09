@@ -10,7 +10,7 @@ interface AnalysisModalProps {
 }
 
 /**
- * AI 分析弹窗 - 支持流式输出 + WhatsApp转化按钮
+ * AI Analysis Modal - Modern loading with skeleton and progress
  */
 export function AnalysisModal({ query, isOpen, onClose }: AnalysisModalProps) {
   const [content, setContent] = useState('')
@@ -18,6 +18,8 @@ export function AnalysisModal({ query, isOpen, onClose }: AnalysisModalProps) {
   const [error, setError] = useState<string | null>(null)
   const [redirectUrl, setRedirectUrl] = useState<string | null>(null)
   const [redirectId, setRedirectId] = useState<number | null>(null)
+  const [progress, setProgress] = useState(0)
+  const [loadingText, setLoadingText] = useState('Initializing AI analysis...')
   const contentRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -26,12 +28,41 @@ export function AnalysisModal({ query, isOpen, onClose }: AnalysisModalProps) {
     }
   }, [isOpen, query])
 
+  // Progress animation during loading
+  useEffect(() => {
+    if (loading) {
+      const texts = [
+        'Fetching market data...',
+        'Analyzing trends...',
+        'Processing indicators...',
+        'Generating insights...'
+      ]
+      let textIndex = 0
+      
+      const progressInterval = setInterval(() => {
+        setProgress(prev => {
+          if (prev >= 90) return prev
+          return prev + Math.random() * 10
+        })
+        
+        textIndex = (textIndex + 1) % texts.length
+        setLoadingText(texts[textIndex])
+      }, 1500)
+
+      return () => clearInterval(progressInterval)
+    } else {
+      setProgress(100)
+    }
+  }, [loading])
+
   const startAnalysis = async () => {
     setLoading(true)
     setContent('')
     setError(null)
     setRedirectUrl(null)
     setRedirectId(null)
+    setProgress(0)
+    setLoadingText('Initializing AI analysis...')
 
     try {
       const url = getAnalyzeStreamUrl(query)
@@ -40,6 +71,7 @@ export function AnalysisModal({ query, isOpen, onClose }: AnalysisModalProps) {
       eventSource.onmessage = (event) => {
         const chunk = event.data
         setContent((prev) => prev + chunk)
+        setLoading(false)
       }
 
       eventSource.onerror = (err) => {
@@ -50,23 +82,22 @@ export function AnalysisModal({ query, isOpen, onClose }: AnalysisModalProps) {
         loadRedirectUrl()
       }
 
-      // 监听完成事件
-      eventSource.addEventListener('done', () => {
-        eventSource.close()
-        setLoading(false)
-        loadRedirectUrl()
-      })
-
-      // 如果没有done事件，2秒后自动加载（备用方案）
-      setTimeout(() => {
+      // Timeout after 30 seconds
+      const timeout = setTimeout(() => {
         if (loading) {
+          eventSource.close()
+          setError('Analysis timeout, please retry')
+          setLoading(false)
           loadRedirectUrl()
         }
-      }, 2000)
+      }, 30000)
 
-      // 存储 EventSource 以便清理
+      // Load redirect URL in parallel
+      setTimeout(() => loadRedirectUrl(), 500)
+
       return () => {
         eventSource.close()
+        clearTimeout(timeout)
       }
     } catch (err: any) {
       console.error('Analysis error:', err)
@@ -90,17 +121,11 @@ export function AnalysisModal({ query, isOpen, onClose }: AnalysisModalProps) {
     if (!redirectId || !redirectUrl) return
     
     try {
-      // 记录点击
       await recordRedirectClick(redirectId)
-      
-      // 打开WhatsApp链接
       window.open(redirectUrl, '_blank')
-      
-      // 关闭弹窗
       onClose()
     } catch (err) {
       console.error('Failed to record click:', err)
-      // 即使记录失败，也打开链接
       if (redirectUrl) {
         window.open(redirectUrl, '_blank')
         onClose()
@@ -108,9 +133,9 @@ export function AnalysisModal({ query, isOpen, onClose }: AnalysisModalProps) {
     }
   }
 
-  // 自动滚动到底部
+  // Auto scroll to bottom
   useEffect(() => {
-    if (contentRef.current) {
+    if (contentRef.current && content) {
       contentRef.current.scrollTop = contentRef.current.scrollHeight
     }
   }, [content])
@@ -118,13 +143,13 @@ export function AnalysisModal({ query, isOpen, onClose }: AnalysisModalProps) {
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
-      <div className="w-full max-w-2xl max-h-[80vh] bg-surface border border-gray-700 rounded-2xl shadow-2xl overflow-hidden">
-        {/* 头部 */}
-        <div className="p-4 border-b border-gray-700 flex items-center justify-between">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+      <div className="w-full max-w-2xl max-h-[85vh] bg-surface border border-gray-700 rounded-2xl shadow-2xl overflow-hidden flex flex-col">
+        {/* Header */}
+        <div className="p-5 border-b border-gray-700 flex items-center justify-between">
           <div>
-            <h2 className="text-lg font-bold text-text">AI Analysis Report</h2>
-            <p className="text-sm text-text-secondary">Query: {query}</p>
+            <h2 className="text-xl font-bold text-text">AI Analysis Report</h2>
+            <p className="text-sm text-text-secondary mt-1">Query: {query}</p>
           </div>
           <button
             onClick={onClose}
@@ -146,22 +171,46 @@ export function AnalysisModal({ query, isOpen, onClose }: AnalysisModalProps) {
           </button>
         </div>
 
-        {/* 内容区域 */}
+        {/* Content area */}
         <div
           ref={contentRef}
-          className="p-4 overflow-y-auto max-h-[60vh]"
+          className="flex-1 overflow-y-auto p-5"
         >
-          {/* 加载状态 */}
+          {/* Modern loading state with skeleton and progress */}
           {loading && content.length === 0 && (
-            <div className="flex items-center justify-center py-8">
-              <div className="flex flex-col items-center gap-3">
-                <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-                <p className="text-text-secondary">AI is analyzing...</p>
+            <div className="space-y-4">
+              {/* Progress bar */}
+              <div className="mb-6">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm text-text-secondary">{loadingText}</span>
+                  <span className="text-sm text-primary font-semibold">{Math.round(progress)}%</span>
+                </div>
+                <div className="w-full h-2 bg-gray-700 rounded-full overflow-hidden">
+                  <div 
+                    className="h-full bg-hero-gradient transition-all duration-500 ease-out"
+                    style={{ width: `${progress}%` }}
+                  />
+                </div>
               </div>
+
+              {/* Skeleton cards */}
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="animate-pulse">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="w-8 h-8 bg-gray-700 rounded-lg" />
+                    <div className="h-4 bg-gray-700 rounded w-1/3" />
+                  </div>
+                  <div className="space-y-2 ml-11">
+                    <div className="h-3 bg-gray-700 rounded w-full" />
+                    <div className="h-3 bg-gray-700 rounded w-5/6" />
+                    <div className="h-3 bg-gray-700 rounded w-4/6" />
+                  </div>
+                </div>
+              ))}
             </div>
           )}
 
-          {/* 错误提示 */}
+          {/* Error state */}
           {error && (
             <div className="p-4 bg-loss/10 border border-loss/30 rounded-lg">
               <p className="text-loss">{error}</p>
@@ -174,13 +223,12 @@ export function AnalysisModal({ query, isOpen, onClose }: AnalysisModalProps) {
             </div>
           )}
 
-          {/* 分析内容 */}
+          {/* Analysis content */}
           {content && (
             <div className="prose prose-invert max-w-none">
-              {/* 处理 DeepSeek R1 的 <think/> 标签 */}
+              {/* Handle DeepSeek R1 <think/> tags */}
               {content.split('<think/>').map((part, index) => {
                 if (index === 0) {
-                  // 第一部分是思考过程（如果有 <think/>）
                   if (content.includes('<think/>')) {
                     return (
                       <div key={index} className="mb-4 p-3 bg-primary/5 border border-primary/20 rounded-lg">
@@ -191,14 +239,12 @@ export function AnalysisModal({ query, isOpen, onClose }: AnalysisModalProps) {
                       </div>
                     )
                   }
-                  // 没有 <think/> 标签，直接显示内容
                   return (
                     <div key={index} className="text-text whitespace-pre-wrap leading-relaxed">
                       {part}
                     </div>
                   )
                 }
-                // 后续部分是正式回答
                 return (
                   <div key={index} className="text-text whitespace-pre-wrap leading-relaxed">
                     {part}
@@ -209,13 +255,12 @@ export function AnalysisModal({ query, isOpen, onClose }: AnalysisModalProps) {
           )}
         </div>
 
-        {/* 底部操作栏 - 只显示WhatsApp按钮 */}
-        <div className="p-4 border-t border-gray-700">
-          {/* WhatsApp 转化按钮 */}
+        {/* Footer with WhatsApp button */}
+        <div className="p-5 border-t border-gray-700">
           {redirectUrl && (
             <button
               onClick={handleWhatsAppClick}
-              className="w-full py-3 px-4 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition-all flex items-center justify-center gap-2 shadow-lg hover:shadow-xl"
+              className="w-full py-3.5 px-4 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition-all flex items-center justify-center gap-2 shadow-lg hover:shadow-xl"
             >
               <svg
                 className="w-5 h-5"
@@ -228,11 +273,10 @@ export function AnalysisModal({ query, isOpen, onClose }: AnalysisModalProps) {
             </button>
           )}
           
-          {/* 加载重定向URL时的占位按钮 */}
           {!redirectUrl && !loading && content && (
             <button
               disabled
-              className="w-full py-3 px-4 bg-gray-600 text-white font-semibold rounded-lg flex items-center justify-center gap-2 opacity-50 cursor-not-allowed"
+              className="w-full py-3.5 px-4 bg-gray-600 text-white font-semibold rounded-lg flex items-center justify-center gap-2 opacity-50 cursor-not-allowed"
             >
               <svg
                 className="w-5 h-5 animate-spin"
