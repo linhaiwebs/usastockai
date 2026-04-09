@@ -244,6 +244,7 @@ CRITICAL: You MUST respond entirely in English. No Chinese characters allowed.""
     async def analyze_stock(self, symbol: str, quote_data: dict) -> AsyncGenerator[str, None]:
         """
         分析特定股票 - 随机选择一种诊断格式
+        严格限制输出长度和格式
         """
         # 随机选择一个模板
         template_func = random.choice(self.diagnostic_templates)
@@ -255,7 +256,9 @@ CRITICAL REQUIREMENTS:
 2. Follow the EXACT format structure provided
 3. Use actual market data and analysis
 4. Be objective, professional, and specific
-5. Provide actionable insights with specific numbers"""
+5. Provide actionable insights with specific numbers
+6. Keep response CONCISE - maximum 500 words
+7. Do NOT add any extra commentary or explanation beyond the format"""
 
         try:
             stream = await self.client.chat.completions.create(
@@ -266,7 +269,7 @@ CRITICAL REQUIREMENTS:
                 ],
                 stream=True,
                 temperature=0.8,  # 稍高温度以增加多样性
-                max_tokens=2000
+                max_tokens=800  # 限制最大token数量
             )
             
             async for chunk in stream:
