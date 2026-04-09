@@ -12,7 +12,12 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
+
+# 构建应用
 RUN npm run build
+
+# 检查构建产物
+RUN ls -la .next/ && ls -la .next/standalone/ || echo "Build output check"
 
 # Stage 3: 运行
 FROM node:20-alpine AS runner
@@ -30,8 +35,12 @@ COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
+# 检查文件是否存在
+RUN ls -la /app/ && ls -la /app/.next/ || echo "File check"
+
 USER nextjs
 EXPOSE 3000
 ENV PORT=3000
 
-CMD ["node", "server.js"]
+# 使用 node 直接启动，添加错误处理
+CMD ["sh", "-c", "node server.js 2>&1 || (echo 'Failed to start server'; cat /app/.next/standalone/server.js | head -20)"]
