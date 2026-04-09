@@ -1,3 +1,6 @@
+# 生产环境配置 - Docker Compose
+# 使用方法：docker-compose -f docker-compose.prod.yml up -d
+
 version: '3.8'
 
 services:
@@ -6,18 +9,40 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      args:
+        - NODE_ENV=production
     ports:
       - "${FRONTEND_PORT:-3000}:3000"
     environment:
+      - NODE_ENV=production
       - NEXT_PUBLIC_API_URL_INTERNAL=http://backend:8000
-      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://localhost:8000}
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
       - NEXT_PUBLIC_DEFAULT_LOCALE=${DEFAULT_LOCALE:-en}
     depends_on:
       backend:
         condition: service_healthy
     networks:
       - stockai-network
-    restart: unless-stopped
+    restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   # 后端服务 - FastAPI
   backend:
@@ -27,10 +52,11 @@ services:
     ports:
       - "${BACKEND_PORT:-8000}:8000"
     environment:
-      - DATABASE_URL=postgresql+asyncpg://${DB_USER:-stockai}:${DB_PASSWORD:-stockai123}@db:5432/${DB_NAME:-stockai}
+      - DATABASE_URL=postgresql+asyncpg://${DB_USER:-stockai}:${DB_PASSWORD}@db:5432/${DB_NAME:-stockai}
       - SILICONFLOW_API_KEY=${SILICONFLOW_API_KEY}
       - SILICONFLOW_BASE_URL=https://api.siliconflow.cn/v1
       - FINANCE_QUERY_URL=http://finance-query:8000
+      - DEBUG=false
     depends_on:
       db:
         condition: service_healthy
@@ -44,16 +70,27 @@ services:
       start_period: 40s
     networks:
       - stockai-network
-    restart: unless-stopped
+    restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   # 数据库服务 - PostgreSQL
   db:
     image: postgres:15-alpine
-    ports:
-      - "${DB_PORT:-5432}:5432"
     environment:
       POSTGRES_USER: ${DB_USER:-stockai}
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-stockai123}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: ${DB_NAME:-stockai}
     volumes:
       - postgres_data:/var/lib/postgresql/data
@@ -65,22 +102,36 @@ services:
       retries: 5
     networks:
       - stockai-network
-    restart: unless-stopped
+    restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    # 生产环境不暴露端口（安全性）
+    # ports:
+    #   - "${DB_PORT:-5432}:5432"
 
   # Finance Query Server - 股票数据API服务
   finance-query:
     image: ghcr.io/verdenroz/finance-query:latest
     container_name: finance-query-server
-    ports:
-      - "${FINANCE_QUERY_PORT:-8002}:8000"
     environment:
-      - RUST_LOG=info
+      - RUST_LOG=warn
       - RATE_LIMIT_PER_MINUTE=${RATE_LIMIT:-120}
       - REDIS_URL=redis://redis:6379
     depends_on:
       redis:
         condition: service_healthy
-    restart: unless-stopped
+    restart: always
     networks:
       - stockai-network
     healthcheck:
@@ -89,16 +140,34 @@ services:
       timeout: 10s
       retries: 3
       start_period: 10s
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    # 生产环境不暴露端口（仅内部访问）
+    # ports:
+    #   - "${FINANCE_QUERY_PORT:-8002}:8000"
 
   # Redis 缓存服务
   redis:
     image: redis:7-alpine
     container_name: stockai-redis
-    ports:
-      - "${REDIS_PORT:-6379}:6379"
     volumes:
       - redis_data:/data
-    command: redis-server --appendonly yes
+    command: >
+      redis-server 
+      --appendonly yes 
+      --maxmemory 256mb 
+      --maxmemory-policy allkeys-lru
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
@@ -106,7 +175,23 @@ services:
       retries: 3
     networks:
       - stockai-network
-    restart: unless-stopped
+    restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.1'
+          memory: 64M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "3"
+    # 生产环境不暴露端口（仅内部访问）
+    # ports:
+    #   - "${REDIS_PORT:-6379}:6379"
 
 volumes:
   postgres_data:
