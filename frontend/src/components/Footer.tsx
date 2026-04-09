@@ -10,7 +10,7 @@ export function Footer() {
     <footer className="py-8 border-t border-gray-700">
       <div className="text-center">
         <p className="text-text-secondary text-sm mb-2">
-          © 2024 Stock AI Diagnostic System
+          © 2026 Stock AI Diagnostic System
         </p>
         <p className="text-text-secondary text-xs">
           For learning and reference only, not investment advice

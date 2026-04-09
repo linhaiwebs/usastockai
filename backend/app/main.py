@@ -5,14 +5,14 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from .core.config import get_settings
 from .core.database import init_db
-from .api import stocks, analyze, redirects, websocket
+from .api import stocks, analyze, redirects, websocket, admin
 
 settings = get_settings()
 
 # 创建 FastAPI 应用
 app = FastAPI(
     title=settings.APP_NAME,
-    description="股票AI诊断系统 - 提供股票搜索、AI分析、分流链接管理等功能",
+    description="Stock AI Diagnostic System - Stock search, AI analysis, redirect management",
     version="1.0.0",
     docs_url="/docs",
     redoc_url="/redoc"
@@ -32,6 +32,7 @@ app.include_router(stocks.router)
 app.include_router(analyze.router)
 app.include_router(redirects.router)
 app.include_router(websocket.router)
+app.include_router(admin.router)
 
 
 @app.on_event("startup")
