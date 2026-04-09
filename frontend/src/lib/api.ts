@@ -94,6 +94,16 @@ export async function recordRedirectClick(id: number) {
 }
 
 /**
+ * 获取分配的分流链接
+ */
+export async function assignRedirect() {
+  const apiBase = getApiBase()
+  const res = await fetch(`${apiBase}/api/redirects/assign`)
+  if (!res.ok) throw new Error('Failed to assign redirect')
+  return res.json()
+}
+
+/**
  * 获取AI分析流式URL
  */
 export function getAnalyzeStreamUrl(query: string) {
@@ -107,4 +117,12 @@ export function getAnalyzeStreamUrl(query: string) {
 export function getStockAnalyzeStreamUrl(symbol: string) {
   const apiBase = getApiBase()
   return `${apiBase}/api/analyze/${symbol}`
+}
+
+/**
+ * 获取通用分析流式URL
+ */
+export function getGeneralAnalyzeStreamUrl(stockName: string, price: number) {
+  const apiBase = getApiBase()
+  return `${apiBase}/api/analyze-general/${encodeURIComponent(stockName)}?price=${price}`
 }
