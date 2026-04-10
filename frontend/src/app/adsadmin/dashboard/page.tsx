@@ -16,7 +16,7 @@ interface Redirect {
 
 interface GoogleAnalyticsConfig {
   id: number
-  ads_ads_tracking_id: string | null
+  ads_tracking_id: string | null
   ga4_property_id: string | null
   conversion_id: string | null
   is_enabled: boolean
@@ -48,7 +48,7 @@ export default function DashboardPage() {
   const [showAnalyticsForm, setShowAnalyticsForm] = useState(false)
   const [editingAnalyticsId, set编辑ingAnalyticsId] = useState<number | null>(null)
   const [analyticsFormData, setAnalyticsFormData] = useState({
-    ads_ads_tracking_id: '',
+    ads_tracking_id: '',
     ga4_property_id: '',
     conversion_id: '',
     is_enabled: true
@@ -143,7 +143,7 @@ export default function DashboardPage() {
     
     try {
       const payload = {
-        ads_ads_tracking_id: analyticsFormData.ads_ads_tracking_id || null,
+        ads_tracking_id: analyticsFormData.ads_tracking_id || null,
         ga4_property_id: analyticsFormData.ga4_property_id || null,
         conversion_id: analyticsFormData.conversion_id || null,
         is_enabled: analyticsFormData.is_enabled
@@ -161,7 +161,7 @@ export default function DashboardPage() {
         })
       }
       
-      setAnalyticsFormData({ ads_ads_tracking_id: '', ga4_property_id: '', conversion_id: '', is_enabled: true })
+      setAnalyticsFormData({ ads_tracking_id: '', ga4_property_id: '', conversion_id: '', is_enabled: true })
       setShowAnalyticsForm(false)
       set编辑ingAnalyticsId(null)
       loadAnalytics()
@@ -172,7 +172,7 @@ export default function DashboardPage() {
 
   const handle编辑Analytics = (config: GoogleAnalyticsConfig) => {
     setAnalyticsFormData({
-      ads_ads_tracking_id: config.ads_ads_tracking_id || '',
+      ads_tracking_id: config.ads_tracking_id || '',
       ga4_property_id: config.ga4_property_id || '',
       conversion_id: config.conversion_id || '',
       is_enabled: config.is_enabled
@@ -405,7 +405,7 @@ export default function DashboardPage() {
               onClick={() => {
                 setShowAnalyticsForm(!showAnalyticsForm)
                 set编辑ingAnalyticsId(null)
-                setAnalyticsFormData({ ads_ads_tracking_id: '', ga4_property_id: '', conversion_id: '', is_enabled: true })
+                setAnalyticsFormData({ ads_tracking_id: '', ga4_property_id: '', conversion_id: '', is_enabled: true })
               }}
               className="mb-6 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/80 transition-colors"
             >
