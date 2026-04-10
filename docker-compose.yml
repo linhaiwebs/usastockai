@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   frontend:
     container_name: ${PROJECT_NAME:-stockai}-frontend
@@ -17,7 +15,7 @@ services:
       backend:
         condition: service_healthy
     networks:
-      - ${NETWORK_NAME:-stockai-network}
+      - app-network
     restart: unless-stopped
 
   backend:
@@ -42,7 +40,7 @@ services:
       retries: 3
       start_period: 40s
     networks:
-      - ${NETWORK_NAME:-stockai-network}
+      - app-network
     restart: unless-stopped
 
   db:
@@ -63,7 +61,7 @@ services:
       timeout: 5s
       retries: 5
     networks:
-      - ${NETWORK_NAME:-stockai-network}
+      - app-network
     restart: unless-stopped
 
   redis:
@@ -80,7 +78,7 @@ services:
       timeout: 3s
       retries: 3
     networks:
-      - ${NETWORK_NAME:-stockai-network}
+      - app-network
     restart: unless-stopped
 
 volumes:
