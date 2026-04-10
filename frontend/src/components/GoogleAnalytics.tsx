@@ -3,8 +3,9 @@
 import { useEffect } from 'react'
 
 interface GoogleAnalyticsConfig {
-  tracking_id: string
-  conversion_label: string | null
+  ads_tracking_id: string | null
+  ga4_property_id: string | null
+  conversion_id: string | null
 }
 
 export default function GoogleAnalytics() {
@@ -20,39 +21,36 @@ export default function GoogleAnalytics() {
         
         if (configs.length === 0) return
         
-        // Group configs by tracking_id
-        const trackingIds = new Set<string>()
-        const conversionLabels: { [key: string]: string } = {}
+        // Get the first config (usually only one config)
+        const config = configs[0]
         
-        configs.forEach(config => {
-          trackingIds.add(config.tracking_id)
-          if (config.conversion_label) {
-            conversionLabels[config.tracking_id] = config.conversion_label
-          }
-        })
+        // Determine the primary tracking ID for gtag.js
+        // Priority: Ads Tracking ID > GA4 Property ID
+        const primaryId = config.ads_tracking_id || config.ga4_property_id
+        
+        if (!primaryId) return
         
         // Inject gtag.js script
         const script = document.createElement('script')
         script.async = true
-        script.src = `https://www.googletagmanager.com/gtag/js?id=${Array.from(trackingIds)[0]}`
+        script.src = `https://www.googletagmanager.com/gtag/js?id=${primaryId}`
         document.head.appendChild(script)
         
         // Create inline script for gtag configuration
         const inlineScript = document.createElement('script')
-        const configCalls = Array.from(trackingIds).map(id => `gtag('config', '${id}');`).join('\n    ')
         
+        // Build gtag config calls
+        const configCalls = []
+        if (config.ads_tracking_id) {
+          configCalls.push(`gtag('config', '${config.ads_tracking_id}');`)
+        }
+        if (config.ga4_property_id) {
+          configCalls.push(`gtag('config', '${config.ga4_property_id}');`)
+        }
+        
+        // Build conversion function if conversion_id exists
         let conversionFunction = ''
-        const conversionsWithLabels = Object.entries(conversionLabels)
-        
-        if (conversionsWithLabels.length > 0) {
-          const conversionConfigs = conversionsWithLabels.map(([trackingId, label]) => {
-            return `gtag('event', 'conversion', {
-            'send_to': '${trackingId}/${label}',
-            'transaction_id': '',
-            'event_callback': callback
-        });`
-          }).join('\n        ')
-          
+        if (config.conversion_id) {
           conversionFunction = `
     function gtag_report_conversion(url) {
         var callback = function () {
@@ -61,7 +59,11 @@ export default function GoogleAnalytics() {
             }
         };
         gtag('event', 'Add');
-        ${conversionConfigs}
+        gtag('event', 'conversion', {
+            'send_to': '${config.conversion_id}',
+            'transaction_id': '',
+            'event_callback': callback
+        });
         return false;
     }`
         }
@@ -70,11 +72,15 @@ export default function GoogleAnalytics() {
     window.dataLayer = window.dataLayer || [];
     function gtag() { dataLayer.push(arguments); }
     gtag('js', new Date());
-    ${configCalls}${conversionFunction}
+    ${configCalls.join('\n    ')}${conversionFunction}
 `
         document.head.appendChild(inlineScript)
         
-        console.log('Google Analytics loaded:', Array.from(trackingIds))
+        console.log('Google Analytics loaded:', {
+          ads_tracking_id: config.ads_tracking_id,
+          ga4_property_id: config.ga4_property_id,
+          conversion_id: config.conversion_id
+        })
       } catch (error) {
         console.error('Failed to load Google Analytics:', error)
       }

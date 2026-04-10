@@ -41,13 +41,15 @@ class RedirectUpdate(BaseModel):
     is_active: Optional[bool] = None
 
 class GoogleAnalyticsCreate(BaseModel):
-    tracking_id: str
-    conversion_label: Optional[str] = None
+    ads_tracking_id: Optional[str] = None      # Google Ads 转化跟踪 ID
+    ga4_property_id: Optional[str] = None      # GA4 媒体资源 ID
+    conversion_id: Optional[str] = None        # 完整的转化ID
     is_enabled: bool = True
 
 class GoogleAnalyticsUpdate(BaseModel):
-    tracking_id: Optional[str] = None
-    conversion_label: Optional[str] = None
+    ads_tracking_id: Optional[str] = None
+    ga4_property_id: Optional[str] = None
+    conversion_id: Optional[str] = None
     is_enabled: Optional[bool] = None
 
 def verify_token(credentials: HTTPAuthorizationCredentials = Depends(security)):
@@ -242,8 +244,9 @@ async def list_google_analytics(
         "analytics": [
             {
                 "id": a.id,
-                "tracking_id": a.tracking_id,
-                "conversion_label": a.conversion_label,
+                "ads_tracking_id": a.ads_tracking_id,
+                "ga4_property_id": a.ga4_property_id,
+                "conversion_id": a.conversion_id,
                 "is_enabled": a.is_enabled,
                 "created_at": a.created_at.isoformat() if a.created_at else None,
                 "updated_at": a.updated_at.isoformat() if a.updated_at else None
@@ -259,18 +262,10 @@ async def create_google_analytics(
     user: dict = Depends(verify_token)
 ):
     """Create a new Google Analytics configuration"""
-    # Check if tracking_id already exists
-    result = await db.execute(
-        select(GoogleAnalytics).where(GoogleAnalytics.tracking_id == data.tracking_id)
-    )
-    existing = result.scalar_one_or_none()
-    
-    if existing:
-        raise HTTPException(status_code=400, detail="Tracking ID already exists")
-    
     analytics = GoogleAnalytics(
-        tracking_id=data.tracking_id,
-        conversion_label=data.conversion_label,
+        ads_tracking_id=data.ads_tracking_id,
+        ga4_property_id=data.ga4_property_id,
+        conversion_id=data.conversion_id,
         is_enabled=data.is_enabled
     )
     
@@ -280,8 +275,9 @@ async def create_google_analytics(
     
     return {
         "id": analytics.id,
-        "tracking_id": analytics.tracking_id,
-        "conversion_label": analytics.conversion_label,
+        "ads_tracking_id": analytics.ads_tracking_id,
+        "ga4_property_id": analytics.ga4_property_id,
+        "conversion_id": analytics.conversion_id,
         "is_enabled": analytics.is_enabled,
         "created_at": analytics.created_at.isoformat() if analytics.created_at else None
     }
@@ -303,22 +299,12 @@ async def update_google_analytics(
         raise HTTPException(status_code=404, detail="Google Analytics configuration not found")
     
     # Update fields
-    if data.tracking_id is not None:
-        # Check if new tracking_id already exists
-        existing_result = await db.execute(
-            select(GoogleAnalytics).where(
-                GoogleAnalytics.tracking_id == data.tracking_id,
-                GoogleAnalytics.id != analytics_id
-            )
-        )
-        existing = existing_result.scalar_one_or_none()
-        if existing:
-            raise HTTPException(status_code=400, detail="Tracking ID already exists")
-        analytics.tracking_id = data.tracking_id
-    
-    if data.conversion_label is not None:
-        analytics.conversion_label = data.conversion_label
-    
+    if data.ads_tracking_id is not None:
+        analytics.ads_tracking_id = data.ads_tracking_id
+    if data.ga4_property_id is not None:
+        analytics.ga4_property_id = data.ga4_property_id
+    if data.conversion_id is not None:
+        analytics.conversion_id = data.conversion_id
     if data.is_enabled is not None:
         analytics.is_enabled = data.is_enabled
     
@@ -327,8 +313,9 @@ async def update_google_analytics(
     
     return {
         "id": analytics.id,
-        "tracking_id": analytics.tracking_id,
-        "conversion_label": analytics.conversion_label,
+        "ads_tracking_id": analytics.ads_tracking_id,
+        "ga4_property_id": analytics.ga4_property_id,
+        "conversion_id": analytics.conversion_id,
         "is_enabled": analytics.is_enabled,
         "created_at": analytics.created_at.isoformat() if analytics.created_at else None
     }
@@ -355,7 +342,7 @@ async def delete_google_analytics(
 
 # ==========================================
 # Public API for Google Analytics (No Auth Required)
-# ==========================================
+# =========================================
 
 @router.get("/public/google-analytics")
 async def get_public_google_analytics(
@@ -370,8 +357,9 @@ async def get_public_google_analytics(
     return {
         "analytics": [
             {
-                "tracking_id": a.tracking_id,
-                "conversion_label": a.conversion_label
+                "ads_tracking_id": a.ads_tracking_id,
+                "ga4_property_id": a.ga4_property_id,
+                "conversion_id": a.conversion_id
             }
             for a in analytics
         ]

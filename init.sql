@@ -24,8 +24,9 @@ INSERT INTO redirect_links (url, weight) VALUES
 -- 谷歌统计配置表
 CREATE TABLE IF NOT EXISTS google_analytics (
     id SERIAL PRIMARY KEY,
-    tracking_id VARCHAR(100) NOT NULL UNIQUE,
-    conversion_label VARCHAR(100),
+    ads_tracking_id VARCHAR(100),              -- Google Ads 转化跟踪 ID (如: AW-17303658824)
+    ga4_property_id VARCHAR(100),              -- GA4 媒体资源 ID (如: G-BDPP2WPMQR)
+    conversion_id VARCHAR(200),                -- 完整的转化ID (如: AW-17303658824/KrXGCNHaoZQcEMjCg7tA)
     is_enabled BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
