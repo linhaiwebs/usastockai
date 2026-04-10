@@ -9,20 +9,8 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        sans: [
-          '-apple-system',
-          'BlinkMacSystemFont',
-          'Segoe UI',
-          'Roboto',
-          'Helvetica Neue',
-          'Arial',
-          'Noto Sans',
-          'sans-serif',
-          'Apple Color Emoji',
-          'Segoe UI Emoji',
-          'Segoe UI Symbol',
-          'Noto Color Emoji',
-        ],
+        sans: ['var(--font-inter)', 'Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'sans-serif'],
+        mono: ['var(--font-mono)', 'JetBrains Mono', 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Mono', 'monospace'],
       },
       colors: {
         background: '#0A0E1A',
