@@ -190,20 +190,20 @@ export function AnalysisModal({ query, isOpen, onClose }: AnalysisModalProps) {
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-      <div className="w-full max-w-2xl max-h-[85vh] bg-surface border border-gray-700 rounded-2xl shadow-2xl overflow-hidden flex flex-col">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-near-black/80 backdrop-blur-sm">
+      <div className="w-full max-w-2xl max-h-[85vh] bg-white border border-near-black/10 rounded-card-section shadow-2xl overflow-hidden flex flex-col">
         {/* Header */}
-        <div className="p-5 border-b border-gray-700 flex items-center justify-between">
+        <div className="p-5 border-b border-near-black/10 flex items-center justify-between">
           <div>
-            <h2 className="text-xl font-bold text-text">AI Analysis Report</h2>
-            <p className="text-sm text-text-secondary mt-1">Query: {query}</p>
+            <h2 className="text-xl font-bold text-near-black" style={{ lineHeight: '0.85', fontFeatureSettings: '"calt"' }}>AI Analysis Report</h2>
+            <p className="text-sm text-gray mt-1" style={{ fontFeatureSettings: '"calt"' }}>Query: {query}</p>
           </div>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-gray-700 rounded-lg transition-colors"
+            className="p-2 hover:bg-surface rounded-lg transition-colors btn-scale-hover"
           >
             <svg
-              className="w-5 h-5 text-text-secondary"
+              className="w-5 h-5 text-gray"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -227,15 +227,15 @@ export function AnalysisModal({ query, isOpen, onClose }: AnalysisModalProps) {
           {loading && content.length === 0 && (
             <div className="flex flex-col items-center justify-center py-12">
               <div className="relative mb-6">
-                <div className="w-16 h-16 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div>
+                <div className="w-16 h-16 border-4 border-wise-green/20 border-t-wise-green rounded-full animate-spin"></div>
                 <div className="absolute inset-0 flex items-center justify-center">
                   <span className="text-2xl">🤖</span>
                 </div>
               </div>
-              <p className="text-lg text-text font-medium mb-2">
+              <p className="text-lg text-near-black font-semibold mb-2" style={{ fontFeatureSettings: '"calt"' }}>
                 AI is analyzing{thinkingDots}
               </p>
-              <p className="text-sm text-text-secondary text-center max-w-sm">
+              <p className="text-sm text-gray text-center max-w-sm" style={{ fontFeatureSettings: '"calt"' }}>
                 Qwen AI is analyzing your request. This usually takes 1-3 seconds.
               </p>
             </div>
@@ -243,11 +243,11 @@ export function AnalysisModal({ query, isOpen, onClose }: AnalysisModalProps) {
 
           {/* Error state */}
           {error && (
-            <div className="p-4 bg-loss/10 border border-loss/30 rounded-lg">
-              <p className="text-loss">{error}</p>
+            <div className="p-4 bg-danger-red/10 border border-danger-red/30 rounded-card">
+              <p className="text-danger-red font-medium">{error}</p>
               <button
                 onClick={startAnalysis}
-                className="mt-2 text-sm text-primary hover:underline"
+                className="mt-2 text-sm text-dark-green hover:underline font-semibold"
               >
                 Retry
               </button>
@@ -256,28 +256,28 @@ export function AnalysisModal({ query, isOpen, onClose }: AnalysisModalProps) {
 
           {/* Analysis content */}
           {content && (
-            <div className="prose prose-invert max-w-none">
+            <div className="prose max-w-none">
               {/* Handle DeepSeek R1 <think/> tags */}
               {content.split('<think/>').map((part, index) => {
                 if (index === 0) {
                   if (content.includes('<think/>')) {
                     return (
-                      <div key={index} className="mb-3 p-3 bg-primary/5 border border-primary/20 rounded-lg">
-                        <p className="text-xs text-primary font-semibold mb-2">💭 AI Thinking Process</p>
-                        <div className="text-sm text-text-secondary whitespace-pre-wrap">
+                      <div key={index} className="mb-3 p-4 bg-light-mint border border-wise-green/20 rounded-card">
+                        <p className="text-xs text-dark-green font-semibold mb-2">💭 AI Thinking Process</p>
+                        <div className="text-sm text-warm-dark whitespace-pre-wrap" style={{ fontFeatureSettings: '"calt"' }}>
                           {part}
                         </div>
                       </div>
                     )
                   }
                   return (
-                    <div key={index} className="text-text whitespace-pre-wrap leading-tight">
+                    <div key={index} className="text-near-black whitespace-pre-wrap leading-tight" style={{ fontFeatureSettings: '"calt"' }}>
                       {part}
                     </div>
                   )
                 }
                 return (
-                  <div key={index} className="text-text whitespace-pre-wrap leading-tight">
+                  <div key={index} className="text-near-black whitespace-pre-wrap leading-tight" style={{ fontFeatureSettings: '"calt"' }}>
                     {part}
                   </div>
                 )
@@ -287,12 +287,13 @@ export function AnalysisModal({ query, isOpen, onClose }: AnalysisModalProps) {
         </div>
 
         {/* Footer with WhatsApp button */}
-        <div className="p-5 border-t border-gray-700">
+        <div className="p-5 border-t border-near-black/10">
           {redirectUrl && (
             <>
               <button
                 onClick={handleWhatsAppClick}
-                className="w-full py-3.5 px-4 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition-all flex items-center justify-center gap-2 shadow-lg hover:shadow-xl"
+                className="w-full py-3.5 px-4 bg-wise-green hover:bg-pastel-green text-dark-green font-semibold rounded-pill transition-all flex items-center justify-center gap-2 btn-scale-hover"
+                style={{ fontFeatureSettings: '"calt"' }}
               >
                 <svg
                   className="w-5 h-5"
@@ -303,7 +304,7 @@ export function AnalysisModal({ query, isOpen, onClose }: AnalysisModalProps) {
                 </svg>
                 <span>Get Personalized Analysis on WhatsApp</span>
               </button>
-              <p className="mt-2 text-xs text-text-secondary text-center">
+              <p className="mt-2 text-xs text-gray text-center" style={{ fontFeatureSettings: '"calt"' }}>
                 Disclaimer: This is not investment advice. AI-generated analysis for reference only.
               </p>
             </>
@@ -312,7 +313,8 @@ export function AnalysisModal({ query, isOpen, onClose }: AnalysisModalProps) {
           {!redirectUrl && !loading && content && (
             <button
               disabled
-              className="w-full py-3.5 px-4 bg-gray-600 text-white font-semibold rounded-lg flex items-center justify-center gap-2 opacity-50 cursor-not-allowed"
+              className="w-full py-3.5 px-4 bg-surface text-gray font-semibold rounded-pill flex items-center justify-center gap-2 opacity-50 cursor-not-allowed"
+              style={{ fontFeatureSettings: '"calt"' }}
             >
               <svg
                 className="w-5 h-5 animate-spin"

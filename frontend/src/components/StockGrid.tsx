@@ -18,7 +18,7 @@ interface StockGridProps {
 }
 
 /**
- * Hot Stocks Grid - Optimized for performance
+ * Hot Stocks Grid - Wise style with clean cards
  */
 export function StockGrid({ onStockClick }: StockGridProps) {
   const [stocks, setStocks] = useState<StockData[]>([])
@@ -69,15 +69,15 @@ export function StockGrid({ onStockClick }: StockGridProps) {
   if (loading) {
     return (
       <div className="mb-8">
-        <h2 className="text-lg font-bold text-text mb-3 flex items-center gap-2">
+        <h2 className="text-lg font-bold text-near-black mb-4 flex items-center gap-2" style={{ lineHeight: '0.85', fontFeatureSettings: '"calt"' }}>
           <span className="text-xl">🔥</span>
           Hot Stocks
         </h2>
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grid grid-cols-2 gap-3">
           {[1, 2, 3, 4].map((i) => (
             <div
               key={i}
-              className="h-24 bg-surface border border-gray-700 rounded-lg animate-pulse"
+              className="h-28 bg-surface border border-near-black/10 rounded-card-large animate-pulse"
             />
           ))}
         </div>
@@ -87,17 +87,17 @@ export function StockGrid({ onStockClick }: StockGridProps) {
 
   return (
     <div className="mb-8">
-      <h2 className="text-lg font-bold text-text mb-3 flex items-center gap-2">
+      <h2 className="text-lg font-bold text-near-black mb-4 flex items-center gap-2" style={{ lineHeight: '0.85', fontFeatureSettings: '"calt"' }}>
         <span className="text-xl">🔥</span>
         Hot Stocks
         {stocks.length > 4 && (
-          <span className="text-xs text-text-secondary font-normal ml-auto">
+          <span className="text-xs text-gray font-normal ml-auto font-sans">
             Auto-rotating
           </span>
         )}
       </h2>
       
-      <div className="grid grid-cols-2 gap-2">
+      <div className="grid grid-cols-2 gap-3">
         {displayStocks.map((stock) => (
           <StockCard
             key={stock.symbol}
@@ -108,17 +108,17 @@ export function StockGrid({ onStockClick }: StockGridProps) {
         ))}
       </div>
 
-      {/* Carousel indicators */}
+      {/* Carousel indicators - Wise green accent */}
       {stocks.length > 4 && (
         <div className="flex justify-center gap-1.5 mt-3">
           {Array.from({ length: indicatorCount }).map((_, i) => (
             <button
               key={i}
               onClick={() => handleIndicatorClick(i)}
-              className={`w-2 h-2 rounded-full transition-all ${
+              className={`h-1.5 rounded-pill transition-all ${
                 Math.floor(currentIndex / 4) === i 
-                  ? 'bg-primary w-4' 
-                  : 'bg-gray-600 hover:bg-gray-500'
+                  ? 'bg-wise-green w-4' 
+                  : 'bg-surface hover:bg-light-mint w-1.5'
               }`}
               aria-label={`Go to slide ${i + 1}`}
             />

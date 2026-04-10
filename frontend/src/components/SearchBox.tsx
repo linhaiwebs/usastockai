@@ -7,7 +7,7 @@ interface SearchBoxProps {
 }
 
 /**
- * Search Box Component - Simple input without real-time search
+ * Search Box Component - Wise style with pill buttons and clean inputs
  */
 export function SearchBox({ onAnalyze }: SearchBoxProps) {
   const [query, setQuery] = useState('')
@@ -30,7 +30,7 @@ export function SearchBox({ onAnalyze }: SearchBoxProps) {
 
   return (
     <div className="relative mb-8">
-      {/* Search input */}
+      {/* Search input - Wise style with ring shadow */}
       <div className="relative">
         <input
           type="text"
@@ -38,12 +38,13 @@ export function SearchBox({ onAnalyze }: SearchBoxProps) {
           onChange={(e) => setQuery(e.target.value)}
           onKeyPress={handleKeyPress}
           placeholder="Enter stock symbol (e.g., AAPL, TSLA)"
-          className="w-full px-4 py-3.5 pl-12 bg-surface border border-gray-700 rounded-xl text-text placeholder-text-secondary focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
+          className="w-full px-4 py-3.5 pl-12 bg-white border border-near-black/10 rounded-2xl text-near-black placeholder-gray focus:outline-none focus:shadow-ring transition-all"
+          style={{ fontFeatureSettings: '"calt"' }}
         />
         
         {/* Search icon */}
         <svg
-          className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-text-secondary"
+          className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -57,11 +58,12 @@ export function SearchBox({ onAnalyze }: SearchBoxProps) {
         </svg>
       </div>
 
-      {/* Analyze button */}
+      {/* Analyze button - Wise green pill button */}
       <button
         onClick={handleSubmit}
         disabled={!query.trim()}
-        className="w-full mt-3 py-3.5 bg-hero-gradient text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+        className="w-full mt-3 py-3.5 bg-wise-green text-dark-green font-semibold rounded-pill shadow-none hover:scale-105 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+        style={{ fontFeatureSettings: '"calt"' }}
       >
         Start AI Diagnosis
       </button>

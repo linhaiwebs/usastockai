@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { assignRedirect, recordRedirectClick } from '@/lib/api'
 
 /**
- * Call to Action Button - Direct redirect to WhatsApp
+ * Call to Action Button - Wise style primary green pill button
  */
 export function CTAButton() {
   const [loading, setLoading] = useState(false)
@@ -38,7 +38,8 @@ export function CTAButton() {
       <button
         onClick={handleClick}
         disabled={loading}
-        className="w-full py-4 bg-hero-gradient text-white font-bold text-lg rounded-xl shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+        className="w-full py-4 bg-wise-green text-dark-green font-bold text-lg rounded-pill hover:scale-105 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center gap-2"
+        style={{ fontFeatureSettings: '"calt"' }}
       >
         {loading ? (
           <>
@@ -58,7 +59,7 @@ export function CTAButton() {
           </>
         )}
       </button>
-      <p className="mt-3 text-sm text-text-secondary">
+      <p className="mt-3 text-sm text-gray font-medium" style={{ fontFeatureSettings: '"calt"' }}>
         Start your intelligent investment journey
       </p>
     </div>

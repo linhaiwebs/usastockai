@@ -24,13 +24,13 @@ const features = [
 ]
 
 /**
- * Feature Grid
+ * Feature Grid - Wise style with clean cards and typography
  */
 export function FeatureGrid() {
   return (
     <div className="mb-8">
-      <h2 className="text-xl font-bold text-text mb-4 flex items-center gap-2">
-        <span className="text-2xl">✨</span>
+      <h2 className="text-lg font-bold text-near-black mb-4 flex items-center gap-2" style={{ lineHeight: '0.85', fontFeatureSettings: '"calt"' }}>
+        <span className="text-xl">✨</span>
         Core Features
       </h2>
       
@@ -38,11 +38,12 @@ export function FeatureGrid() {
         {features.map((feature, index) => (
           <div
             key={index}
-            className="p-4 bg-surface border border-gray-700 rounded-xl hover:border-primary transition-all"
+            className="p-5 bg-white border border-near-black/10 rounded-card-large hover:shadow-ring transition-all"
+            style={{ fontFeatureSettings: '"calt"' }}
           >
-            <div className="text-3xl mb-2">{feature.icon}</div>
-            <h3 className="font-semibold text-text mb-1">{feature.title}</h3>
-            <p className="text-sm text-text-secondary">{feature.description}</p>
+            <div className="text-3xl mb-3">{feature.icon}</div>
+            <h3 className="font-semibold text-near-black mb-1.5 text-base">{feature.title}</h3>
+            <p className="text-sm text-gray leading-relaxed">{feature.description}</p>
           </div>
         ))}
       </div>

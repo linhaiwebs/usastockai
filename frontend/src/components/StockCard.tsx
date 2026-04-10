@@ -16,11 +16,11 @@ interface StockCardProps {
 }
 
 /**
- * Stock Card Component
+ * Stock Card Component - Wise style with clean borders and typography
  */
 export function StockCard({ stock, onClick, compact = false }: StockCardProps) {
   const isProfit = stock.change >= 0
-  const changeColor = isProfit ? 'text-profit' : 'text-loss'
+  const changeColor = isProfit ? 'text-positive-green' : 'text-danger-red'
   const changeSymbol = isProfit ? '+' : ''
 
   const formatVolume = (vol: number) => {
@@ -33,29 +33,30 @@ export function StockCard({ stock, onClick, compact = false }: StockCardProps) {
   }
 
   if (compact) {
-    // Compact version
+    // Compact version - Wise style
     return (
       <button
         onClick={onClick}
-        className="w-full p-3 bg-surface border border-gray-700 rounded-lg hover:border-primary hover:shadow-md transition-all text-left group"
+        className="w-full p-4 bg-white border border-near-black/10 rounded-card-large hover:shadow-ring transition-all text-left group btn-scale-hover"
+        style={{ fontFeatureSettings: '"calt"' }}
       >
         {/* Stock symbol and price */}
-        <div className="flex items-center justify-between mb-1">
-          <h3 className="text-base font-bold text-primary group-hover:text-accent transition-colors">
+        <div className="flex items-center justify-between mb-1.5">
+          <h3 className="text-base font-bold text-near-black group-hover:text-dark-green transition-colors">
             {stock.symbol}
           </h3>
-          <p className="text-lg font-bold text-text">
+          <p className="text-lg font-bold text-near-black font-mono">
             ${stock.price.toFixed(2)}
           </p>
         </div>
 
         {/* Change percentage */}
-        <div className={`flex items-center gap-1 text-sm ${changeColor}`}>
+        <div className={`flex items-center gap-1 text-sm font-semibold ${changeColor}`}>
           <span>{isProfit ? '▲' : '▼'}</span>
-          <span className="font-medium">
+          <span className="font-mono">
             {changeSymbol}{stock.change.toFixed(2)}
           </span>
-          <span>
+          <span className="font-mono">
             ({changeSymbol}{stock.change_percent.toFixed(2)}%)
           </span>
         </div>
@@ -63,43 +64,44 @@ export function StockCard({ stock, onClick, compact = false }: StockCardProps) {
     )
   }
 
-  // Full version
+  // Full version - Wise style
   return (
     <button
       onClick={onClick}
-      className="w-full p-4 bg-surface border border-gray-700 rounded-xl hover:border-primary hover:shadow-lg hover:shadow-primary/10 transition-all text-left group"
+      className="w-full p-5 bg-white border border-near-black/10 rounded-card-large hover:shadow-ring transition-all text-left group btn-scale-hover"
+      style={{ fontFeatureSettings: '"calt"' }}
     >
       {/* Stock symbol and name */}
-      <div className="mb-2">
-        <h3 className="text-lg font-bold text-primary group-hover:text-accent transition-colors">
+      <div className="mb-3">
+        <h3 className="text-lg font-bold text-near-black group-hover:text-dark-green transition-colors">
           {stock.symbol}
         </h3>
-        <p className="text-sm text-text-secondary truncate">{stock.name}</p>
+        <p className="text-sm text-gray truncate">{stock.name}</p>
       </div>
 
       {/* Price */}
-      <div className="mb-2">
-        <p className="text-2xl font-bold text-text">
+      <div className="mb-3">
+        <p className="text-2xl font-bold text-near-black font-mono">
           ${stock.price.toFixed(2)}
         </p>
       </div>
 
       {/* Change percentage */}
       <div className="flex items-center justify-between">
-        <div className={`flex items-center gap-1 ${changeColor}`}>
+        <div className={`flex items-center gap-1 font-semibold ${changeColor}`}>
           <span className="text-lg">
             {isProfit ? '▲' : '▼'}
           </span>
-          <span className="font-semibold">
+          <span className="font-mono">
             {changeSymbol}{stock.change.toFixed(2)}
           </span>
-          <span className="text-sm">
+          <span className="text-sm font-mono">
             ({changeSymbol}{stock.change_percent.toFixed(2)}%)
           </span>
         </div>
 
         {/* Volume */}
-        <div className="text-xs text-text-secondary">
+        <div className="text-xs text-gray font-mono">
           Vol: {formatVolume(stock.volume)}
         </div>
       </div>
