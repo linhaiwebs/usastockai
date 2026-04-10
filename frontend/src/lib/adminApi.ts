@@ -17,17 +17,30 @@ export async function apiCall(endpoint: string, options: any = {}) {
   }
   
   const apiBase = getApiBase()
-  const response = await fetch(`${apiBase}${endpoint}`, {
-    ...options,
-    headers
-  })
+  const url = `${apiBase}${endpoint}`
   
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({ detail: 'Request failed' }))
-    throw new Error(error.detail || 'Request failed')
+  console.log(`[Admin API] ${options.method || 'GET'} ${url}`)
+  
+  try {
+    const response = await fetch(url, {
+      ...options,
+      headers,
+      mode: 'cors',  // 明确指定CORS模式
+    })
+    
+    console.log(`[Admin API] Response status: ${response.status}`)
+    
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ detail: 'Request failed' }))
+      console.error('[Admin API] Error:', error)
+      throw new Error(error.detail || 'Request failed')
+    }
+    
+    return response.json()
+  } catch (error: any) {
+    console.error('[Admin API] Fetch error:', error)
+    throw error
   }
-  
-  return response.json()
 }
 
 export function isAuthenticated(): boolean {
