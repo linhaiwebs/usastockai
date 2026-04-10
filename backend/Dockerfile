@@ -29,6 +29,9 @@ COPY . .
 ENV PATH=/root/.local/bin:$PATH
 ENV PYTHONUNBUFFERED=1
 
-EXPOSE 8000
+# 暴露端口 (默认 8000，可通过 PORT 环境变量覆盖)
+EXPOSE ${PORT:-8000}
 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# 使用启动脚本支持动态端口
+RUN chmod +x start.sh
+CMD ["./start.sh"]

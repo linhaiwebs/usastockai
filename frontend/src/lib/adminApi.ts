@@ -2,7 +2,7 @@
  * Admin API Helper Functions
  */
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
+import { getApiBase } from './config'
 
 export async function apiCall(endpoint: string, options: any = {}) {
   const token = typeof window !== 'undefined' ? localStorage.getItem('admin_token') : null
@@ -16,7 +16,8 @@ export async function apiCall(endpoint: string, options: any = {}) {
     headers['Authorization'] = `Bearer ${token}`
   }
   
-  const response = await fetch(`${API_BASE}${endpoint}`, {
+  const apiBase = getApiBase()
+  const response = await fetch(`${apiBase}${endpoint}`, {
     ...options,
     headers
   })

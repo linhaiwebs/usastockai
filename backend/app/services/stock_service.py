@@ -15,7 +15,7 @@ class StockService:
     
     def __init__(self):
         # Finance Query API endpoint
-        self.base_url = getattr(settings, 'FINANCE_QUERY_URL', 'http://finance-query:8000')
+        self.base_url = settings.FINANCE_QUERY_URL
         
         # 缓存配置
         self.cache: Dict[str, Dict] = {}

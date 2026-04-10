@@ -9,9 +9,11 @@ services:
     ports:
       - "${FRONTEND_PORT:-3000}:3000"
     environment:
-      - NEXT_PUBLIC_API_URL_INTERNAL=http://backend:8000
-      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://localhost:8000}
+      - NEXT_PUBLIC_API_URL_INTERNAL=http://backend:${BACKEND_PORT:-8000}
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://localhost:${BACKEND_PORT:-8000}}
       - NEXT_PUBLIC_DEFAULT_LOCALE=${DEFAULT_LOCALE:-en}
+      - NEXT_PUBLIC_DEFAULT_API_PORT=${BACKEND_PORT:-8000}
+      - NEXT_PUBLIC_DEFAULT_FRONTEND_PORT=${FRONTEND_PORT:-3000}
     depends_on:
       backend:
         condition: service_healthy
@@ -25,18 +27,33 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     ports:
-      - "8000:8000"
+      - "${BACKEND_PORT:-8000}:${BACKEND_PORT:-8000}"
     environment:
-      - DATABASE_URL=postgresql+asyncpg://${DB_USER:-stockai}:${DB_PASSWORD:-stockai123}@db:5432/${DB_NAME:-stockai}
+      # Server Configuration
+      - HOST=0.0.0.0
+      - PORT=${BACKEND_PORT:-8000}
+      # Database Configuration
+      - DB_HOST=db
+      - DB_PORT=${DB_PORT:-5432}
+      - DB_USER=${DB_USER:-stockai}
+      - DB_PASSWORD=${DB_PASSWORD:-stockai123}
+      - DB_NAME=${DB_NAME:-stockai}
+      # SiliconFlow AI
       - SILICONFLOW_API_KEY=${SILICONFLOW_API_KEY}
-      - SILICONFLOW_BASE_URL=https://api.siliconflow.cn/v1
-      # 使用托管的 Finance Query 服务（免费，无需认证）
-      - FINANCE_QUERY_URL=https://finance-query.com
+      - SILICONFLOW_BASE_URL=${SILICONFLOW_BASE_URL:-https://api.siliconflow.cn/v1}
+      - SILICONFLOW_MODEL=${SILICONFLOW_MODEL:-deepseek-ai/DeepSeek-R1-0528-Qwen3-8B}
+      # Finance Query API (使用托管服务或本地部署)
+      - FINANCE_QUERY_HOST=${FINANCE_QUERY_HOST:-https://finance-query.com}
+      - FINANCE_QUERY_PORT=${FINANCE_QUERY_PORT:-443}
+      - FINANCE_QUERY_USE_HTTPS=${FINANCE_QUERY_USE_HTTPS:-true}
+      # App Configuration
+      - ENVIRONMENT=${ENVIRONMENT:-production}
+      - DEBUG=${DEBUG:-false}
     depends_on:
       db:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:${BACKEND_PORT:-8000}/health"]
       interval: 30s
       timeout: 10s
       retries: 3
