@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
+import { getApiBase } from '@/lib/config'
 
 interface GoogleAnalyticsConfig {
   ads_tracking_id: string | null
@@ -13,7 +14,8 @@ export default function GoogleAnalytics() {
     const loadGoogleAnalytics = async () => {
       try {
         // Fetch enabled Google Analytics configurations
-        const response = await fetch('/api/admin/public/google-analytics')
+        const apiBase = getApiBase()
+        const response = await fetch(`${apiBase}/api/admin/public/google-analytics`)
         if (!response.ok) return
         
         const data = await response.json()
