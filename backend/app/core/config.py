@@ -14,7 +14,7 @@ class Settings(BaseSettings):
     # AI服务配置
     SILICONFLOW_API_KEY: str = ""
     SILICONFLOW_BASE_URL: str = "https://api.siliconflow.cn/v1"
-    SILICONFLOW_MODEL: str = "deepseek-ai/DeepSeek-R1-0528-Qwen3-8B"
+    SILICONFLOW_MODEL: str = "Qwen/Qwen2.5-7B-Instruct"  # 免费模型，响应快速
     
     # 股票数据API
     FINANCE_QUERY_URL: str = "https://finance-query.com"

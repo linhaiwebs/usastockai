@@ -216,7 +216,7 @@ export function AnalysisModal({ query, isOpen, onClose }: AnalysisModalProps) {
                 AI is analyzing{thinkingDots}
               </p>
               <p className="text-sm text-text-secondary text-center max-w-sm">
-                DeepSeek R1 is processing your request. This usually takes 3-8 seconds.
+                Qwen AI is analyzing your request. This usually takes 1-3 seconds.
               </p>
             </div>
           )}
