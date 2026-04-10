@@ -112,6 +112,32 @@ FRONTEND_PORT=3001
 DB_NAME=stockai2
 ```
 
+### 端口说明
+
+**必须修改的端口（会冲突）：**
+- `BACKEND_PORT` - 后端API端口（默认8000）
+- `FRONTEND_PORT` - 前端页面端口（默认3000）
+
+**不需要修改的端口（自动隔离）：**
+- Redis端口 - 默认不暴露，在Docker网络内部隔离
+- PostgreSQL端口 - 默认不暴露，在Docker网络内部隔离
+
+**可选：外部访问Redis/PostgreSQL**
+
+如果需要从宿主机访问Redis或PostgreSQL（如调试、监控），在.env中添加：
+
+```bash
+# 项目1
+REDIS_PORT=6379
+DB_PORT=5432
+
+# 项目2
+REDIS_PORT=6380
+DB_PORT=5433
+```
+
+**注意：** 不配置这些端口时，Redis和PostgreSQL完全隔离，不会冲突。
+
 ## 技术栈
 
 - **前端**：Next.js 14, React, TypeScript, TailwindCSS
