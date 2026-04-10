@@ -14,14 +14,16 @@ export function getApiBase(): string {
     return process.env.NEXT_PUBLIC_API_URL_INTERNAL || 'http://backend:8000'
   }
   
-  // 客户端：优先使用环境变量，否则使用当前主机
+  // 客户端：优先使用环境变量
   const apiUrl = process.env.NEXT_PUBLIC_API_URL
   if (apiUrl) {
     return apiUrl
   }
   
-  // 自动推断：使用当前主机的默认端口8000
+  // 自动推断：从环境变量读取配置的端口
   const protocol = window.location.protocol
   const host = window.location.hostname
-  return `${protocol}//${host}:8000`
+  const port = process.env.NEXT_PUBLIC_API_PORT || '8000'
+  
+  return `${protocol}//${host}:${port}`
 }
