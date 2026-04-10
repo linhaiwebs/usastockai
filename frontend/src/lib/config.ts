@@ -8,7 +8,8 @@
  * - 服务器端：使用 Docker 内部网络地址
  * - 客户端：
  *   - 如果配置了 NEXT_PUBLIC_API_URL，使用配置的地址（跨域访问）
- *   - 否则使用当前域名 + 配置的端口（同域名部署）
+ *   - 如果是nginx反向代理（同域名同端口），使用相对路径
+ *   - 否则使用当前域名 + 配置的端口（同域名不同端口）
  */
 export function getApiBase(): string {
   // 服务器端渲染时使用内部网络地址
@@ -25,8 +26,20 @@ export function getApiBase(): string {
     return apiUrl
   }
   
-  // 同域名部署：使用当前域名 + 配置的端口
-  // 如果配置了API端口，则使用当前域名+端口
+  // 检查是否是nginx反向代理场景（同域名同端口）
+  // 如果当前访问的端口是80或443（默认HTTP/HTTPS端口），使用相对路径
+  const currentPort = window.location.port
+  const isDefaultPort = !currentPort || currentPort === '80' || currentPort === '443'
+  
+  if (isDefaultPort) {
+    // nginx反向代理场景：使用相对路径，nginx会将/api代理到后端
+    console.log('[Client] API URL: relative path (nginx proxy, default port)')
+    return ''
+  }
+  
+  // 同域名不同端口（开发/测试环境）
+  // 用户通过非默认端口访问前端（如 http://localhost:3000）
+  // 需要调用后端的不同端口（如 http://localhost:8000）
   const apiPort = process.env.NEXT_PUBLIC_API_PORT
   if (apiPort) {
     const url = `${window.location.protocol}//${window.location.hostname}:${apiPort}`
@@ -34,8 +47,8 @@ export function getApiBase(): string {
     return url
   }
   
-  // 完全同域名部署（通过nginx反向代理）：使用相对路径
-  console.log('[Client] API URL: relative path (same domain)')
+  // 默认：使用相对路径
+  console.log('[Client] API URL: relative path (default)')
   return ''
 }
 
