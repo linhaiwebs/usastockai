@@ -18,7 +18,7 @@ const nextConfig = {
   
   // 实验性特性
   experimental: {
-    optimizeCss: true, // 优化CSS
+    // optimizeCss: true, // 暂时禁用 - 需要critters依赖且不稳定
     optimizePackageImports: ['lucide-react'], // 优化包导入
   },
   
