@@ -30,14 +30,14 @@ export function SearchBox({ onAnalyze }: SearchBoxProps) {
   }
 
   return (
-    <section className="py-20 px-4 bg-surface">
+    <section className="py-10 px-4 bg-surface">
       <div className="max-w-3xl mx-auto">
-        <div className="text-center mb-8">
+        <div className="text-center mb-6">
           <h2 
-            className="text-section-heading font-medium text-revolut-dark mb-4"
+            className="text-section-heading font-medium text-revolut-dark mb-2"
             style={{ 
               lineHeight: '1.20',
-              letterSpacing: '-0.4px'
+              letterSpacing: '-0.28px'
             }}
           >
             Analyze Any Stock
@@ -55,15 +55,12 @@ export function SearchBox({ onAnalyze }: SearchBoxProps) {
             onChange={(e) => setQuery(e.target.value)}
             onKeyPress={handleKeyPress}
             placeholder="AAPL, TSLA, NVDA, MSFT..."
-            className="w-full px-6 py-5 pl-14 bg-white border-2 border-gray-tone rounded-card text-revolut-dark text-body placeholder-cool-gray focus:outline-none focus:border-revolut-dark transition-colors"
-            style={{ 
-              letterSpacing: '0.24px'
-            }}
+            className="w-full px-4 py-3 pl-12 bg-white border-2 border-gray-tone rounded-card text-revolut-dark text-body placeholder-cool-gray focus:outline-none focus:border-revolut-dark transition-colors"
           />
           
           {/* Search icon */}
           <svg
-            className="absolute left-5 top-1/2 -translate-y-1/2 w-6 h-6 text-mid-slate"
+            className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-mid-slate"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -81,7 +78,7 @@ export function SearchBox({ onAnalyze }: SearchBoxProps) {
         <button
           onClick={handleSubmit}
           disabled={!query.trim()}
-          className="w-full mt-4 py-4 bg-revolut-dark text-white font-medium text-nav-ui rounded-pill hover:opacity-85 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100"
+          className="w-full mt-3 py-3 bg-revolut-dark text-white font-medium text-nav-ui rounded-pill hover:opacity-85 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100"
         >
           Analyze with AI
         </button>

@@ -22,54 +22,53 @@ const testimonials = [
 ]
 
 /**
- * Testimonials Section - Revolut style with horizontal cards
+ * Testimonials Section - Revolut style compact horizontal cards
  * User reviews displayed in a clean, flat design
  */
 export function TestimonialsSection() {
   return (
-    <section className="py-20 px-4 bg-surface">
+    <section className="py-10 px-4 bg-surface">
       <div className="max-w-6xl mx-auto">
         <h2 
-          className="text-display-large font-medium text-revolut-dark mb-4 text-center"
+          className="text-display-large font-medium text-revolut-dark mb-2 text-center"
           style={{ 
             lineHeight: '1.21',
-            letterSpacing: '-0.48px'
+            letterSpacing: '-0.32px'
           }}
         >
           What our users say
         </h2>
         <p 
-          className="text-body-large text-mid-slate mb-12 text-center"
-          style={{ letterSpacing: '-0.09px' }}
+          className="text-body text-mid-slate mb-6 text-center"
         >
           Join thousands of investors who trust our platform
         </p>
         
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {testimonials.map((testimonial, index) => (
             <div
               key={index}
-              className="p-8 bg-white border-2 border-gray-tone rounded-card hover:border-revolut-dark transition-colors"
+              className="p-5 bg-white border-2 border-gray-tone rounded-card hover:border-revolut-dark transition-colors"
             >
               {/* Avatar */}
-              <div className="w-12 h-12 rounded-full bg-revolut-dark text-white flex items-center justify-center text-body font-medium mb-6">
+              <div className="w-10 h-10 rounded-full bg-revolut-dark text-white flex items-center justify-center text-caption font-medium mb-4">
                 {testimonial.avatar}
               </div>
               
               {/* Content */}
               <p 
-                className="text-body text-mid-slate mb-6"
-                style={{ letterSpacing: '0.24px' }}
+                className="text-body text-mid-slate mb-4"
+                style={{ letterSpacing: '0.16px' }}
               >
                 "{testimonial.content}"
               </p>
               
               {/* Author */}
               <div>
-                <p className="text-body font-medium text-revolut-dark">
+                <p className="text-caption font-medium text-revolut-dark">
                   {testimonial.name}
                 </p>
-                <p className="text-caption text-mid-slate">
+                <p className="text-caption-small text-mid-slate">
                   {testimonial.role}
                 </p>
               </div>

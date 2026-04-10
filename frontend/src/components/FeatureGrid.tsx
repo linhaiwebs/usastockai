@@ -1,6 +1,11 @@
 'use client'
 
-const features = [
+/**
+ * Feature Grid - Revolut style compact horizontal layout
+ * No shadows, flat design with alternating dark/light sections
+ */
+export function FeatureGrid() {
+  const features = [
   {
     icon: '⚡',
     title: 'Real-time Data',
@@ -23,45 +28,40 @@ const features = [
   }
 ]
 
-/**
- * Feature Grid - Revolut style with horizontal layout
- * No shadows, flat design with alternating dark/light sections
- */
-export function FeatureGrid() {
   return (
-    <section className="py-20 px-4 bg-surface">
+    <section className="py-10 px-4 bg-surface">
       <div className="max-w-6xl mx-auto">
         <h2 
-          className="text-display-large font-medium text-revolut-dark mb-12 text-center"
+          className="text-display-large font-medium text-revolut-dark mb-6 text-center"
           style={{ 
             lineHeight: '1.21',
-            letterSpacing: '-0.48px'
+            letterSpacing: '-0.32px'
           }}
         >
           Why choose our platform
         </h2>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {features.map((feature, index) => (
             <div
               key={index}
-              className="p-8 bg-white border-2 border-gray-tone rounded-card hover:border-revolut-dark transition-colors group"
+              className="p-5 bg-white border-2 border-gray-tone rounded-card hover:border-revolut-dark transition-colors group"
             >
-              <div className="flex items-start gap-6">
+              <div className="flex items-start gap-4">
                 <div 
-                  className="text-4xl flex-shrink-0"
+                  className="text-3xl flex-shrink-0"
                 >
                   {feature.icon}
                 </div>
                 <div className="flex-1">
                   <h3 
-                    className="text-card-title font-medium text-revolut-dark mb-3 group-hover:text-revolut-blue transition-colors"
+                    className="text-feature-title font-medium text-revolut-dark mb-2 group-hover:text-revolut-blue transition-colors"
                   >
                     {feature.title}
                   </h3>
                   <p 
                     className="text-body text-mid-slate"
-                    style={{ letterSpacing: '0.24px' }}
+                    style={{ letterSpacing: '0.16px' }}
                   >
                     {feature.description}
                   </p>

@@ -16,7 +16,7 @@ interface StockCardProps {
 }
 
 /**
- * Stock Card Component - Revolut style with flat cards and no shadows
+ * Stock Card Component - Revolut style compact flat cards
  * Uses tabular numerals for financial data
  */
 export function StockCard({ stock, onClick, compact = false }: StockCardProps) {
@@ -38,26 +38,26 @@ export function StockCard({ stock, onClick, compact = false }: StockCardProps) {
     return (
       <button
         onClick={onClick}
-        className="w-full p-5 bg-white border-2 border-gray-tone rounded-card hover:border-revolut-dark transition-colors text-left group"
+        className="w-full p-4 bg-white border-2 border-gray-tone rounded-card hover:border-revolut-dark transition-colors text-left group"
       >
         {/* Stock symbol and price */}
-        <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center justify-between mb-2">
           <h3 
-            className="text-feature-title font-medium text-revolut-dark group-hover:text-revolut-blue transition-colors"
+            className="text-caption font-medium text-revolut-dark group-hover:text-revolut-blue transition-colors"
           >
             {stock.symbol}
           </h3>
           <p 
-            className="text-card-title font-medium text-revolut-dark font-mono"
+            className="text-body font-medium text-revolut-dark font-mono"
             style={{ fontFeatureSettings: '"tnum"' }}
           >
-            ${stock.price.toFixed(2)}
+            ${stock.price < 100 ? `$${stock.price.toFixed(2)}` : `$${stock.price.toFixed(2)}`}
           </p>
         </div>
 
         {/* Change percentage */}
-        <div className={`flex items-center gap-2 text-body ${changeColor}`}>
-          <span className="text-lg">{isProfit ? '↑' : '↓'}</span>
+        <div className={`flex items-center gap-1 text-caption ${changeColor}`}>
+          <span className="text-base">{isProfit ? '↑' : '↓'}</span>
           <span 
             className="font-mono font-medium"
             style={{ fontFeatureSettings: '"tnum"' }}
@@ -79,25 +79,25 @@ export function StockCard({ stock, onClick, compact = false }: StockCardProps) {
   return (
     <button
       onClick={onClick}
-      className="w-full p-6 bg-white border-2 border-gray-tone rounded-card hover:border-revolut-dark transition-colors text-left group"
+      className="w-full p-5 bg-white border-2 border-gray-tone rounded-card hover:border-revolut-dark transition-colors text-left group"
     >
       {/* Stock symbol and name */}
-      <div className="mb-5">
+      <div className="mb-4">
         <h3 
-          className="text-card-title font-medium text-revolut-dark group-hover:text-revolut-blue transition-colors mb-2"
+          className="text-card-title font-medium text-revolut-dark group-hover:text-revolut-blue transition-colors mb-1"
         >
           {stock.symbol}
         </h3>
-        <p className="text-body text-mid-slate truncate">{stock.name}</p>
+        <p className="text-caption text-mid-slate truncate">{stock.name}</p>
       </div>
 
       {/* Price */}
-      <div className="mb-5">
+      <div className="mb-4">
         <p 
           className="text-display-large font-medium text-revolut-dark font-mono"
-          style={{ fontFeatureSettings: '"tnum"', letterSpacing: '-0.48px' }}
+          style={{ fontFeatureSettings: '"tnum"', letterSpacing: '-0.32px' }}
         >
-          ${stock.price.toFixed(2)}
+          ${stock.price < 100 ? `$${stock.price.toFixed(2)}` : `$${stock.price.toFixed(2)}`}
         </p>
       </div>
 

@@ -24,25 +24,24 @@ const timelineSteps = [
 ]
 
 /**
- * AI Timeline Component - Revolut style horizontal timeline
+ * AI Timeline Component - Revolut style compact horizontal timeline
  * Shows the AI diagnostic process in a clean, flat design
  */
 export function AITimeline() {
   return (
-    <section className="py-20 px-4">
+    <section className="py-10 px-4">
       <div className="max-w-6xl mx-auto">
         <h2 
-          className="text-display-large font-medium text-revolut-dark mb-4 text-center"
+          className="text-display-large font-medium text-revolut-dark mb-2 text-center"
           style={{ 
             lineHeight: '1.21',
-            letterSpacing: '-0.48px'
+            letterSpacing: '-0.32px'
           }}
         >
           How AI Analysis Works
         </h2>
         <p 
-          className="text-body-large text-mid-slate mb-16 text-center"
-          style={{ letterSpacing: '-0.09px' }}
+          className="text-body text-mid-slate mb-8 text-center"
         >
           Our advanced AI processes data through four key stages
         </p>
@@ -50,25 +49,24 @@ export function AITimeline() {
         {/* Horizontal Timeline */}
         <div className="relative">
           {/* Connection Line */}
-          <div className="hidden md:block absolute top-12 left-0 right-0 h-0.5 bg-gray-tone"></div>
+          <div className="hidden md:block absolute top-10 left-0 right-0 h-0.5 bg-gray-tone"></div>
           
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {timelineSteps.map((item, index) => (
               <div key={index} className="relative text-center md:text-left">
                 {/* Step Circle */}
-                <div className="relative z-10 w-24 h-24 rounded-full bg-revolut-dark text-white flex items-center justify-center text-card-title font-medium mx-auto md:mx-0 mb-6">
+                <div className="relative z-10 w-20 h-20 rounded-full bg-revolut-dark text-white flex items-center justify-center text-card-title font-medium mx-auto md:mx-0 mb-4">
                   {item.step}
                 </div>
                 
                 {/* Content */}
                 <h3 
-                  className="text-feature-title font-medium text-revolut-dark mb-3"
+                  className="text-caption font-medium text-revolut-dark mb-1"
                 >
                   {item.title}
                 </h3>
                 <p 
-                  className="text-body text-mid-slate"
-                  style={{ letterSpacing: '0.24px' }}
+                  className="text-caption-small text-mid-slate"
                 >
                   {item.description}
                 </p>

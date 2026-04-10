@@ -35,20 +35,19 @@ export function CTAButton() {
   }
 
   return (
-    <section className="py-20 px-4">
+    <section className="py-10 px-4">
       <div className="max-w-3xl mx-auto text-center">
         <h2 
-          className="text-display-large font-medium text-revolut-dark mb-6"
+          className="text-display-large font-medium text-revolut-dark mb-4"
           style={{ 
             lineHeight: '1.21',
-            letterSpacing: '-0.48px'
+            letterSpacing: '-0.32px'
           }}
         >
           Ready to start?
         </h2>
         <p 
-          className="text-body-large text-mid-slate mb-10"
-          style={{ letterSpacing: '-0.09px' }}
+          className="text-body-large text-mid-slate mb-6"
         >
           Connect with our AI agent for personalized investment guidance
         </p>
@@ -56,12 +55,12 @@ export function CTAButton() {
         <button
           onClick={handleClick}
           disabled={loading}
-          className="revolut-btn-primary min-w-[280px] inline-flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="revolut-btn-primary min-w-[240px] inline-flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {loading ? (
             <>
               <svg
-                className="w-5 h-5 animate-spin"
+                className="w-4 h-4 animate-spin"
                 fill="none"
                 viewBox="0 0 24 24"
               >
@@ -73,14 +72,14 @@ export function CTAButton() {
           ) : (
             <>
               <span>Connect with AI Agent</span>
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
               </svg>
             </>
           )}
         </button>
         
-        <p className="mt-6 text-caption text-mid-slate">
+        <p className="mt-4 text-caption text-mid-slate">
           Start your intelligent investment journey today
         </p>
       </div>

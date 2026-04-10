@@ -89,9 +89,9 @@ code, pre, .font-mono {
   background-color: #191c1f;
   color: #ffffff;
   border-radius: 9999px;
-  padding: 14px 32px;
+  padding: 12px 24px;
   font-weight: 500;
-  font-size: 20px;
+  font-size: 16px;
   line-height: 1.40;
   transition: opacity 0.2s ease-in-out;
 }
@@ -109,9 +109,9 @@ code, pre, .font-mono {
   background-color: #f4f4f4;
   color: #000000;
   border-radius: 9999px;
-  padding: 14px 34px;
+  padding: 12px 24px;
   font-weight: 500;
-  font-size: 20px;
+  font-size: 16px;
   line-height: 1.40;
   transition: opacity 0.2s ease-in-out;
 }
@@ -126,9 +126,9 @@ code, pre, .font-mono {
   color: #191c1f;
   border: 2px solid #191c1f;
   border-radius: 9999px;
-  padding: 14px 32px;
+  padding: 12px 24px;
   font-weight: 500;
-  font-size: 20px;
+  font-size: 16px;
   line-height: 1.40;
   transition: opacity 0.2s ease-in-out;
 }
@@ -143,9 +143,9 @@ code, pre, .font-mono {
   color: #f4f4f4;
   border: 2px solid #f4f4f4;
   border-radius: 9999px;
-  padding: 14px 32px;
+  padding: 12px 24px;
   font-weight: 500;
-  font-size: 20px;
+  font-size: 16px;
   line-height: 1.40;
   transition: opacity 0.2s ease-in-out;
 }
