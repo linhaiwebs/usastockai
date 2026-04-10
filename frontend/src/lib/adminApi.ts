@@ -30,6 +30,22 @@ export async function apiCall(endpoint: string, options: any = {}) {
     
     console.log(`[Admin API] Response status: ${response.status}`)
     
+    // 处理401未授权错误
+    if (response.status === 401) {
+      // Token失效，清除本地存储并跳转到登录页
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('admin_token')
+        localStorage.removeItem('admin_username')
+        
+        // 如果当前不在登录页，跳转到登录页
+        if (!window.location.pathname.includes('/adsadmin/login')) {
+          console.log('[Admin API] Token expired, redirecting to login')
+          window.location.href = '/adsadmin/login?expired=true'
+        }
+      }
+      throw new Error('Token expired or invalid')
+    }
+    
     if (!response.ok) {
       const error = await response.json().catch(() => ({ detail: 'Request failed' }))
       console.error('[Admin API] Error:', error)

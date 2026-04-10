@@ -11,18 +11,20 @@ import time
 from ..models.redirect import RedirectLink
 from ..models.google_analytics import GoogleAnalytics
 from ..core.database import get_db
+from ..core.redis import get_redis
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+import redis.asyncio as redis
 
 router = APIRouter(prefix="/api/admin", tags=["admin"])
 security = HTTPBearer()
 
-# Simple token storage (in production, use Redis or database)
-active_tokens = {}
-
 # Admin credentials
 ADMIN_USERNAME = "adsadmin"
 ADMIN_PASSWORD_HASH = hashlib.sha256("Mm123567..".encode()).hexdigest()
+
+# Token过期时间（秒）
+TOKEN_EXPIRY = 86400  # 24小时
 
 class LoginRequest(BaseModel):
     username: str
@@ -52,22 +54,40 @@ class GoogleAnalyticsUpdate(BaseModel):
     conversion_id: Optional[str] = None
     is_enabled: Optional[bool] = None
 
-def verify_token(credentials: HTTPAuthorizationCredentials = Depends(security)):
-    """Verify admin token"""
+async def verify_token(
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+    redis_client: redis.Redis = Depends(get_redis)
+):
+    """Verify admin token from Redis"""
     token = credentials.credentials
-    if token not in active_tokens:
+    
+    # 从Redis获取token数据
+    token_key = f"admin_token:{token}"
+    token_data = await redis_client.get(token_key)
+    
+    if not token_data:
         raise HTTPException(status_code=401, detail="Invalid or expired token")
     
-    # Check if token is expired (24 hours)
-    token_data = active_tokens[token]
-    if time.time() - token_data["created"] > 86400:
-        del active_tokens[token]
+    # 解析token数据 (格式: "username:created_timestamp")
+    try:
+        username, created_str = token_data.split(":")
+        created = float(created_str)
+    except (ValueError, AttributeError):
+        raise HTTPException(status_code=401, detail="Invalid token format")
+    
+    # 检查token是否过期
+    if time.time() - created > TOKEN_EXPIRY:
+        # 删除过期token
+        await redis_client.delete(token_key)
         raise HTTPException(status_code=401, detail="Token expired")
     
-    return token_data
+    # 刷新token过期时间（可选，实现"活跃用户保持登录"）
+    await redis_client.expire(token_key, TOKEN_EXPIRY)
+    
+    return {"username": username, "created": created}
 
 @router.post("/login")
-async def login(request: LoginRequest):
+async def login(request: LoginRequest, redis_client: redis.Redis = Depends(get_redis)):
     """Admin login"""
     # Verify credentials
     password_hash = hashlib.sha256(request.password.encode()).hexdigest()
@@ -77,10 +97,11 @@ async def login(request: LoginRequest):
     
     # Generate token
     token = secrets.token_urlsafe(32)
-    active_tokens[token] = {
-        "username": request.username,
-        "created": time.time()
-    }
+    token_key = f"admin_token:{token}"
+    
+    # 存储token到Redis，格式: "username:created_timestamp"
+    token_data = f"{request.username}:{time.time()}"
+    await redis_client.setex(token_key, TOKEN_EXPIRY, token_data)
     
     return {
         "access_token": token,
@@ -89,12 +110,16 @@ async def login(request: LoginRequest):
     }
 
 @router.post("/logout")
-async def logout(user: dict = Depends(verify_token)):
+async def logout(user: dict = Depends(verify_token), redis_client: redis.Redis = Depends(get_redis)):
     """Admin logout"""
-    # Remove token (find by username)
-    tokens_to_remove = [t for t, data in active_tokens.items() if data["username"] == user["username"]]
-    for token in tokens_to_remove:
-        del active_tokens[token]
+    # 从请求头获取token
+    from fastapi import Request
+    # 删除所有该用户的token
+    pattern = f"admin_token:*"
+    async for key in redis_client.scan_iter(match=pattern):
+        token_data = await redis_client.get(key)
+        if token_data and token_data.startswith(f"{user['username']}:"):
+            await redis_client.delete(key)
     
     return {"message": "Logged out successfully"}
 

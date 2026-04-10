@@ -427,11 +427,26 @@ export default function DashboardPage() {
                       value={analyticsFormData.ads_tracking_id}
                       onChange={(e) => setAnalyticsFormData({ ...analyticsFormData, ads_tracking_id: e.target.value })}
                       className="w-full px-4 py-2 bg-background border border-gray-700 rounded-lg text-text focus:outline-none focus:border-primary"
-                      placeholder="e.g., AW-17303658824, G-BDPP2WPMQR"
-                      required
+                      placeholder="e.g., AW-17303658824"
                     />
                     <p className="text-xs text-text-secondary mt-1">
-                      Examples: AW-17303658824 (Google Ads), G-BDPP2WPMQR (GA4)
+                      Google Ads转化跟踪ID（以AW-开头）
+                    </p>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-text-secondary mb-2">
+                      GA4 Property ID
+                    </label>
+                    <input
+                      type="text"
+                      value={analyticsFormData.ga4_property_id}
+                      onChange={(e) => setAnalyticsFormData({ ...analyticsFormData, ga4_property_id: e.target.value })}
+                      className="w-full px-4 py-2 bg-background border border-gray-700 rounded-lg text-text focus:outline-none focus:border-primary"
+                      placeholder="e.g., G-BDPP2WPMQR"
+                    />
+                    <p className="text-xs text-text-secondary mt-1">
+                      Google Analytics 4媒体资源ID（以G-开头）
                     </p>
                   </div>
                   
@@ -444,10 +459,10 @@ export default function DashboardPage() {
                       value={analyticsFormData.conversion_id}
                       onChange={(e) => setAnalyticsFormData({ ...analyticsFormData, conversion_id: e.target.value })}
                       className="w-full px-4 py-2 bg-background border border-gray-700 rounded-lg text-text focus:outline-none focus:border-primary"
-                      placeholder="e.g., KrXGCNHaoZQcEMjCg7tA"
+                      placeholder="e.g., AW-17303658824/KrXGCNHaoZQcEMjCg7tA"
                     />
                     <p className="text-xs text-text-secondary mt-1">
-                      For Google Ads conversion tracking: AW-17303658824/KrXGCNHaoZQcEMjCg7tA
+                      完整的转化ID（用于转化跟踪）
                     </p>
                   </div>
                   
@@ -478,8 +493,9 @@ export default function DashboardPage() {
               <table className="w-full">
                 <thead className="bg-background">
                   <tr>
-                    <th className="px-4 py-3 text-left text-sm font-semibold text-text">Google Ads Tracking ID</th>
-                    <th className="px-4 py-3 text-left text-sm font-semibold text-text">Conversion Label</th>
+                    <th className="px-4 py-3 text-left text-sm font-semibold text-text">Ads Tracking ID</th>
+                    <th className="px-4 py-3 text-left text-sm font-semibold text-text">GA4 Property ID</th>
+                    <th className="px-4 py-3 text-left text-sm font-semibold text-text">Conversion ID</th>
                     <th className="px-4 py-3 text-center text-sm font-semibold text-text">状态</th>
                     <th className="px-4 py-3 text-center text-sm font-semibold text-text">操作</th>
                   </tr>
@@ -487,7 +503,8 @@ export default function DashboardPage() {
                 <tbody>
                   {analyticsConfigs.map((config) => (
                     <tr key={config.id} className="border-t border-gray-700">
-                      <td className="px-4 py-3 text-text font-mono">{config.ads_tracking_id}</td>
+                      <td className="px-4 py-3 text-text font-mono">{config.ads_tracking_id || '-'}</td>
+                      <td className="px-4 py-3 text-text font-mono">{config.ga4_property_id || '-'}</td>
                       <td className="px-4 py-3 text-text-secondary font-mono">
                         {config.conversion_id || '-'}
                       </td>
