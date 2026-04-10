@@ -5,6 +5,7 @@ CREATE TABLE IF NOT EXISTS redirect_links (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255),
     url VARCHAR(2048) NOT NULL,
+    suffix TEXT,                                          -- 自定义后缀，用于拼接在URL后面
     click_count INTEGER DEFAULT 0,
     weight INTEGER DEFAULT 1,
     is_active BOOLEAN DEFAULT TRUE,
