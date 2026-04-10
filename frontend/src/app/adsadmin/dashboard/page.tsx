@@ -16,7 +16,7 @@ interface Redirect {
 
 interface GoogleAnalyticsConfig {
   id: number
-  ads_tracking_id: string | null
+  ads_ads_tracking_id: string | null
   ga4_property_id: string | null
   conversion_id: string | null
   is_enabled: boolean
@@ -36,7 +36,7 @@ export default function DashboardPage() {
 
   // Redirect form state
   const [showRedirectForm, setShowRedirectForm] = useState(false)
-  const [editingRedirectId, setEditingRedirectId] = useState<number | null>(null)
+  const [editingRedirectId, set编辑ingRedirectId] = useState<number | null>(null)
   const [redirectFormData, setRedirectFormData] = useState({
     name: '',
     url: '',
@@ -46,9 +46,9 @@ export default function DashboardPage() {
 
   // Analytics form state
   const [showAnalyticsForm, setShowAnalyticsForm] = useState(false)
-  const [editingAnalyticsId, setEditingAnalyticsId] = useState<number | null>(null)
+  const [editingAnalyticsId, set编辑ingAnalyticsId] = useState<number | null>(null)
   const [analyticsFormData, setAnalyticsFormData] = useState({
-    ads_tracking_id: '',
+    ads_ads_tracking_id: '',
     ga4_property_id: '',
     conversion_id: '',
     is_enabled: true
@@ -108,25 +108,25 @@ export default function DashboardPage() {
       
       setRedirectFormData({ name: '', url: '', weight: 1, is_active: true })
       setShowRedirectForm(false)
-      setEditingRedirectId(null)
+      set编辑ingRedirectId(null)
       loadRedirects()
     } catch (err: any) {
       setError(err.message || 'Failed to save redirect')
     }
   }
 
-  const handleEditRedirect = (redirect: Redirect) => {
+  const handle编辑Redirect = (redirect: Redirect) => {
     setRedirectFormData({
       name: redirect.name,
       url: redirect.url,
       weight: redirect.weight,
       is_active: redirect.is_active
     })
-    setEditingRedirectId(redirect.id)
+    set编辑ingRedirectId(redirect.id)
     setShowRedirectForm(true)
   }
 
-  const handleDeleteRedirect = async (id: number) => {
+  const handle删除Redirect = async (id: number) => {
     if (!confirm('Are you sure you want to delete this redirect?')) return
     
     try {
@@ -143,7 +143,7 @@ export default function DashboardPage() {
     
     try {
       const payload = {
-        ads_tracking_id: analyticsFormData.ads_tracking_id || null,
+        ads_ads_tracking_id: analyticsFormData.ads_ads_tracking_id || null,
         ga4_property_id: analyticsFormData.ga4_property_id || null,
         conversion_id: analyticsFormData.conversion_id || null,
         is_enabled: analyticsFormData.is_enabled
@@ -161,27 +161,27 @@ export default function DashboardPage() {
         })
       }
       
-      setAnalyticsFormData({ ads_tracking_id: '', ga4_property_id: '', conversion_id: '', is_enabled: true })
+      setAnalyticsFormData({ ads_ads_tracking_id: '', ga4_property_id: '', conversion_id: '', is_enabled: true })
       setShowAnalyticsForm(false)
-      setEditingAnalyticsId(null)
+      set编辑ingAnalyticsId(null)
       loadAnalytics()
     } catch (err: any) {
       setError(err.message || '保存谷歌统计配置失败')
     }
   }
 
-  const handleEditAnalytics = (config: GoogleAnalyticsConfig) => {
+  const handle编辑Analytics = (config: GoogleAnalyticsConfig) => {
     setAnalyticsFormData({
-      ads_tracking_id: config.ads_tracking_id || '',
+      ads_ads_tracking_id: config.ads_ads_tracking_id || '',
       ga4_property_id: config.ga4_property_id || '',
       conversion_id: config.conversion_id || '',
       is_enabled: config.is_enabled
     })
-    setEditingAnalyticsId(config.id)
+    set编辑ingAnalyticsId(config.id)
     setShowAnalyticsForm(true)
   }
 
-  const handleDeleteAnalytics = async (id: number) => {
+  const handle删除Analytics = async (id: number) => {
     if (!confirm('确定要删除此谷歌统计配置吗？')) return
     
     try {
@@ -259,7 +259,7 @@ export default function DashboardPage() {
             <button
               onClick={() => {
                 setShowRedirectForm(!showRedirectForm)
-                setEditingRedirectId(null)
+                set编辑ingRedirectId(null)
                 setRedirectFormData({ name: '', url: '', weight: 1, is_active: true })
               }}
               className="mb-6 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/80 transition-colors"
@@ -270,7 +270,7 @@ export default function DashboardPage() {
             {showRedirectForm && (
               <div className="mb-6 p-6 bg-surface border border-gray-700 rounded-lg">
                 <h2 className="text-xl font-semibold text-text mb-4">
-                  {editingRedirectId ? 'Edit Redirect' : 'Add New Redirect'}
+                  {editingRedirectId ? '编辑 Redirect' : 'Add New Redirect'}
                 </h2>
                 <form onSubmit={handleRedirectSubmit} className="space-y-4">
                   <div>
@@ -345,9 +345,9 @@ export default function DashboardPage() {
                     <th className="px-4 py-3 text-left text-sm font-semibold text-text">Name</th>
                     <th className="px-4 py-3 text-left text-sm font-semibold text-text">URL</th>
                     <th className="px-4 py-3 text-center text-sm font-semibold text-text">Weight</th>
-                    <th className="px-4 py-3 text-center text-sm font-semibold text-text">Status</th>
+                    <th className="px-4 py-3 text-center text-sm font-semibold text-text">状态</th>
                     <th className="px-4 py-3 text-center text-sm font-semibold text-text">Clicks</th>
-                    <th className="px-4 py-3 text-center text-sm font-semibold text-text">Actions</th>
+                    <th className="px-4 py-3 text-center text-sm font-semibold text-text">操作</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -370,16 +370,16 @@ export default function DashboardPage() {
                       <td className="px-4 py-3 text-text text-center">{redirect.click_count}</td>
                       <td className="px-4 py-3 text-center">
                         <button
-                          onClick={() => handleEditRedirect(redirect)}
+                          onClick={() => handle编辑Redirect(redirect)}
                           className="px-3 py-1 text-sm text-primary hover:underline mr-2"
                         >
-                          Edit
+                          编辑
                         </button>
                         <button
-                          onClick={() => handleDeleteRedirect(redirect.id)}
+                          onClick={() => handle删除Redirect(redirect.id)}
                           className="px-3 py-1 text-sm text-loss hover:underline"
                         >
-                          Delete
+                          删除
                         </button>
                       </td>
                     </tr>
@@ -404,28 +404,28 @@ export default function DashboardPage() {
             <button
               onClick={() => {
                 setShowAnalyticsForm(!showAnalyticsForm)
-                setEditingAnalyticsId(null)
-                setAnalyticsFormData({ tracking_id: '', conversion_label: '', is_enabled: true })
+                set编辑ingAnalyticsId(null)
+                setAnalyticsFormData({ ads_ads_tracking_id: '', ga4_property_id: '', conversion_id: '', is_enabled: true })
               }}
               className="mb-6 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/80 transition-colors"
             >
-              {showAnalyticsForm ? 'Cancel' : '+ Add Google Analytics'}
+              {showAnalyticsForm ? '取消' : '+ 添加谷歌统计'}
             </button>
 
             {showAnalyticsForm && (
               <div className="mb-6 p-6 bg-surface border border-gray-700 rounded-lg">
                 <h2 className="text-xl font-semibold text-text mb-4">
-                  {editingAnalyticsId ? 'Edit Google Analytics' : 'Add Google Analytics'}
+                  {editingAnalyticsId ? '编辑 Google Analytics' : 'Add Google Analytics'}
                 </h2>
                 <form onSubmit={handleAnalyticsSubmit} className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-text-secondary mb-2">
-                      Tracking ID
+                      Google Ads Tracking ID
                     </label>
                     <input
                       type="text"
-                      value={analyticsFormData.tracking_id}
-                      onChange={(e) => setAnalyticsFormData({ ...analyticsFormData, tracking_id: e.target.value })}
+                      value={analyticsFormData.ads_tracking_id}
+                      onChange={(e) => setAnalyticsFormData({ ...analyticsFormData, ads_tracking_id: e.target.value })}
                       className="w-full px-4 py-2 bg-background border border-gray-700 rounded-lg text-text focus:outline-none focus:border-primary"
                       placeholder="e.g., AW-17303658824, G-BDPP2WPMQR"
                       required
@@ -437,12 +437,12 @@ export default function DashboardPage() {
                   
                   <div>
                     <label className="block text-sm font-medium text-text-secondary mb-2">
-                      Conversion Label (Optional)
+                      Conversion ID
                     </label>
                     <input
                       type="text"
-                      value={analyticsFormData.conversion_label}
-                      onChange={(e) => setAnalyticsFormData({ ...analyticsFormData, conversion_label: e.target.value })}
+                      value={analyticsFormData.conversion_id}
+                      onChange={(e) => setAnalyticsFormData({ ...analyticsFormData, conversion_id: e.target.value })}
                       className="w-full px-4 py-2 bg-background border border-gray-700 rounded-lg text-text focus:outline-none focus:border-primary"
                       placeholder="e.g., KrXGCNHaoZQcEMjCg7tA"
                     />
@@ -460,7 +460,7 @@ export default function DashboardPage() {
                       className="w-4 h-4"
                     />
                     <label htmlFor="analytics_is_enabled" className="text-sm text-text-secondary">
-                      Enabled
+                      启用
                     </label>
                   </div>
                   
@@ -478,18 +478,18 @@ export default function DashboardPage() {
               <table className="w-full">
                 <thead className="bg-background">
                   <tr>
-                    <th className="px-4 py-3 text-left text-sm font-semibold text-text">Tracking ID</th>
+                    <th className="px-4 py-3 text-left text-sm font-semibold text-text">Google Ads Tracking ID</th>
                     <th className="px-4 py-3 text-left text-sm font-semibold text-text">Conversion Label</th>
-                    <th className="px-4 py-3 text-center text-sm font-semibold text-text">Status</th>
-                    <th className="px-4 py-3 text-center text-sm font-semibold text-text">Actions</th>
+                    <th className="px-4 py-3 text-center text-sm font-semibold text-text">状态</th>
+                    <th className="px-4 py-3 text-center text-sm font-semibold text-text">操作</th>
                   </tr>
                 </thead>
                 <tbody>
                   {analyticsConfigs.map((config) => (
                     <tr key={config.id} className="border-t border-gray-700">
-                      <td className="px-4 py-3 text-text font-mono">{config.tracking_id}</td>
+                      <td className="px-4 py-3 text-text font-mono">{config.ads_tracking_id}</td>
                       <td className="px-4 py-3 text-text-secondary font-mono">
-                        {config.conversion_label || '-'}
+                        {config.conversion_id || '-'}
                       </td>
                       <td className="px-4 py-3 text-center">
                         <span className={`px-2 py-1 rounded text-xs ${
@@ -497,21 +497,21 @@ export default function DashboardPage() {
                             ? 'bg-profit/20 text-profit' 
                             : 'bg-loss/20 text-loss'
                         }`}>
-                          {config.is_enabled ? 'Enabled' : 'Disabled'}
+                          {config.is_enabled ? '启用' : 'Disabled'}
                         </span>
                       </td>
                       <td className="px-4 py-3 text-center">
                         <button
-                          onClick={() => handleEditAnalytics(config)}
+                          onClick={() => handle编辑Analytics(config)}
                           className="px-3 py-1 text-sm text-primary hover:underline mr-2"
                         >
-                          Edit
+                          编辑
                         </button>
                         <button
-                          onClick={() => handleDeleteAnalytics(config.id)}
+                          onClick={() => handle删除Analytics(config.id)}
                           className="px-3 py-1 text-sm text-loss hover:underline"
                         >
-                          Delete
+                          删除
                         </button>
                       </td>
                     </tr>
