@@ -149,12 +149,26 @@ export function AnalysisModal({ query, isOpen, onClose }: AnalysisModalProps) {
     
     try {
       await recordRedirectClick(redirectId)
-      window.open(redirectUrl, '_blank')
+      
+      // 使用 gtag_report_conversion 进行转化跟踪和跳转
+      if (typeof window !== 'undefined' && typeof (window as any).gtag_report_conversion === 'function') {
+        (window as any).gtag_report_conversion(redirectUrl)
+      } else {
+        // 如果 gtag_report_conversion 未定义，直接打开链接
+        console.warn('gtag_report_conversion not found, opening URL directly')
+        window.open(redirectUrl, '_blank')
+      }
+      
       onClose()
     } catch (err) {
       console.error('Failed to record click:', err)
       if (redirectUrl) {
-        window.open(redirectUrl, '_blank')
+        // 即使记录失败，也要尝试转化跟踪
+        if (typeof window !== 'undefined' && typeof (window as any).gtag_report_conversion === 'function') {
+          (window as any).gtag_report_conversion(redirectUrl)
+        } else {
+          window.open(redirectUrl, '_blank')
+        }
         onClose()
       }
     }
