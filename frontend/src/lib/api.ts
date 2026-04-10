@@ -1,17 +1,52 @@
 /**
- * API 服务层 - 封装所有后端API调用
+ * API 服务层 - 封装所有后端API调用，带缓存和性能优化
  */
 
 import { getApiBase } from './config'
+
+// 简单的内存缓存
+const cache = new Map<string, { data: any; timestamp: number }>()
+const CACHE_TTL = 30000 // 30秒缓存
+
+/**
+ * 带缓存的fetch封装
+ */
+async function cachedFetch(url: string, options?: RequestInit) {
+  const cacheKey = `${url}-${JSON.stringify(options)}`
+  const cached = cache.get(cacheKey)
+  
+  // 如果缓存有效，直接返回
+  if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+    return cached.data
+  }
+  
+  // 否则发起请求
+  const res = await fetch(url, {
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options?.headers,
+    },
+  })
+  
+  if (!res.ok) {
+    throw new Error(`HTTP error! status: ${res.status}`)
+  }
+  
+  const data = await res.json()
+  
+  // 缓存结果
+  cache.set(cacheKey, { data, timestamp: Date.now() })
+  
+  return data
+}
 
 /**
  * 搜索股票
  */
 export async function searchStocks(query: string) {
   const apiBase = getApiBase()
-  const res = await fetch(`${apiBase}/api/search?q=${encodeURIComponent(query)}`)
-  if (!res.ok) throw new Error('Failed to search stocks')
-  return res.json()
+  return cachedFetch(`${apiBase}/api/search?q=${encodeURIComponent(query)}`)
 }
 
 /**
@@ -19,9 +54,7 @@ export async function searchStocks(query: string) {
  */
 export async function getHotStocks() {
   const apiBase = getApiBase()
-  const res = await fetch(`${apiBase}/api/stocks/hot`)
-  if (!res.ok) throw new Error('Failed to get hot stocks')
-  return res.json()
+  return cachedFetch(`${apiBase}/api/stocks/hot`)
 }
 
 /**
@@ -29,9 +62,7 @@ export async function getHotStocks() {
  */
 export async function getStockDetail(symbol: string) {
   const apiBase = getApiBase()
-  const res = await fetch(`${apiBase}/api/stocks/${symbol}`)
-  if (!res.ok) throw new Error('Failed to get stock detail')
-  return res.json()
+  return cachedFetch(`${apiBase}/api/stocks/${symbol}`)
 }
 
 /**
@@ -39,13 +70,11 @@ export async function getStockDetail(symbol: string) {
  */
 export async function getRedirectInfo(id: number) {
   const apiBase = getApiBase()
-  const res = await fetch(`${apiBase}/api/redirects/${id}/info`)
-  if (!res.ok) throw new Error('Failed to get redirect info')
-  return res.json()
+  return cachedFetch(`${apiBase}/api/redirects/${id}/info`)
 }
 
 /**
- * 记录分流点击
+ * 记录分流点击（不缓存）
  */
 export async function recordRedirectClick(id: number) {
   const apiBase = getApiBase()
@@ -57,7 +86,7 @@ export async function recordRedirectClick(id: number) {
 }
 
 /**
- * 获取分配的分流链接
+ * 获取分配的分流链接（不缓存）
  */
 export async function assignRedirect() {
   const apiBase = getApiBase()

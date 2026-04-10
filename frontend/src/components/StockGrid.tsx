@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { StockCard } from './StockCard'
 import { getHotStocks } from '@/lib/api'
 
@@ -18,29 +18,14 @@ interface StockGridProps {
 }
 
 /**
- * Hot Stocks Grid - Shows top 4, others rotate
+ * Hot Stocks Grid - Optimized for performance
  */
 export function StockGrid({ onStockClick }: StockGridProps) {
   const [stocks, setStocks] = useState<StockData[]>([])
   const [loading, setLoading] = useState(true)
   const [currentIndex, setCurrentIndex] = useState(0)
 
-  useEffect(() => {
-    fetchStocks()
-  }, [])
-
-  // Auto carousel
-  useEffect(() => {
-    if (stocks.length <= 4) return
-    
-    const timer = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % (stocks.length - 4 + 1))
-    }, 5000) // Rotate every 5 seconds
-
-    return () => clearInterval(timer)
-  }, [stocks.length])
-
-  const fetchStocks = async () => {
+  const fetchStocks = useCallback(async () => {
     try {
       const data = await getHotStocks()
       setStocks(data.stocks || data || [])
@@ -49,7 +34,37 @@ export function StockGrid({ onStockClick }: StockGridProps) {
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
+
+  useEffect(() => {
+    fetchStocks()
+  }, [fetchStocks])
+
+  // Auto carousel - 使用useCallback优化
+  useEffect(() => {
+    if (stocks.length <= 4) return
+    
+    const timer = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % (stocks.length - 4 + 1))
+    }, 5000)
+
+    return () => clearInterval(timer)
+  }, [stocks.length])
+
+  // 使用useMemo优化显示的股票列表
+  const displayStocks = useMemo(() => {
+    return stocks.slice(0, 4)
+  }, [stocks])
+
+  // 使用useMemo优化指示器数量
+  const indicatorCount = useMemo(() => {
+    return Math.ceil((stocks.length - 4) / 4) + 1
+  }, [stocks.length])
+
+  // 使用useCallback优化点击处理
+  const handleIndicatorClick = useCallback((index: number) => {
+    setCurrentIndex(index * 4)
+  }, [])
 
   if (loading) {
     return (
@@ -70,11 +85,6 @@ export function StockGrid({ onStockClick }: StockGridProps) {
     )
   }
 
-  // Display stocks (first 4 fixed + rotating)
-  const displayStocks = stocks.length > 4 
-    ? [...stocks.slice(0, 4), ...stocks.slice(currentIndex, currentIndex + Math.min(4, stocks.length - 4))]
-    : stocks
-
   return (
     <div className="mb-8">
       <h2 className="text-lg font-bold text-text mb-3 flex items-center gap-2">
@@ -88,7 +98,7 @@ export function StockGrid({ onStockClick }: StockGridProps) {
       </h2>
       
       <div className="grid grid-cols-2 gap-2">
-        {stocks.slice(0, 4).map((stock) => (
+        {displayStocks.map((stock) => (
           <StockCard
             key={stock.symbol}
             stock={stock}
@@ -101,15 +111,16 @@ export function StockGrid({ onStockClick }: StockGridProps) {
       {/* Carousel indicators */}
       {stocks.length > 4 && (
         <div className="flex justify-center gap-1.5 mt-3">
-          {Array.from({ length: Math.ceil((stocks.length - 4) / 4) + 1 }).map((_, i) => (
+          {Array.from({ length: indicatorCount }).map((_, i) => (
             <button
               key={i}
-              onClick={() => setCurrentIndex(i * 4)}
+              onClick={() => handleIndicatorClick(i)}
               className={`w-2 h-2 rounded-full transition-all ${
                 Math.floor(currentIndex / 4) === i 
                   ? 'bg-primary w-4' 
                   : 'bg-gray-600 hover:bg-gray-500'
               }`}
+              aria-label={`Go to slide ${i + 1}`}
             />
           ))}
         </div>
