@@ -1,8 +1,7 @@
 """
-AI Analysis Service - Based on SiliconFlow DeepSeek R1
-Forces English output, multiple diagnostic formats
+AI Analysis Service - Optimized for Speed and User Experience
+Uses structured prompts to reduce DeepSeek R1 thinking time
 """
-import json
 import random
 from typing import AsyncGenerator
 from openai import AsyncOpenAI
@@ -12,7 +11,7 @@ settings = get_settings()
 
 
 class AIService:
-    """AI Analysis Service"""
+    """AI Analysis Service - Optimized"""
     
     def __init__(self):
         self.client = AsyncOpenAI(
@@ -20,172 +19,34 @@ class AIService:
             base_url=settings.SILICONFLOW_BASE_URL
         )
         self.model = settings.SILICONFLOW_MODEL
-        
-        # 5种诊断格式模板 - 使用完整示例
-        self.diagnostic_templates = [
-            self._template_comprehensive,
-            self._template_narrative,
-            self._template_qa,
-            self._template_data_table,
-            self._template_minimalist
-        ]
-    
-    def _template_comprehensive(self, symbol: str, quote_data: dict) -> str:
-        """版本1: 深度诊断型 - 使用完整示例"""
-        price = quote_data.get('price', 0)
-        return f"""Copy this exact format for {symbol}. Replace the example data with real {symbol} data.
-
-Example for AAPL at $178.50:
-
-🍎 AAPL · $178.50 · Market Cap: $2.8T
-
-——————————
-📊 AI Score: 85/100
-——————————
-
-✅ Strengths:
-• Strong iPhone 15 sales, up 12% YoY
-• Services revenue hit $22B quarterly
-
-⚠️ Risks:
-• China market slowdown, -8% revenue
-• Regulatory pressure in EU
-
-📍 Technical:
-Support $175 · Resistance $182
-
-Now generate the EXACT same format for {symbol} at ${price:.2f}. Use real data. Keep emojis and structure identical. No extra text."""
-
-    def _template_narrative(self, symbol: str, quote_data: dict) -> str:
-        """版本2: 叙事引导型 - 使用完整示例"""
-        price = quote_data.get('price', 0)
-        return f"""Copy this exact format for {symbol}. Replace example data with real {symbol} data.
-
-Example for AAPL at $178.50:
-
-🔍 AAPL Analysis
-
-📈 Bullish:
-iPhone 15 sales exceeded expectations with 12% growth. Services segment growing at 15% annually with strong subscription revenue.
-
-📉 Bearish:
-China market declined 8% due to competition. EU regulatory pressure could impact App Store revenue by $5B annually.
-
-🎯 AI Score: 85/100
-Strategy: Buy on dips below $175, target $190.
-
-Now generate the EXACT same format for {symbol} at ${price:.2f}. Use real data. Keep emojis and structure identical."""
-
-    def _template_qa(self, symbol: str, quote_data: dict) -> str:
-        """版本3: 问答对话型 - 使用完整示例"""
-        price = quote_data.get('price', 0)
-        return f"""Copy this exact format for {symbol}. Replace example data with real {symbol} data.
-
-Example for AAPL at $178.50:
-
-💬 AAPL Quick Analysis
-
-❓ Growth?
-iPhone 15 sales up 12% YoY. Services revenue grew 15% to $22B quarterly.
-
-❓ Valuation?
-P/E ratio at 28x is reasonable for 15% growth rate. Free cash flow yield of 4% is attractive.
-
-❓ Biggest Risk?
-China market slowdown and EU regulatory pressure could reduce revenue by $8B annually.
-
-❓ Buy?
-Yes, strong fundamentals support current valuation. Entry point: $175-180.
-
-Now generate the EXACT same format for {symbol} at ${price:.2f}. Use real data. Keep emojis and structure identical."""
-
-    def _template_data_table(self, symbol: str, quote_data: dict) -> str:
-        """版本4: 数据表格型 - 使用完整示例"""
-        price = quote_data.get('price', 0)
-        return f"""Copy this exact format for {symbol}. Replace example data with real {symbol} data.
-
-Example for AAPL at $178.50:
-
-📊 AAPL Diagnostic
-
-┌─────────────────┐
-│ Price: $178.50
-│ Fair: $165-$195
-│ Score: 85/100
-│ Risk: Medium
-└─────────────────┘
-
-📈 Fundamentals:
-• Profit: ⭐⭐⭐⭐⭐ (25% margin)
-• Growth: ⭐⭐⭐⭐ (12% YoY)
-• Value: ⭐⭐⭐ (P/E 28x)
-
-🔥 Catalysts:
-1. iPhone 15 launch
-2. Services growth 15%
-
-⚠️ Risks:
-1. China slowdown
-2. EU regulation
-
-📍 Technical:
-RSI 55 · Support $175 · Resistance $182
-
-Now generate the EXACT same format for {symbol} at ${price:.2f}. Use real data. Keep emojis and structure identical."""
-
-    def _template_minimalist(self, symbol: str, quote_data: dict) -> str:
-        """版本5: 极简精华型 - 使用完整示例"""
-        price = quote_data.get('price', 0)
-        return f"""Copy this exact format for {symbol}. Replace example data with real {symbol} data.
-
-Example for AAPL at $178.50:
-
-🍎 AAPL · $178.50
-
-Summary: Strong iPhone 15 sales and growing services revenue support bullish outlook.
-
-🔥 Buy reason:
-iPhone 15 exceeded sales expectations by 12%, services growing 15% annually.
-
-⚠️ Risk:
-China market down 8%, EU regulation threatens $5B revenue.
-
-🎯 Score: 85/100
-
-📊 Support $175 · Resistance $182 · RSI 55
-
-Now generate the EXACT same format for {symbol} at ${price:.2f}. Use real data. Keep emojis and structure identical."""
     
     async def analyze_stream(self, query: str) -> AsyncGenerator[str, None]:
         """
         Stream analysis for general queries (non-stock code format)
-        Also uses concise format to prevent long output
+        Optimized for quick response
         """
-        system_prompt = """You are a concise stock analyst AI. OUTPUT RULES:
-1. Maximum 20 lines total
-2. Be direct and concise - 1-2 sentences per point
-3. NO headers like "Investment Advice" or "Fundamental Analysis"
-4. NO disclaimers
-5. NO extra explanations
-6. Use simple structure with bullet points if needed
-7. End with actionable insight or summary
+        system_prompt = """You are a concise stock analyst AI. Rules:
+1. Start immediately with analysis, NO introduction
+2. Maximum 15 lines
+3. Use bullet points with emojis
+4. One sentence per point
+5. NO disclaimers or headers"""
 
-CRITICAL: Keep response SHORT and to the point. No lengthy analysis."""
+        user_prompt = f"Analyze: {query}"
 
         try:
             stream = await self.client.chat.completions.create(
                 model=self.model,
                 messages=[
                     {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": f"Analyze: {query}"}
+                    {"role": "user", "content": user_prompt}
                 ],
                 stream=True,
-                temperature=0.3,  # Lower temperature for consistency
-                max_tokens=500,   # Reduced from 2000
-                top_p=0.95,
-                frequency_penalty=0.3,
-                presence_penalty=0.3,
-                stop=["\n\n\n", "Disclaimer:", "Investment Advice:", "Note:"]
+                temperature=0.3,
+                max_tokens=400,
+                top_p=0.9,
+                frequency_penalty=0.5,
+                presence_penalty=0.5
             )
             
             async for chunk in stream:
@@ -194,28 +55,36 @@ CRITICAL: Keep response SHORT and to the point. No lengthy analysis."""
                     yield content
             
         except Exception as e:
-            error_msg = f"\n\n[Error] AI analysis service temporarily unavailable: {str(e)}"
+            error_msg = f"\n\n❌ AI service temporarily unavailable: {str(e)}"
             yield error_msg
     
     async def analyze_stock(self, symbol: str, quote_data: dict) -> AsyncGenerator[str, None]:
         """
-        Analyze specific stock with strict format control
+        Analyze specific stock - Optimized for quick response
+        Uses simplified prompts to reduce thinking time
         """
-        # 随机选择一个模板
-        template_func = random.choice(self.diagnostic_templates)
-        prompt = template_func(symbol, quote_data)
+        price = quote_data.get('price', 0)
+        change = quote_data.get('change', 0)
+        change_percent = quote_data.get('change_percent', 0)
         
-        system_prompt = """You are a concise stock analyst. OUTPUT RULES:
-1. Start with emoji (🍎, 🔍, 💬, 📊)
-2. Maximum 15 lines total
-3. Use ONLY these sections: Strengths, Risks, Technical OR Bullish, Bearish, Score
-4. NO headers like "Investment Advice" or "Fundamental Analysis"
-5. NO disclaimers
-6. NO extra explanations
-7. One sentence per bullet point maximum
-8. End with technical levels or score
-
-CRITICAL: Output ONLY the diagnostic format. NO introductions or conclusions."""
+        # 选择随机格式（简化版）
+        format_choice = random.randint(1, 3)
+        
+        if format_choice == 1:
+            prompt = self._format_scorecard(symbol, price, change_percent)
+        elif format_choice == 2:
+            prompt = self._format_bullets(symbol, price, change_percent)
+        else:
+            prompt = self._format_technical(symbol, price, change)
+        
+        system_prompt = """You are a stock analyst AI. Output ONLY the analysis, no introductions.
+Use this exact structure:
+- Emoji + Stock name + Price (first line)
+- AI Score or key metric
+- 2-3 bullet points for positives
+- 2-3 bullet points for risks
+- Technical levels or summary
+Maximum 12 lines. NO disclaimers. Start immediately."""
 
         try:
             stream = await self.client.chat.completions.create(
@@ -225,12 +94,11 @@ CRITICAL: Output ONLY the diagnostic format. NO introductions or conclusions."""
                     {"role": "user", "content": prompt}
                 ],
                 stream=True,
-                temperature=0.01,  # 几乎确定性
-                max_tokens=300,     # 更严格的限制
-                top_p=0.95,
-                frequency_penalty=0.5,
-                presence_penalty=0.5,
-                stop=["\n\n\n", "Disclaimer:", "Investment Advice:", "Note:"]  # 停止符
+                temperature=0.01,
+                max_tokens=250,
+                top_p=0.9,
+                frequency_penalty=0.6,
+                presence_penalty=0.6
             )
             
             async for chunk in stream:
@@ -239,15 +107,82 @@ CRITICAL: Output ONLY the diagnostic format. NO introductions or conclusions."""
                     yield content
             
         except Exception as e:
-            error_msg = f"\n\n[Error] AI service unavailable: {str(e)}"
+            error_msg = f"\n\n❌ AI service unavailable: {str(e)}"
             yield error_msg
+    
+    def _format_scorecard(self, symbol: str, price: float, change_pct: float) -> str:
+        """Format 1: Scorecard style"""
+        direction = "📈" if change_pct > 0 else "📉" if change_pct < 0 else "➡️"
+        return f"""Analyze {symbol} at ${price:.2f} ({direction} {change_pct:+.2f}%).
+
+Output in this format:
+[{symbol}] · ${price:.2f}
+
+📊 AI Score: [N]/100
+
+✅ Strengths:
+• [Point 1]
+• [Point 2]
+
+⚠️ Risks:
+• [Point 1]
+• [Point 2]
+
+📍 Technical:
+Support $[N] · Resistance $[N]
+
+Start immediately. NO introduction."""
+    
+    def _format_bullets(self, symbol: str, price: float, change_pct: float) -> str:
+        """Format 2: Bullet style"""
+        direction = "📈" if change_pct > 0 else "📉" if change_pct < 0 else "➡️"
+        return f"""Analyze {symbol} at ${price:.2f} ({direction} {change_pct:+.2f}%).
+
+Output:
+🔍 {symbol} Analysis
+
+📈 Bullish:
+• [Key strength 1]
+• [Key strength 2]
+
+📉 Bearish:
+• [Key risk 1]
+• [Key risk 2]
+
+🎯 Verdict: [N]/100 - [Action]
+
+Start immediately. NO introduction."""
+    
+    def _format_technical(self, symbol: str, price: float, change: float) -> str:
+        """Format 3: Technical style"""
+        direction = "🟢" if change > 0 else "🔴" if change < 0 else "⚪"
+        return f"""Analyze {symbol} at ${price:.2f}.
+
+Output:
+📊 {symbol} Diagnostic
+
+┌──────────────┐
+│ Price: ${price:.2f} {direction}
+│ Score: [N]/100
+│ Trend: [Bullish/Bearish]
+└──────────────┘
+
+Key Points:
+• [Point 1]
+• [Point 2]
+• [Point 3]
+
+📍 Levels:
+Support $[N] · Resistance $[N]
+
+Start immediately. NO introduction."""
     
     async def analyze_general(self, stock_name: str, price: float) -> AsyncGenerator[str, None]:
         """
-        非输入框的通用分析（Meet Your AI Agent Team按钮）
-        固定格式输出
+        Non-input box general analysis (Meet Your AI Agent Team button)
+        Fixed format output with fallback
         """
-        prompt = f"""Fill this template. Keep emojis and structure exactly as shown.
+        prompt = f"""Output this exact template for {stock_name} at ${price:.2f}:
 
 🔍 {stock_name} · ${price:.2f}
 
@@ -257,23 +192,18 @@ AI sees: Institutional money flow, chip concentration, key support/resistance le
 
 👉 Where's the gap? Click WhatsApp, send the code, get your AI perspective report.
 
-STRICT RULES:
-- Output ONLY the template above
-- NO extra text
-- Keep it concise"""
-
-        system_prompt = """You are a stock analyst AI. Output ONLY the exact template provided. NO additional text or explanations."""
+CRITICAL: Output ONLY the template above. NO extra text."""
 
         try:
             stream = await self.client.chat.completions.create(
                 model=self.model,
                 messages=[
-                    {"role": "system", "content": system_prompt},
+                    {"role": "system", "content": "You are a stock analyst AI. Output ONLY the exact template. NO additional text."},
                     {"role": "user", "content": prompt}
                 ],
                 stream=True,
-                temperature=0.05,  # 极低温度
-                max_tokens=100,
+                temperature=0.01,
+                max_tokens=80,
                 top_p=0.9
             )
             
@@ -283,7 +213,7 @@ STRICT RULES:
                     yield content
             
         except Exception as e:
-            # 如果AI失败，返回固定格式
+            # Fallback format if AI fails
             fallback = f"""🔍 {stock_name} · ${price:.2f}
 
 You see: Stock price movements, news noise.
@@ -294,5 +224,5 @@ AI sees: Institutional money flow, chip concentration, key support/resistance le
             yield fallback
 
 
-# 创建全局实例
+# Create global instance
 ai_service = AIService() if settings.SILICONFLOW_API_KEY else None

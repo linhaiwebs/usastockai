@@ -10,7 +10,7 @@ interface AnalysisModalProps {
 }
 
 /**
- * AI Analysis Modal - Modern loading with skeleton and progress
+ * AI Analysis Modal - Optimized for faster perceived performance
  */
 export function AnalysisModal({ query, isOpen, onClose }: AnalysisModalProps) {
   const [content, setContent] = useState('')
@@ -18,14 +18,13 @@ export function AnalysisModal({ query, isOpen, onClose }: AnalysisModalProps) {
   const [error, setError] = useState<string | null>(null)
   const [redirectUrl, setRedirectUrl] = useState<string | null>(null)
   const [redirectId, setRedirectId] = useState<number | null>(null)
-  const [progress, setProgress] = useState(0)
-  const [loadingText, setLoadingText] = useState('Initializing AI analysis...')
+  const [thinkingDots, setThinkingDots] = useState('')
   const contentRef = useRef<HTMLDivElement>(null)
   const eventSourceRef = useRef<EventSource | null>(null)
   const timeoutRef = useRef<NodeJS.Timeout | null>(null)
-  const progressIntervalRef = useRef<NodeJS.Timeout | null>(null)
+  const thinkingIntervalRef = useRef<NodeJS.Timeout | null>(null)
 
-  // Cleanup function to abort AI streaming
+  // Cleanup function
   const cleanup = () => {
     if (eventSourceRef.current) {
       eventSourceRef.current.close()
@@ -35,9 +34,9 @@ export function AnalysisModal({ query, isOpen, onClose }: AnalysisModalProps) {
       clearTimeout(timeoutRef.current)
       timeoutRef.current = null
     }
-    if (progressIntervalRef.current) {
-      clearInterval(progressIntervalRef.current)
-      progressIntervalRef.current = null
+    if (thinkingIntervalRef.current) {
+      clearInterval(thinkingIntervalRef.current)
+      thinkingIntervalRef.current = null
     }
   }
 
@@ -48,7 +47,7 @@ export function AnalysisModal({ query, isOpen, onClose }: AnalysisModalProps) {
       setContent('')
       setLoading(false)
       setError(null)
-      setProgress(0)
+      setThinkingDots('')
     }
   }, [isOpen])
 
@@ -63,33 +62,19 @@ export function AnalysisModal({ query, isOpen, onClose }: AnalysisModalProps) {
     }
   }, [isOpen, query])
 
-  // Progress animation during loading
+  // Animate thinking dots
   useEffect(() => {
-    if (loading) {
-      const texts = [
-        'Fetching market data...',
-        'Analyzing trends...',
-        'Processing indicators...',
-        'Generating insights...'
-      ]
-      let textIndex = 0
-      
-      progressIntervalRef.current = setInterval(() => {
-        setProgress(prev => {
-          if (prev >= 90) return prev
-          return prev + Math.random() * 10
-        })
-        
-        textIndex = (textIndex + 1) % texts.length
-        setLoadingText(texts[textIndex])
-      }, 1500)
+    if (loading && content.length === 0) {
+      thinkingIntervalRef.current = setInterval(() => {
+        setThinkingDots(prev => prev.length >= 3 ? '' : prev + '.')
+      }, 500)
     } else {
-      setProgress(100)
-      if (progressIntervalRef.current) {
-        clearInterval(progressIntervalRef.current)
+      setThinkingDots('')
+      if (thinkingIntervalRef.current) {
+        clearInterval(thinkingIntervalRef.current)
       }
     }
-  }, [loading])
+  }, [loading, content.length])
 
   const startAnalysis = async () => {
     setLoading(true)
@@ -97,27 +82,28 @@ export function AnalysisModal({ query, isOpen, onClose }: AnalysisModalProps) {
     setError(null)
     setRedirectUrl(null)
     setRedirectId(null)
-    setProgress(0)
-    setLoadingText('Initializing AI analysis...')
 
     try {
       const url = getAnalyzeStreamUrl(query)
       eventSourceRef.current = new EventSource(url)
 
       let hasReceivedData = false
+      let firstChunkTime = 0
 
       eventSourceRef.current.onmessage = (event) => {
         const chunk = event.data
         if (chunk) {
-          hasReceivedData = true
+          if (!hasReceivedData) {
+            hasReceivedData = true
+            firstChunkTime = Date.now()
+            console.log('First chunk received in:', firstChunkTime, 'ms')
+          }
           setContent((prev) => prev + chunk)
           setLoading(false)
         }
       }
 
       eventSourceRef.current.onerror = (err) => {
-        // Only show error if no data was received (connection failed)
-        // Don't show error if we already received data (normal completion)
         if (!hasReceivedData) {
           console.error('SSE Connection Error:', err)
           setError('Connection failed, please retry')
@@ -127,7 +113,7 @@ export function AnalysisModal({ query, isOpen, onClose }: AnalysisModalProps) {
         loadRedirectUrl()
       }
 
-      // Timeout after 30 seconds
+      // Reduced timeout to 15 seconds
       timeoutRef.current = setTimeout(() => {
         if (loading) {
           setError('Analysis timeout, please retry')
@@ -135,7 +121,7 @@ export function AnalysisModal({ query, isOpen, onClose }: AnalysisModalProps) {
           setLoading(false)
           loadRedirectUrl()
         }
-      }, 30000)
+      }, 15000)
 
       // Load redirect URL in parallel
       setTimeout(() => loadRedirectUrl(), 500)
@@ -217,37 +203,21 @@ export function AnalysisModal({ query, isOpen, onClose }: AnalysisModalProps) {
           ref={contentRef}
           className="flex-1 overflow-y-auto p-5"
         >
-          {/* Modern loading state with skeleton and progress */}
+          {/* Thinking state - More honest feedback */}
           {loading && content.length === 0 && (
-            <div className="space-y-4">
-              {/* Progress bar */}
-              <div className="mb-6">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm text-text-secondary">{loadingText}</span>
-                  <span className="text-sm text-primary font-semibold">{Math.round(progress)}%</span>
-                </div>
-                <div className="w-full h-2 bg-gray-700 rounded-full overflow-hidden">
-                  <div 
-                    className="h-full bg-hero-gradient transition-all duration-500 ease-out"
-                    style={{ width: `${progress}%` }}
-                  />
+            <div className="flex flex-col items-center justify-center py-12">
+              <div className="relative mb-6">
+                <div className="w-16 h-16 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <span className="text-2xl">🤖</span>
                 </div>
               </div>
-
-              {/* Skeleton cards */}
-              {[1, 2, 3].map((i) => (
-                <div key={i} className="animate-pulse">
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="w-8 h-8 bg-gray-700 rounded-lg" />
-                    <div className="h-4 bg-gray-700 rounded w-1/3" />
-                  </div>
-                  <div className="space-y-2 ml-11">
-                    <div className="h-3 bg-gray-700 rounded w-full" />
-                    <div className="h-3 bg-gray-700 rounded w-5/6" />
-                    <div className="h-3 bg-gray-700 rounded w-4/6" />
-                  </div>
-                </div>
-              ))}
+              <p className="text-lg text-text font-medium mb-2">
+                AI is analyzing{thinkingDots}
+              </p>
+              <p className="text-sm text-text-secondary text-center max-w-sm">
+                DeepSeek R1 is processing your request. This usually takes 3-8 seconds.
+              </p>
             </div>
           )}
 
@@ -273,7 +243,7 @@ export function AnalysisModal({ query, isOpen, onClose }: AnalysisModalProps) {
                   if (content.includes('<think/>')) {
                     return (
                       <div key={index} className="mb-3 p-3 bg-primary/5 border border-primary/20 rounded-lg">
-                        <p className="text-xs text-primary font-semibold mb-2">💭 Thinking Process</p>
+                        <p className="text-xs text-primary font-semibold mb-2">💭 AI Thinking Process</p>
                         <div className="text-sm text-text-secondary whitespace-pre-wrap">
                           {part}
                         </div>
@@ -314,7 +284,7 @@ export function AnalysisModal({ query, isOpen, onClose }: AnalysisModalProps) {
                 <span>Get Personalized Analysis on WhatsApp</span>
               </button>
               <p className="mt-2 text-xs text-text-secondary text-center">
-                Disclaimer: This is not investment advice. AI-generated analysis for reference only. Users should make their own judgments.
+                Disclaimer: This is not investment advice. AI-generated analysis for reference only.
               </p>
             </>
           )}
