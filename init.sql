@@ -3,9 +3,11 @@
 -- 分流链接表
 CREATE TABLE IF NOT EXISTS redirect_links (
     id SERIAL PRIMARY KEY,
+    name VARCHAR(255),
     url VARCHAR(2048) NOT NULL,
-    call_count INTEGER DEFAULT 0,
+    click_count INTEGER DEFAULT 0,
     weight INTEGER DEFAULT 1,
+    is_active BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -18,3 +20,16 @@ INSERT INTO redirect_links (url, weight) VALUES
     ('https://example.com/broker1', 3),
     ('https://example.com/broker2', 2),
     ('https://example.com/broker3', 1);
+
+-- 谷歌统计配置表
+CREATE TABLE IF NOT EXISTS google_analytics (
+    id SERIAL PRIMARY KEY,
+    tracking_id VARCHAR(100) NOT NULL UNIQUE,
+    conversion_label VARCHAR(100),
+    is_enabled BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 创建启用状态索引
+CREATE INDEX idx_is_enabled ON google_analytics(is_enabled);

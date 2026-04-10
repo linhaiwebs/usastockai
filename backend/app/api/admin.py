@@ -1,14 +1,15 @@
 """
-Admin API Endpoints - Redirect Link Management
+Admin API Endpoints - Redirect Link Management and Google Analytics
 """
 from fastapi import APIRouter, HTTPException, Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, List
 import hashlib
 import secrets
 import time
 from ..models.redirect import RedirectLink
+from ..models.google_analytics import GoogleAnalytics
 from ..core.database import get_db
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -38,6 +39,16 @@ class RedirectUpdate(BaseModel):
     url: Optional[str] = None
     weight: Optional[float] = None
     is_active: Optional[bool] = None
+
+class GoogleAnalyticsCreate(BaseModel):
+    tracking_id: str
+    conversion_label: Optional[str] = None
+    is_enabled: bool = True
+
+class GoogleAnalyticsUpdate(BaseModel):
+    tracking_id: Optional[str] = None
+    conversion_label: Optional[str] = None
+    is_enabled: Optional[bool] = None
 
 def verify_token(credentials: HTTPAuthorizationCredentials = Depends(security)):
     """Verify admin token"""
@@ -213,3 +224,156 @@ async def get_stats(
         "active_redirects": active_count,
         "total_clicks": total_clicks
     }
+
+# ==========================================
+# Google Analytics Management
+# ==========================================
+
+@router.get("/google-analytics")
+async def list_google_analytics(
+    db: AsyncSession = Depends(get_db),
+    user: dict = Depends(verify_token)
+):
+    """List all Google Analytics configurations"""
+    result = await db.execute(select(GoogleAnalytics))
+    analytics = result.scalars().all()
+    
+    return {
+        "analytics": [
+            {
+                "id": a.id,
+                "tracking_id": a.tracking_id,
+                "conversion_label": a.conversion_label,
+                "is_enabled": a.is_enabled,
+                "created_at": a.created_at.isoformat() if a.created_at else None,
+                "updated_at": a.updated_at.isoformat() if a.updated_at else None
+            }
+            for a in analytics
+        ]
+    }
+
+@router.post("/google-analytics")
+async def create_google_analytics(
+    data: GoogleAnalyticsCreate,
+    db: AsyncSession = Depends(get_db),
+    user: dict = Depends(verify_token)
+):
+    """Create a new Google Analytics configuration"""
+    # Check if tracking_id already exists
+    result = await db.execute(
+        select(GoogleAnalytics).where(GoogleAnalytics.tracking_id == data.tracking_id)
+    )
+    existing = result.scalar_one_or_none()
+    
+    if existing:
+        raise HTTPException(status_code=400, detail="Tracking ID already exists")
+    
+    analytics = GoogleAnalytics(
+        tracking_id=data.tracking_id,
+        conversion_label=data.conversion_label,
+        is_enabled=data.is_enabled
+    )
+    
+    db.add(analytics)
+    await db.commit()
+    await db.refresh(analytics)
+    
+    return {
+        "id": analytics.id,
+        "tracking_id": analytics.tracking_id,
+        "conversion_label": analytics.conversion_label,
+        "is_enabled": analytics.is_enabled,
+        "created_at": analytics.created_at.isoformat() if analytics.created_at else None
+    }
+
+@router.put("/google-analytics/{analytics_id}")
+async def update_google_analytics(
+    analytics_id: int,
+    data: GoogleAnalyticsUpdate,
+    db: AsyncSession = Depends(get_db),
+    user: dict = Depends(verify_token)
+):
+    """Update a Google Analytics configuration"""
+    result = await db.execute(
+        select(GoogleAnalytics).where(GoogleAnalytics.id == analytics_id)
+    )
+    analytics = result.scalar_one_or_none()
+    
+    if not analytics:
+        raise HTTPException(status_code=404, detail="Google Analytics configuration not found")
+    
+    # Update fields
+    if data.tracking_id is not None:
+        # Check if new tracking_id already exists
+        existing_result = await db.execute(
+            select(GoogleAnalytics).where(
+                GoogleAnalytics.tracking_id == data.tracking_id,
+                GoogleAnalytics.id != analytics_id
+            )
+        )
+        existing = existing_result.scalar_one_or_none()
+        if existing:
+            raise HTTPException(status_code=400, detail="Tracking ID already exists")
+        analytics.tracking_id = data.tracking_id
+    
+    if data.conversion_label is not None:
+        analytics.conversion_label = data.conversion_label
+    
+    if data.is_enabled is not None:
+        analytics.is_enabled = data.is_enabled
+    
+    await db.commit()
+    await db.refresh(analytics)
+    
+    return {
+        "id": analytics.id,
+        "tracking_id": analytics.tracking_id,
+        "conversion_label": analytics.conversion_label,
+        "is_enabled": analytics.is_enabled,
+        "created_at": analytics.created_at.isoformat() if analytics.created_at else None
+    }
+
+@router.delete("/google-analytics/{analytics_id}")
+async def delete_google_analytics(
+    analytics_id: int,
+    db: AsyncSession = Depends(get_db),
+    user: dict = Depends(verify_token)
+):
+    """Delete a Google Analytics configuration"""
+    result = await db.execute(
+        select(GoogleAnalytics).where(GoogleAnalytics.id == analytics_id)
+    )
+    analytics = result.scalar_one_or_none()
+    
+    if not analytics:
+        raise HTTPException(status_code=404, detail="Google Analytics configuration not found")
+    
+    await db.delete(analytics)
+    await db.commit()
+    
+    return {"message": "Google Analytics configuration deleted successfully"}
+
+# ==========================================
+# Public API for Google Analytics (No Auth Required)
+# ==========================================
+
+@router.get("/public/google-analytics")
+async def get_public_google_analytics(
+    db: AsyncSession = Depends(get_db)
+):
+    """Get enabled Google Analytics configurations (public endpoint)"""
+    result = await db.execute(
+        select(GoogleAnalytics).where(GoogleAnalytics.is_enabled == True)
+    )
+    analytics = result.scalars().all()
+    
+    return {
+        "analytics": [
+            {
+                "tracking_id": a.tracking_id,
+                "conversion_label": a.conversion_label
+            }
+            for a in analytics
+        ]
+    }
+
