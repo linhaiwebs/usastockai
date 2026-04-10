@@ -16,8 +16,9 @@ interface Redirect {
 
 interface GoogleAnalyticsConfig {
   id: number
-  tracking_id: string
-  conversion_label: string | null
+  ads_tracking_id: string | null
+  ga4_property_id: string | null
+  conversion_id: string | null
   is_enabled: boolean
   created_at: string
   updated_at: string
@@ -47,8 +48,9 @@ export default function DashboardPage() {
   const [showAnalyticsForm, setShowAnalyticsForm] = useState(false)
   const [editingAnalyticsId, setEditingAnalyticsId] = useState<number | null>(null)
   const [analyticsFormData, setAnalyticsFormData] = useState({
-    tracking_id: '',
-    conversion_label: '',
+    ads_tracking_id: '',
+    ga4_property_id: '',
+    conversion_id: '',
     is_enabled: true
   })
 
@@ -74,7 +76,7 @@ export default function DashboardPage() {
       const data = await apiCall('/api/admin/redirects')
       setRedirects(data.redirects)
     } catch (err: any) {
-      setError(err.message || 'Failed to load redirects')
+      setError(err.message || '加载分流链接失败')
     }
   }
 
@@ -83,7 +85,7 @@ export default function DashboardPage() {
       const data = await apiCall('/api/admin/google-analytics')
       setAnalyticsConfigs(data.analytics)
     } catch (err: any) {
-      setError(err.message || 'Failed to load analytics')
+      setError(err.message || '加载谷歌统计配置失败')
     }
   }
 
@@ -141,8 +143,9 @@ export default function DashboardPage() {
     
     try {
       const payload = {
-        tracking_id: analyticsFormData.tracking_id,
-        conversion_label: analyticsFormData.conversion_label || null,
+        ads_tracking_id: analyticsFormData.ads_tracking_id || null,
+        ga4_property_id: analyticsFormData.ga4_property_id || null,
+        conversion_id: analyticsFormData.conversion_id || null,
         is_enabled: analyticsFormData.is_enabled
       }
       
@@ -158,19 +161,20 @@ export default function DashboardPage() {
         })
       }
       
-      setAnalyticsFormData({ tracking_id: '', conversion_label: '', is_enabled: true })
+      setAnalyticsFormData({ ads_tracking_id: '', ga4_property_id: '', conversion_id: '', is_enabled: true })
       setShowAnalyticsForm(false)
       setEditingAnalyticsId(null)
       loadAnalytics()
     } catch (err: any) {
-      setError(err.message || 'Failed to save analytics configuration')
+      setError(err.message || '保存谷歌统计配置失败')
     }
   }
 
   const handleEditAnalytics = (config: GoogleAnalyticsConfig) => {
     setAnalyticsFormData({
-      tracking_id: config.tracking_id,
-      conversion_label: config.conversion_label || '',
+      ads_tracking_id: config.ads_tracking_id || '',
+      ga4_property_id: config.ga4_property_id || '',
+      conversion_id: config.conversion_id || '',
       is_enabled: config.is_enabled
     })
     setEditingAnalyticsId(config.id)
@@ -178,13 +182,13 @@ export default function DashboardPage() {
   }
 
   const handleDeleteAnalytics = async (id: number) => {
-    if (!confirm('Are you sure you want to delete this Google Analytics configuration?')) return
+    if (!confirm('确定要删除此谷歌统计配置吗？')) return
     
     try {
       await apiCall(`/api/admin/google-analytics/${id}`, { method: 'DELETE' })
       loadAnalytics()
     } catch (err: any) {
-      setError(err.message || 'Failed to delete analytics configuration')
+      setError(err.message || '删除谷歌统计配置失败')
     }
   }
 

@@ -1,21 +1,15 @@
 version: '3.8'
 
 services:
-  # 前端服务 - Next.js
   frontend:
+    container_name: ${PROJECT_NAME:-stockai}-frontend
     build:
       context: ./frontend
       dockerfile: Dockerfile
     ports:
       - "${FRONTEND_PORT:-3000}:3000"
     environment:
-      # 服务器端渲染时使用的内部API地址
       - NEXT_PUBLIC_API_URL_INTERNAL=http://backend:${BACKEND_PORT:-8000}
-      # 客户端访问的API地址（两种部署方式）：
-      # 1. 同域名部署（推荐）：留空或不设置，前端使用相对路径 /api/*
-      #    nginx配置：yourdomain.com/api/* -> backend:8000/api/*
-      # 2. 跨域部署：设置为后端的完整地址，如 http://api.yourdomain.com
-      #    需要配置CORS或使用不同的域名
       - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-}
       - NEXT_PUBLIC_API_PORT=${BACKEND_PORT:-8000}
       - NEXT_PUBLIC_DEFAULT_LOCALE=${DEFAULT_LOCALE:-en}
@@ -23,11 +17,11 @@ services:
       backend:
         condition: service_healthy
     networks:
-      - stockai-network
+      - ${NETWORK_NAME:-stockai-network}
     restart: unless-stopped
 
-  # 后端服务 - FastAPI
   backend:
+    container_name: ${PROJECT_NAME:-stockai}-backend
     build:
       context: ./backend
       dockerfile: Dockerfile
@@ -48,11 +42,11 @@ services:
       retries: 3
       start_period: 40s
     networks:
-      - stockai-network
+      - ${NETWORK_NAME:-stockai-network}
     restart: unless-stopped
 
-  # 数据库服务 - PostgreSQL
   db:
+    container_name: ${PROJECT_NAME:-stockai}-db
     image: postgres:15-alpine
     environment:
       POSTGRES_USER: ${DB_USER:-stockai}
@@ -67,11 +61,11 @@ services:
       timeout: 5s
       retries: 5
     networks:
-      - stockai-network
+      - ${NETWORK_NAME:-stockai-network}
     restart: unless-stopped
 
-  # Redis 缓存服务（可选）
   redis:
+    container_name: ${PROJECT_NAME:-stockai}-redis
     image: redis:7-alpine
     volumes:
       - redis_data:/data
@@ -82,13 +76,16 @@ services:
       timeout: 3s
       retries: 3
     networks:
-      - stockai-network
+      - ${NETWORK_NAME:-stockai-network}
     restart: unless-stopped
 
 volumes:
   postgres_data:
+    name: ${PROJECT_NAME:-stockai}_postgres_data
   redis_data:
+    name: ${PROJECT_NAME:-stockai}_redis_data
 
 networks:
-  stockai-network:
+  app-network:
+    name: ${NETWORK_NAME:-stockai-network}
     driver: bridge
