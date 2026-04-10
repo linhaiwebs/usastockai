@@ -7,7 +7,8 @@ interface SearchBoxProps {
 }
 
 /**
- * Search Box Component - Stripe style with conservative border-radius and blue-tinted shadows
+ * Search Box Component - Revolut style with pill buttons
+ * No shadows, flat design with generous padding
  */
 export function SearchBox({ onAnalyze }: SearchBoxProps) {
   const [query, setQuery] = useState('')
@@ -29,49 +30,62 @@ export function SearchBox({ onAnalyze }: SearchBoxProps) {
   }
 
   return (
-    <div className="mb-10">
-      {/* Search input - Stripe style with 6px radius, blue-tinted shadow */}
-      <div className="relative">
-        <input
-          type="text"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          onKeyPress={handleKeyPress}
-          placeholder="Search any stock symbol (AAPL, TSLA, NVDA...)"
-          className="w-full px-4 py-4 pl-12 bg-white border border-border-default rounded-relaxed text-deep-navy placeholder-body-text focus:outline-none focus:border-stripe-purple focus:shadow-focus-ring transition-all"
-          style={{ fontFeatureSettings: '"ss01"' }}
-        />
-        
-        {/* Search icon */}
-        <svg
-          className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-body-text"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-          />
-        </svg>
-      </div>
+    <section className="py-20 px-4 bg-surface">
+      <div className="max-w-3xl mx-auto">
+        <div className="text-center mb-8">
+          <h2 
+            className="text-section-heading font-medium text-revolut-dark mb-4"
+            style={{ 
+              lineHeight: '1.20',
+              letterSpacing: '-0.4px'
+            }}
+          >
+            Analyze Any Stock
+          </h2>
+          <p className="text-body text-mid-slate">
+            Enter a stock symbol to get AI-powered analysis and insights
+          </p>
+        </div>
 
-      {/* Analyze button - Stripe primary purple button */}
-      <button
-        onClick={handleSubmit}
-        disabled={!query.trim()}
-        className="w-full mt-4 py-4 bg-stripe-purple text-white font-normal rounded-standard shadow-elevated hover:bg-purple-hover active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100"
-        style={{ fontFeatureSettings: '"ss01"' }}
-      >
-        Analyze with AI
-      </button>
-      
-      {/* Helper text */}
-      <p className="mt-3 text-caption-small text-body-text text-center opacity-70" style={{ fontFeatureSettings: '"ss01"' }}>
-        Enter a stock symbol to get AI-powered analysis and insights
-      </p>
-    </div>
+        {/* Search input - Revolut style with 20px radius */}
+        <div className="relative">
+          <input
+            type="text"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            onKeyPress={handleKeyPress}
+            placeholder="AAPL, TSLA, NVDA, MSFT..."
+            className="w-full px-6 py-5 pl-14 bg-white border-2 border-gray-tone rounded-card text-revolut-dark text-body placeholder-cool-gray focus:outline-none focus:border-revolut-dark transition-colors"
+            style={{ 
+              letterSpacing: '0.24px'
+            }}
+          />
+          
+          {/* Search icon */}
+          <svg
+            className="absolute left-5 top-1/2 -translate-y-1/2 w-6 h-6 text-mid-slate"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+            />
+          </svg>
+        </div>
+
+        {/* Analyze button - Revolut pill button */}
+        <button
+          onClick={handleSubmit}
+          disabled={!query.trim()}
+          className="w-full mt-4 py-4 bg-revolut-dark text-white font-medium text-nav-ui rounded-pill hover:opacity-85 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100"
+        >
+          Analyze with AI
+        </button>
+      </div>
+    </section>
   )
 }

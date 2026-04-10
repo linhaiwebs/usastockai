@@ -9,10 +9,13 @@ import { FeatureGrid } from '@/components/FeatureGrid'
 import { CTAButton } from '@/components/CTAButton'
 import { Footer } from '@/components/Footer'
 import { AnalysisModal } from '@/components/AnalysisModal'
+import { TestimonialsSection } from '@/components/TestimonialsSection'
+import { AITimeline } from '@/components/AITimeline'
 
 /**
- * Main Page - Stripe style landing page
- * Clean white background, blue-tinted shadows, purple accents
+ * Main Page - Revolut style landing page
+ * Clean design with alternating dark/light sections, no shadows
+ * Complete layout restructuring with new components
  */
 export default function Home() {
   const [modalOpen, setModalOpen] = useState(false)
@@ -25,23 +28,39 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-background">
-      {/* Main container with generous padding */}
-      <div className="max-w-[520px] mx-auto px-5 py-8">
-        <HeroSection />
-        <SearchBox onAnalyze={handleAnalyze} />
-        <StockGrid onStockClick={handleAnalyze} />
-        <BrandSection />
-        <FeatureGrid />
-        <CTAButton />
-        <Footer />
-        
-        {/* AI Analysis Modal */}
-        <AnalysisModal
-          query={analyzeQuery}
-          isOpen={modalOpen}
-          onClose={() => setModalOpen(false)}
-        />
-      </div>
+      {/* Hero Section - Full viewport height */}
+      <HeroSection />
+      
+      {/* Search Box - Light gray background section */}
+      <SearchBox onAnalyze={handleAnalyze} />
+      
+      {/* Trending Stocks - White background */}
+      <StockGrid onStockClick={handleAnalyze} />
+      
+      {/* AI Timeline - New horizontal timeline component */}
+      <AITimeline />
+      
+      {/* Brand Section - Dark background */}
+      <BrandSection />
+      
+      {/* Feature Grid - Light gray background, horizontal layout */}
+      <FeatureGrid />
+      
+      {/* Testimonials - New user reviews section */}
+      <TestimonialsSection />
+      
+      {/* CTA Section - White background */}
+      <CTAButton />
+      
+      {/* Footer */}
+      <Footer />
+      
+      {/* AI Analysis Modal */}
+      <AnalysisModal
+        query={analyzeQuery}
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+      />
     </main>
   )
 }

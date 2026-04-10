@@ -3,18 +3,35 @@
 @tailwind utilities;
 
 :root {
-  --foreground-rgb: 6, 27, 49;
+  /* Revolut Color System */
+  --rui-color-action-label: #ffffff;
+  --rui-color-blue: #494fdf;
+  --rui-color-action-photo-header-text: #4f55f1;
+  --rui-color-danger: #e23b4a;
+  --rui-color-deep-pink: #e61e49;
+  --rui-color-warning: #ec7e00;
+  --rui-color-yellow: #b09000;
+  --rui-color-teal: #00a87e;
+  --rui-color-light-green: #428619;
+  --rui-color-light-blue: #007bc2;
+  --rui-color-brown: #936d62;
+  --rui-color-grey-tone-20: #c9c9cd;
+  
+  --website-color-blue-text: #376cd5;
+  --website-color-green-text: #006400;
+  --website-color-red-text: #8b0000;
+  
+  --foreground-rgb: 25, 28, 31;
   --background-rgb: 255, 255, 255;
-  --font-primary: 'sohne-var', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-display: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   --font-mono: 'SourceCodePro', 'SFMono-Regular', monospace;
 }
 
 body {
   color: rgb(var(--foreground-rgb));
   background: rgb(var(--background-rgb));
-  font-feature-settings: 'ss01';
-  font-variation-settings: 'wght' 300;
-  font-family: var(--font-primary);
+  font-family: var(--font-display);
+  font-feature-settings: normal;
 }
 
 @layer utilities {
@@ -23,30 +40,30 @@ body {
   }
 }
 
-/* Custom scrollbar - Stripe style */
+/* Custom scrollbar - Revolut minimal style */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #f7fafc;
+  background: #f4f4f4;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #b9b9f9;
-  border-radius: 4px;
+  background: #c9c9cd;
+  border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #533afd;
+  background: #8d969e;
 }
 
-/* Typography - Stripe style */
+/* Typography - Revolut style */
 h1, h2, h3, h4, h5, h6 {
-  font-weight: 300;
-  font-feature-settings: 'ss01';
-  color: #061b31;
+  font-weight: 500;
+  color: #191c1f;
+  font-family: var(--font-display);
 }
 
 /* Better text rendering */
@@ -67,74 +84,100 @@ code, pre, .font-mono {
   font-feature-settings: 'tnum';
 }
 
-/* Stripe-style card hover */
-.stripe-card {
-  border-radius: 6px;
-  border: 1px solid #e5edf5;
-  background: #ffffff;
-  transition: box-shadow 0.2s ease-in-out;
-}
-
-.stripe-card:hover {
-  box-shadow: rgba(50,50,93,0.25) 0px 30px 45px -30px, rgba(0,0,0,0.1) 0px 18px 36px -18px;
-}
-
-/* Primary purple button */
-.stripe-primary-btn {
-  background-color: #533afd;
+/* Revolut-style pill button */
+.revolut-btn-primary {
+  background-color: #191c1f;
   color: #ffffff;
-  border-radius: 4px;
-  padding: 8px 16px;
-  font-weight: 400;
-  font-feature-settings: 'ss01';
-  transition: background-color 0.2s ease-in-out, transform 0.2s ease-in-out;
+  border-radius: 9999px;
+  padding: 14px 32px;
+  font-weight: 500;
+  font-size: 20px;
+  line-height: 1.40;
+  transition: opacity 0.2s ease-in-out;
 }
 
-.stripe-primary-btn:hover {
-  background-color: #4434d4;
+.revolut-btn-primary:hover {
+  opacity: 0.85;
 }
 
-.stripe-primary-btn:active {
+.revolut-btn-primary:active {
   transform: scale(0.98);
 }
 
-/* Secondary ghost button */
-.stripe-ghost-btn {
-  background-color: transparent;
-  color: #533afd;
-  border: 1px solid #b9b9f9;
-  border-radius: 4px;
-  padding: 8px 16px;
-  font-weight: 400;
-  font-feature-settings: 'ss01';
-  transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out;
+/* Revolut-style secondary button */
+.revolut-btn-secondary {
+  background-color: #f4f4f4;
+  color: #000000;
+  border-radius: 9999px;
+  padding: 14px 34px;
+  font-weight: 500;
+  font-size: 20px;
+  line-height: 1.40;
+  transition: opacity 0.2s ease-in-out;
 }
 
-.stripe-ghost-btn:hover {
-  background-color: #f7f9ff;
-  border-color: #533afd;
+.revolut-btn-secondary:hover {
+  opacity: 0.85;
+}
+
+/* Revolut-style outlined button */
+.revolut-btn-outlined {
+  background-color: transparent;
+  color: #191c1f;
+  border: 2px solid #191c1f;
+  border-radius: 9999px;
+  padding: 14px 32px;
+  font-weight: 500;
+  font-size: 20px;
+  line-height: 1.40;
+  transition: opacity 0.2s ease-in-out;
+}
+
+.revolut-btn-outlined:hover {
+  opacity: 0.85;
+}
+
+/* Revolut-style ghost button on dark */
+.revolut-btn-ghost {
+  background-color: rgba(244, 244, 244, 0.1);
+  color: #f4f4f4;
+  border: 2px solid #f4f4f4;
+  border-radius: 9999px;
+  padding: 14px 32px;
+  font-weight: 500;
+  font-size: 20px;
+  line-height: 1.40;
+  transition: opacity 0.2s ease-in-out;
+}
+
+.revolut-btn-ghost:hover {
+  opacity: 0.85;
 }
 
 /* Focus ring for accessibility */
 *:focus-visible {
-  outline: 2px solid #533afd;
+  outline: 0.125rem solid #191c1f;
   outline-offset: 2px;
 }
 
 /* Success badge */
 .success-badge {
-  background: rgba(21,190,83,0.2);
-  color: #108c3d;
-  border: 1px solid rgba(21,190,83,0.4);
-  border-radius: 4px;
-  padding: 1px 6px;
-  font-size: 10px;
-  font-weight: 300;
-  font-feature-settings: 'ss01';
+  background: rgba(0, 168, 126, 0.2);
+  color: #00a87e;
+  border: 1px solid rgba(0, 168, 126, 0.4);
+  border-radius: 9999px;
+  padding: 4px 12px;
+  font-size: 12px;
+  font-weight: 500;
 }
 
-/* Gradient decoration for hero */
-.gradient-decoration {
-  background: linear-gradient(135deg, #ea2261 0%, #f96bee 100%);
-  opacity: 0.15;
+/* Danger badge */
+.danger-badge {
+  background: rgba(226, 59, 74, 0.2);
+  color: #e23b4a;
+  border: 1px solid rgba(226, 59, 74, 0.4);
+  border-radius: 9999px;
+  padding: 4px 12px;
+  font-size: 12px;
+  font-weight: 500;
 }

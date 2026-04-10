@@ -10,7 +10,8 @@ interface AnalysisModalProps {
 }
 
 /**
- * AI Analysis Modal - Stripe style with purple accents and blue-tinted shadows
+ * AI Analysis Modal - Revolut style with pill buttons
+ * Clean, flat design with no shadows
  */
 export function AnalysisModal({ query, isOpen, onClose }: AnalysisModalProps) {
   const [content, setContent] = useState('')
@@ -190,20 +191,18 @@ export function AnalysisModal({ query, isOpen, onClose }: AnalysisModalProps) {
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-deep-navy/80 backdrop-blur-sm">
-      <div className="w-full max-w-2xl max-h-[85vh] bg-white border border-border-default rounded-large shadow-deep overflow-hidden flex flex-col">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-revolut-dark/80 backdrop-blur-sm">
+      <div className="w-full max-w-2xl max-h-[85vh] bg-white border-2 border-gray-tone rounded-card overflow-hidden flex flex-col">
         {/* Header */}
-        <div className="p-6 border-b border-border-default flex items-center justify-between">
+        <div className="p-6 border-b-2 border-gray-tone flex items-center justify-between">
           <div>
             <h2 
-              className="text-sub-heading-large text-deep-navy"
-              style={{ fontFeatureSettings: '"ss01"' }}
+              className="text-card-title font-medium text-revolut-dark"
             >
               AI Analysis Report
             </h2>
             <p 
-              className="text-caption text-body-text mt-1"
-              style={{ fontFeatureSettings: '"ss01"' }}
+              className="text-caption text-mid-slate mt-1"
             >
               Query: {query}
             </p>
@@ -213,7 +212,7 @@ export function AnalysisModal({ query, isOpen, onClose }: AnalysisModalProps) {
             className="p-2 hover:bg-surface rounded-standard transition-colors"
           >
             <svg
-              className="w-5 h-5 text-body-text"
+              className="w-6 h-6 text-mid-slate"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -237,17 +236,15 @@ export function AnalysisModal({ query, isOpen, onClose }: AnalysisModalProps) {
           {loading && content.length === 0 && (
             <div className="flex flex-col items-center justify-center py-12">
               <div className="relative mb-6">
-                <div className="w-16 h-16 border-4 border-purple-light border-t-stripe-purple rounded-full animate-spin"></div>
+                <div className="w-16 h-16 border-4 border-gray-tone border-t-revolut-dark rounded-full animate-spin"></div>
               </div>
               <p 
-                className="text-sub-heading text-deep-navy mb-2"
-                style={{ fontFeatureSettings: '"ss01"' }}
+                className="text-feature-title font-medium text-revolut-dark mb-2"
               >
                 AI is analyzing{thinkingDots}
               </p>
               <p 
-                className="text-caption text-body-text text-center max-w-sm"
-                style={{ fontFeatureSettings: '"ss01"' }}
+                className="text-body text-mid-slate text-center max-w-sm"
               >
                 Advanced AI is analyzing your request. This usually takes 1-3 seconds.
               </p>
@@ -256,17 +253,15 @@ export function AnalysisModal({ query, isOpen, onClose }: AnalysisModalProps) {
 
           {/* Error state */}
           {error && (
-            <div className="p-4 bg-ruby/10 border border-ruby/30 rounded-standard">
+            <div className="p-4 bg-danger/10 border-2 border-danger/30 rounded-card">
               <p 
-                className="text-danger-red font-normal"
-                style={{ fontFeatureSettings: '"ss01"' }}
+                className="text-danger font-medium"
               >
                 {error}
               </p>
               <button
                 onClick={startAnalysis}
-                className="mt-2 text-caption text-stripe-purple hover:underline"
-                style={{ fontFeatureSettings: '"ss01"' }}
+                className="mt-2 text-caption text-revolut-blue hover:underline font-medium"
               >
                 Retry analysis
               </button>
@@ -281,16 +276,14 @@ export function AnalysisModal({ query, isOpen, onClose }: AnalysisModalProps) {
                 if (index === 0) {
                   if (content.includes('<think/>')) {
                     return (
-                      <div key={index} className="mb-4 p-4 bg-purple-soft/30 border border-border-purple rounded-standard">
+                      <div key={index} className="mb-4 p-4 bg-revolut-blue/5 border-2 border-revolut-blue/20 rounded-card">
                         <p 
-                          className="text-caption-small text-purple-deep mb-2 uppercase tracking-wider"
-                          style={{ fontFeatureSettings: '"ss01"' }}
+                          className="text-caption-small text-revolut-blue mb-2 uppercase tracking-wider font-medium"
                         >
                           AI Thinking Process
                         </p>
                         <div 
-                          className="text-caption text-label-text whitespace-pre-wrap"
-                          style={{ fontFeatureSettings: '"ss01"' }}
+                          className="text-caption text-mid-slate whitespace-pre-wrap"
                         >
                           {part}
                         </div>
@@ -300,8 +293,7 @@ export function AnalysisModal({ query, isOpen, onClose }: AnalysisModalProps) {
                   return (
                     <div 
                       key={index} 
-                      className="text-body text-deep-navy whitespace-pre-wrap leading-relaxed"
-                      style={{ fontFeatureSettings: '"ss01"' }}
+                      className="text-body text-revolut-dark whitespace-pre-wrap leading-relaxed"
                     >
                       {part}
                     </div>
@@ -310,8 +302,7 @@ export function AnalysisModal({ query, isOpen, onClose }: AnalysisModalProps) {
                 return (
                   <div 
                     key={index} 
-                    className="text-body text-deep-navy whitespace-pre-wrap leading-relaxed"
-                    style={{ fontFeatureSettings: '"ss01"' }}
+                    className="text-body text-revolut-dark whitespace-pre-wrap leading-relaxed"
                   >
                     {part}
                   </div>
@@ -322,13 +313,12 @@ export function AnalysisModal({ query, isOpen, onClose }: AnalysisModalProps) {
         </div>
 
         {/* Footer with WhatsApp button */}
-        <div className="p-6 border-t border-border-default">
+        <div className="p-6 border-t-2 border-gray-tone">
           {redirectUrl && (
             <>
               <button
                 onClick={handleWhatsAppClick}
-                className="w-full py-4 px-4 bg-stripe-purple hover:bg-purple-hover text-white font-normal rounded-standard shadow-elevated transition-all flex items-center justify-center gap-2 active:scale-[0.98]"
-                style={{ fontFeatureSettings: '"ss01"' }}
+                className="w-full revolut-btn-primary flex items-center justify-center gap-3"
               >
                 <svg
                   className="w-5 h-5"
@@ -340,8 +330,7 @@ export function AnalysisModal({ query, isOpen, onClose }: AnalysisModalProps) {
                 <span>Get Personalized Analysis on WhatsApp</span>
               </button>
               <p 
-                className="mt-3 text-caption-small text-body-text text-center opacity-70"
-                style={{ fontFeatureSettings: '"ss01"' }}
+                className="mt-3 text-caption-small text-mid-slate text-center"
               >
                 Disclaimer: This is not investment advice. AI-generated analysis for reference only.
               </p>
@@ -351,8 +340,7 @@ export function AnalysisModal({ query, isOpen, onClose }: AnalysisModalProps) {
           {!redirectUrl && !loading && content && (
             <button
               disabled
-              className="w-full py-4 px-4 bg-surface text-body-text font-normal rounded-standard flex items-center justify-center gap-2 opacity-50 cursor-not-allowed"
-              style={{ fontFeatureSettings: '"ss01"' }}
+              className="w-full py-4 px-4 bg-surface text-mid-slate font-medium rounded-pill flex items-center justify-center gap-3 opacity-50 cursor-not-allowed"
             >
               <svg
                 className="w-5 h-5 animate-spin"

@@ -16,12 +16,12 @@ interface StockCardProps {
 }
 
 /**
- * Stock Card Component - Stripe style with white cards and blue-tinted shadows
+ * Stock Card Component - Revolut style with flat cards and no shadows
  * Uses tabular numerals for financial data
  */
 export function StockCard({ stock, onClick, compact = false }: StockCardProps) {
   const isProfit = stock.change >= 0
-  const changeColor = isProfit ? 'text-positive-green' : 'text-danger-red'
+  const changeColor = isProfit ? 'text-teal' : 'text-danger'
   const changeSymbol = isProfit ? '+' : ''
 
   const formatVolume = (vol: number) => {
@@ -34,23 +34,21 @@ export function StockCard({ stock, onClick, compact = false }: StockCardProps) {
   }
 
   if (compact) {
-    // Compact version - Stripe style with 6px radius
+    // Compact version - Revolut style with 20px radius, no shadow
     return (
       <button
         onClick={onClick}
-        className="w-full p-4 bg-white border border-border-default rounded-relaxed hover:shadow-elevated transition-all text-left group"
-        style={{ fontFeatureSettings: '"ss01"' }}
+        className="w-full p-5 bg-white border-2 border-gray-tone rounded-card hover:border-revolut-dark transition-colors text-left group"
       >
         {/* Stock symbol and price */}
-        <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center justify-between mb-3">
           <h3 
-            className="text-base font-normal text-deep-navy group-hover:text-stripe-purple transition-colors"
-            style={{ fontFeatureSettings: '"ss01"' }}
+            className="text-feature-title font-medium text-revolut-dark group-hover:text-revolut-blue transition-colors"
           >
             {stock.symbol}
           </h3>
           <p 
-            className="text-lg font-normal text-deep-navy font-mono"
+            className="text-card-title font-medium text-revolut-dark font-mono"
             style={{ fontFeatureSettings: '"tnum"' }}
           >
             ${stock.price.toFixed(2)}
@@ -58,10 +56,10 @@ export function StockCard({ stock, onClick, compact = false }: StockCardProps) {
         </div>
 
         {/* Change percentage */}
-        <div className={`flex items-center gap-1 text-sm font-normal ${changeColor}`}>
-          <span>{isProfit ? '↑' : '↓'}</span>
+        <div className={`flex items-center gap-2 text-body ${changeColor}`}>
+          <span className="text-lg">{isProfit ? '↑' : '↓'}</span>
           <span 
-            className="font-mono"
+            className="font-mono font-medium"
             style={{ fontFeatureSettings: '"tnum"' }}
           >
             {changeSymbol}{stock.change.toFixed(2)}
@@ -77,29 +75,27 @@ export function StockCard({ stock, onClick, compact = false }: StockCardProps) {
     )
   }
 
-  // Full version - Stripe style with 6px radius
+  // Full version - Revolut style with 20px radius, no shadow
   return (
     <button
       onClick={onClick}
-      className="w-full p-6 bg-white border border-border-default rounded-relaxed hover:shadow-elevated transition-all text-left group"
-      style={{ fontFeatureSettings: '"ss01"' }}
+      className="w-full p-6 bg-white border-2 border-gray-tone rounded-card hover:border-revolut-dark transition-colors text-left group"
     >
       {/* Stock symbol and name */}
-      <div className="mb-4">
+      <div className="mb-5">
         <h3 
-          className="text-sub-heading text-deep-navy group-hover:text-stripe-purple transition-colors mb-1"
-          style={{ fontFeatureSettings: '"ss01"' }}
+          className="text-card-title font-medium text-revolut-dark group-hover:text-revolut-blue transition-colors mb-2"
         >
           {stock.symbol}
         </h3>
-        <p className="text-caption text-body-text truncate">{stock.name}</p>
+        <p className="text-body text-mid-slate truncate">{stock.name}</p>
       </div>
 
       {/* Price */}
-      <div className="mb-4">
+      <div className="mb-5">
         <p 
-          className="text-section-heading text-deep-navy font-mono"
-          style={{ fontFeatureSettings: '"tnum"' }}
+          className="text-display-large font-medium text-revolut-dark font-mono"
+          style={{ fontFeatureSettings: '"tnum"', letterSpacing: '-0.48px' }}
         >
           ${stock.price.toFixed(2)}
         </p>
@@ -107,18 +103,16 @@ export function StockCard({ stock, onClick, compact = false }: StockCardProps) {
 
       {/* Change percentage */}
       <div className="flex items-center justify-between">
-        <div className={`flex items-center gap-1 font-normal ${changeColor}`}>
-          <span className="text-base">
-            {isProfit ? '↑' : '↓'}
-          </span>
+        <div className={`flex items-center gap-2 ${changeColor}`}>
+          <span className="text-xl">{isProfit ? '↑' : '↓'}</span>
           <span 
-            className="font-mono"
+            className="font-mono font-medium text-body"
             style={{ fontFeatureSettings: '"tnum"' }}
           >
             {changeSymbol}{stock.change.toFixed(2)}
           </span>
           <span 
-            className="text-sm font-mono"
+            className="font-mono text-body"
             style={{ fontFeatureSettings: '"tnum"' }}
           >
             ({changeSymbol}{stock.change_percent.toFixed(2)}%)
@@ -127,7 +121,7 @@ export function StockCard({ stock, onClick, compact = false }: StockCardProps) {
 
         {/* Volume */}
         <div 
-          className="text-caption text-body-text font-mono"
+          className="text-caption text-mid-slate font-mono"
           style={{ fontFeatureSettings: '"tnum"' }}
         >
           Vol: {formatVolume(stock.volume)}

@@ -1,7 +1,8 @@
 'use client'
 
 /**
- * Brand Section - Stripe style with dark brand background and subtle badges
+ * Brand Section - Revolut style with dark background
+ * Minimal, flat design with pill badges
  */
 export function BrandSection() {
   const brands = [
@@ -12,29 +13,26 @@ export function BrandSection() {
   ]
 
   return (
-    <section className="mb-12 -mx-4 px-4 py-12 bg-brand-dark">
-      <div className="max-w-[480px] mx-auto">
+    <section className="py-20 px-4 bg-revolut-dark">
+      <div className="max-w-6xl mx-auto">
         <p 
-          className="text-center text-caption text-white opacity-70 mb-6 uppercase tracking-wider"
-          style={{ fontFeatureSettings: '"ss01"' }}
+          className="text-center text-caption text-white opacity-70 mb-10 uppercase tracking-wider"
         >
           Powered by trusted data sources
         </p>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {brands.map((brand, index) => (
             <div
               key={index}
-              className="px-4 py-3 bg-white/5 border border-white/10 rounded-standard backdrop-blur-sm"
+              className="px-6 py-5 bg-white/5 border-2 border-white/10 rounded-card backdrop-blur-sm hover:bg-white/10 transition-colors"
             >
               <p 
-                className="text-sm text-white font-normal mb-0.5"
-                style={{ fontFeatureSettings: '"ss01"' }}
+                className="text-body font-medium text-white mb-1"
               >
                 {brand.name}
               </p>
               <p 
-                className="text-caption-small text-white opacity-50"
-                style={{ fontFeatureSettings: '"ss01"' }}
+                className="text-caption-small text-white opacity-60"
               >
                 {brand.desc}
               </p>
