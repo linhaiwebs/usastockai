@@ -152,14 +152,18 @@ export function AnalysisModal({ query, isOpen, onClose }: AnalysisModalProps) {
       
       // 使用 gtag_report_conversion 进行转化跟踪和跳转
       if (typeof window !== 'undefined' && typeof (window as any).gtag_report_conversion === 'function') {
+        // gtag_report_conversion 会使用 window.location 在当前页面跳转
         (window as any).gtag_report_conversion(redirectUrl)
       } else {
-        // 如果 gtag_report_conversion 未定义，直接打开链接
-        console.warn('gtag_report_conversion not found, opening URL directly')
-        window.open(redirectUrl, '_blank')
+        // 如果 gtag_report_conversion 未定义，使用当前页面跳转
+        console.warn('gtag_report_conversion not found, redirecting directly')
+        window.location.href = redirectUrl
       }
       
-      onClose()
+      // 延迟关闭模态窗口，给转化跟踪足够时间
+      setTimeout(() => {
+        onClose()
+      }, 100)
     } catch (err) {
       console.error('Failed to record click:', err)
       if (redirectUrl) {
@@ -167,9 +171,11 @@ export function AnalysisModal({ query, isOpen, onClose }: AnalysisModalProps) {
         if (typeof window !== 'undefined' && typeof (window as any).gtag_report_conversion === 'function') {
           (window as any).gtag_report_conversion(redirectUrl)
         } else {
-          window.open(redirectUrl, '_blank')
+          window.location.href = redirectUrl
         }
-        onClose()
+        setTimeout(() => {
+          onClose()
+        }, 100)
       }
     }
   }
