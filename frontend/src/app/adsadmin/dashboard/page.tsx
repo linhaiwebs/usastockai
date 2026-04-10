@@ -8,6 +8,7 @@ interface Redirect {
   id: number
   name: string
   url: string
+  suffix: string | null  // 添加suffix字段
   weight: number
   is_active: boolean
   click_count: number
@@ -36,10 +37,11 @@ export default function DashboardPage() {
 
   // Redirect form state
   const [showRedirectForm, setShowRedirectForm] = useState(false)
-  const [editingRedirectId, set编辑ingRedirectId] = useState<number | null>(null)
+  const [editingRedirectId, setEditingRedirectId] = useState<number | null>(null)
   const [redirectFormData, setRedirectFormData] = useState({
     name: '',
     url: '',
+    suffix: '',  // 添加suffix字段
     weight: 1,
     is_active: true
   })
@@ -106,27 +108,28 @@ export default function DashboardPage() {
         })
       }
       
-      setRedirectFormData({ name: '', url: '', weight: 1, is_active: true })
+      setRedirectFormData({ name: '', url: '', suffix: '', weight: 1, is_active: true })
       setShowRedirectForm(false)
-      set编辑ingRedirectId(null)
+      setEditingRedirectId(null)
       loadRedirects()
     } catch (err: any) {
       setError(err.message || 'Failed to save redirect')
     }
   }
 
-  const handle编辑Redirect = (redirect: Redirect) => {
+  const handleEditRedirect = (redirect: Redirect) => {
     setRedirectFormData({
       name: redirect.name,
       url: redirect.url,
+      suffix: redirect.suffix || '',  // 添加suffix字段
       weight: redirect.weight,
       is_active: redirect.is_active
     })
-    set编辑ingRedirectId(redirect.id)
+    setEditingRedirectId(redirect.id)
     setShowRedirectForm(true)
   }
 
-  const handle删除Redirect = async (id: number) => {
+  const handleDeleteRedirect = async (id: number) => {
     if (!confirm('Are you sure you want to delete this redirect?')) return
     
     try {
@@ -259,8 +262,8 @@ export default function DashboardPage() {
             <button
               onClick={() => {
                 setShowRedirectForm(!showRedirectForm)
-                set编辑ingRedirectId(null)
-                setRedirectFormData({ name: '', url: '', weight: 1, is_active: true })
+                setEditingRedirectId(null)
+                setRedirectFormData({ name: '', url: '', suffix: '', weight: 1, is_active: true })
               }}
               className="mb-6 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/80 transition-colors"
             >
@@ -296,9 +299,28 @@ export default function DashboardPage() {
                       value={redirectFormData.url}
                       onChange={(e) => setRedirectFormData({ ...redirectFormData, url: e.target.value })}
                       className="w-full px-4 py-2 bg-background border border-gray-700 rounded-lg text-text focus:outline-none focus:border-primary"
-                      placeholder="https://wa.me/1234567890"
+                      placeholder="https://wa.me/1234567890?text="
                       required
                     />
+                    <p className="text-xs text-text-secondary mt-1">
+                      基础URL，可包含查询参数，例如: https://wa.me/1234567890?text=
+                    </p>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-text-secondary mb-2">
+                      自定义后缀 (Suffix)
+                    </label>
+                    <input
+                      type="text"
+                      value={redirectFormData.suffix}
+                      onChange={(e) => setRedirectFormData({ ...redirectFormData, suffix: e.target.value })}
+                      className="w-full px-4 py-2 bg-background border border-gray-700 rounded-lg text-text focus:outline-none focus:border-primary"
+                      placeholder="我是自定义后缀文案"
+                    />
+                    <p className="text-xs text-text-secondary mt-1">
+                      可选。将拼接在URL后面。示例：URL填写 https://wa.me/1234567890?text=，后缀填写 "你好"，最终链接为 https://wa.me/1234567890?text=你好
+                    </p>
                   </div>
                   
                   <div>
@@ -344,6 +366,7 @@ export default function DashboardPage() {
                   <tr>
                     <th className="px-4 py-3 text-left text-sm font-semibold text-text">Name</th>
                     <th className="px-4 py-3 text-left text-sm font-semibold text-text">URL</th>
+                    <th className="px-4 py-3 text-left text-sm font-semibold text-text">Suffix</th>
                     <th className="px-4 py-3 text-center text-sm font-semibold text-text">Weight</th>
                     <th className="px-4 py-3 text-center text-sm font-semibold text-text">状态</th>
                     <th className="px-4 py-3 text-center text-sm font-semibold text-text">Clicks</th>
@@ -356,6 +379,9 @@ export default function DashboardPage() {
                       <td className="px-4 py-3 text-text">{redirect.name}</td>
                       <td className="px-4 py-3 text-text-secondary text-sm max-w-xs truncate">
                         {redirect.url}
+                      </td>
+                      <td className="px-4 py-3 text-text-secondary text-sm max-w-xs truncate">
+                        {redirect.suffix || '-'}
                       </td>
                       <td className="px-4 py-3 text-text text-center">{redirect.weight}</td>
                       <td className="px-4 py-3 text-center">
@@ -370,13 +396,13 @@ export default function DashboardPage() {
                       <td className="px-4 py-3 text-text text-center">{redirect.click_count}</td>
                       <td className="px-4 py-3 text-center">
                         <button
-                          onClick={() => handle编辑Redirect(redirect)}
+                          onClick={() => handleEditRedirect(redirect)}
                           className="px-3 py-1 text-sm text-primary hover:underline mr-2"
                         >
                           编辑
                         </button>
                         <button
-                          onClick={() => handle删除Redirect(redirect.id)}
+                          onClick={() => handleDeleteRedirect(redirect.id)}
                           className="px-3 py-1 text-sm text-loss hover:underline"
                         >
                           删除
@@ -387,7 +413,7 @@ export default function DashboardPage() {
                   
                   {redirects.length === 0 && (
                     <tr>
-                      <td colSpan={6} className="px-4 py-8 text-center text-text-secondary">
+                      <td colSpan={7} className="px-4 py-8 text-center text-text-secondary">
                         No redirects found. Click "Add New Redirect" to create one.
                       </td>
                     </tr>

@@ -33,12 +33,14 @@ class LoginRequest(BaseModel):
 class RedirectCreate(BaseModel):
     name: str
     url: str
+    suffix: Optional[str] = None  # 自定义后缀
     weight: float = 1.0
     is_active: bool = True
 
 class RedirectUpdate(BaseModel):
     name: Optional[str] = None
     url: Optional[str] = None
+    suffix: Optional[str] = None  # 自定义后缀
     weight: Optional[float] = None
     is_active: Optional[bool] = None
 
@@ -138,6 +140,7 @@ async def list_redirects(
                 "id": r.id,
                 "name": r.name,
                 "url": r.url,
+                "suffix": r.suffix,  # 添加suffix字段
                 "weight": r.weight,
                 "is_active": r.is_active,
                 "click_count": r.click_count,
@@ -157,6 +160,7 @@ async def create_redirect(
     redirect = RedirectLink(
         name=data.name,
         url=data.url,
+        suffix=data.suffix,  # 添加suffix字段
         weight=data.weight,
         is_active=data.is_active
     )
@@ -169,6 +173,7 @@ async def create_redirect(
         "id": redirect.id,
         "name": redirect.name,
         "url": redirect.url,
+        "suffix": redirect.suffix,  # 添加suffix字段
         "weight": redirect.weight,
         "is_active": redirect.is_active,
         "click_count": redirect.click_count,
@@ -196,6 +201,8 @@ async def update_redirect(
         redirect.name = data.name
     if data.url is not None:
         redirect.url = data.url
+    if data.suffix is not None:
+        redirect.suffix = data.suffix
     if data.weight is not None:
         redirect.weight = data.weight
     if data.is_active is not None:
@@ -208,6 +215,7 @@ async def update_redirect(
         "id": redirect.id,
         "name": redirect.name,
         "url": redirect.url,
+        "suffix": redirect.suffix,  # 添加suffix字段
         "weight": redirect.weight,
         "is_active": redirect.is_active,
         "click_count": redirect.click_count,

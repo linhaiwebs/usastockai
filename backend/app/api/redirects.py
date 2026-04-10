@@ -16,17 +16,20 @@ router = APIRouter(prefix="/api/redirects", tags=["redirects"])
 # Pydantic 模型
 class RedirectCreate(BaseModel):
     url: str
+    suffix: str | None = None  # 自定义后缀
     weight: int = 1
 
 
 class RedirectUpdate(BaseModel):
     url: str | None = None
+    suffix: str | None = None  # 自定义后缀
     weight: int | None = None
 
 
 class RedirectResponse(BaseModel):
     id: int
     url: str
+    suffix: str | None = None  # 自定义后缀
     call_count: int
     weight: int
     
@@ -45,7 +48,7 @@ async def get_all_redirects(db: AsyncSession = Depends(get_db)):
 @router.post("", response_model=RedirectResponse)
 async def create_redirect(data: RedirectCreate, db: AsyncSession = Depends(get_db)):
     """创建新的分流链接"""
-    link = RedirectLink(url=data.url, weight=data.weight)
+    link = RedirectLink(url=data.url, suffix=data.suffix, weight=data.weight)
     db.add(link)
     await db.commit()
     await db.refresh(link)
@@ -73,10 +76,26 @@ async def assign_redirect(db: AsyncSession = Depends(get_db)):
             selected_link = link
             break
     
+    # 拼接URL和后缀
+    final_url = selected_link.url
+    if selected_link.suffix:
+        # 处理URL拼接逻辑
+        if '?' in final_url:
+            # 如果URL已经有参数，直接拼接后缀
+            final_url = f"{final_url}{selected_link.suffix}"
+        else:
+            # 如果URL没有参数，检查是否需要添加?
+            if selected_link.suffix.startswith('?') or selected_link.suffix.startswith('&'):
+                final_url = f"{final_url}{selected_link.suffix}"
+            else:
+                # 默认作为查询参数添加
+                final_url = f"{final_url}?text={selected_link.suffix}"
+    
     return {
         "id": selected_link.id,
-        "url": selected_link.url,
-        "weight": selected_link.weight
+        "url": final_url,
+        "weight": selected_link.weight,
+        "suffix": selected_link.suffix
     }
 
 
@@ -151,6 +170,8 @@ async def update_redirect(
     
     if data.url is not None:
         link.url = data.url
+    if data.suffix is not None:
+        link.suffix = data.suffix
     if data.weight is not None:
         link.weight = data.weight
     
