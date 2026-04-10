@@ -14,6 +14,10 @@ export function SearchBox({ onAnalyze }: SearchBoxProps) {
 
   const handleSubmit = () => {
     if (query.trim() && onAnalyze) {
+      // Trigger Google Analytics event
+      if (typeof window !== 'undefined' && typeof (window as any).gtag === 'function') {
+        (window as any).gtag('event', 'Bdd');
+      }
       onAnalyze(query)
     }
   }
