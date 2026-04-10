@@ -9,84 +9,109 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'sans-serif'],
-        display: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'sans-serif'],
-        mono: ['JetBrains Mono', 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Mono', 'monospace'],
+        sans: ['sohne-var', 'SF Pro Display', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'sans-serif'],
+        display: ['sohne-var', 'SF Pro Display', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'sans-serif'],
+        mono: ['SourceCodePro', 'SFMono-Regular', 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Mono', 'monospace'],
       },
       colors: {
-        // Wise Design System Colors
+        // Stripe Design System Colors
         background: '#ffffff',
-        surface: '#e8ebe6',
-        'surface-light': '#f5f7f3',
+        surface: '#f7fafc',
+        'surface-elevated': '#ffffff',
         
-        // Primary Brand
-        'near-black': '#0e0f0c',
-        'wise-green': '#9fe870',
-        'dark-green': '#163300',
-        'light-mint': '#e2f6d5',
-        'pastel-green': '#cdffad',
+        // Primary Brand - Stripe Purple
+        'stripe-purple': '#533afd',
+        'purple-hover': '#4434d4',
+        'purple-deep': '#2e2b8c',
+        'purple-light': '#b9b9f9',
+        'purple-mid': '#665efd',
+        'purple-soft': '#d6d9fc',
+        
+        // Headings - Deep Navy
+        'deep-navy': '#061b31',
+        'dark-navy': '#0d253d',
+        
+        // Brand Dark
+        'brand-dark': '#1c1e54',
+        
+        // Text colors
+        'label-text': '#273951',
+        'body-text': '#64748d',
+        
+        // Accent colors - Ruby & Magenta (decorative only)
+        'ruby': '#ea2261',
+        'magenta': '#f96bee',
+        'magenta-light': '#ffd7ef',
         
         // Semantic
-        'positive-green': '#054d28',
-        'danger-red': '#d03238',
-        'warning-yellow': '#ffd11a',
-        'bright-orange': '#ffc091',
+        'positive-green': '#15be53',
+        'positive-text': '#108c3d',
+        'danger-red': '#ea2261',
+        'warning-lemon': '#9b6829',
+        
+        // Borders
+        'border-default': '#e5edf5',
+        'border-purple': '#b9b9f9',
+        'border-magenta': '#ffd7ef',
+        'border-dashed': '#362baa',
         
         // Neutral
-        'warm-dark': '#454745',
-        gray: '#868685',
-        'light-surface': '#e8ebe6',
+        gray: '#64748d',
         
         // Legacy compatibility
-        primary: '#9fe870',
-        secondary: '#868685',
-        accent: '#9fe870',
-        text: '#0e0f0c',
-        'text-secondary': '#868685',
-        profit: '#054d28',
-        loss: '#d03238',
+        primary: '#533afd',
+        secondary: '#64748d',
+        accent: '#533afd',
+        text: '#061b31',
+        'text-secondary': '#64748d',
+        profit: '#15be53',
+        loss: '#ea2261',
       },
       fontSize: {
-        // Display sizes
-        'display-mega': ['7.88rem', { lineHeight: '0.85', letterSpacing: 'normal', fontWeight: '900' }],
-        'display-hero': ['6.00rem', { lineHeight: '0.85', letterSpacing: 'normal', fontWeight: '900' }],
-        'section-heading': ['4.00rem', { lineHeight: '0.85', letterSpacing: 'normal', fontWeight: '900' }],
-        'sub-heading': ['2.50rem', { lineHeight: '0.85', letterSpacing: 'normal', fontWeight: '900' }],
-        'card-title': ['1.62rem', { lineHeight: '1.23', letterSpacing: '-0.39px', fontWeight: '600' }],
-        'feature-title': ['1.38rem', { lineHeight: '1.25', letterSpacing: '-0.396px', fontWeight: '600' }],
-        'body': ['1.13rem', { lineHeight: '1.44', letterSpacing: '0.18px', fontWeight: '400' }],
-        'body-semibold': ['1.13rem', { lineHeight: '1.44', letterSpacing: '-0.108px', fontWeight: '600' }],
-        'button': ['1.13rem', { lineHeight: '1.44', letterSpacing: '-0.108px', fontWeight: '600' }],
-        'caption': ['0.88rem', { lineHeight: '1.50', letterSpacing: '-0.084px', fontWeight: '400' }],
-        'small': ['0.75rem', { lineHeight: '1.00', letterSpacing: '-0.084px', fontWeight: '400' }],
+        // Display sizes - Stripe style with weight 300
+        'display-hero': ['3.50rem', { lineHeight: '1.03', letterSpacing: '-1.4px', fontWeight: '300' }],
+        'display-large': ['3.00rem', { lineHeight: '1.15', letterSpacing: '-0.96px', fontWeight: '300' }],
+        'section-heading': ['2.00rem', { lineHeight: '1.10', letterSpacing: '-0.64px', fontWeight: '300' }],
+        'sub-heading-large': ['1.63rem', { lineHeight: '1.12', letterSpacing: '-0.26px', fontWeight: '300' }],
+        'sub-heading': ['1.38rem', { lineHeight: '1.10', letterSpacing: '-0.22px', fontWeight: '300' }],
+        'body-large': ['1.13rem', { lineHeight: '1.40', letterSpacing: '0', fontWeight: '300' }],
+        'body': ['1.00rem', { lineHeight: '1.40', letterSpacing: '0', fontWeight: '300' }],
+        'button': ['1.00rem', { lineHeight: '1.00', letterSpacing: '0', fontWeight: '400' }],
+        'button-small': ['0.88rem', { lineHeight: '1.00', letterSpacing: '0', fontWeight: '400' }],
+        'link': ['0.88rem', { lineHeight: '1.00', letterSpacing: '0', fontWeight: '400' }],
+        'caption': ['0.81rem', { lineHeight: '1.33', letterSpacing: '0', fontWeight: '400' }],
+        'caption-small': ['0.75rem', { lineHeight: '1.33', letterSpacing: '0', fontWeight: '300' }],
+        'caption-tabular': ['0.75rem', { lineHeight: '1.33', letterSpacing: '-0.36px', fontWeight: '300' }],
+        'micro': ['0.63rem', { lineHeight: '1.15', letterSpacing: '0.1px', fontWeight: '300' }],
       },
       borderRadius: {
-        'card': '16px',
-        'card-medium': '20px',
-        'card-large': '30px',
-        'card-section': '40px',
-        'pill': '9999px',
+        'micro': '1px',
+        'standard': '4px',
+        'comfortable': '5px',
+        'relaxed': '6px',
+        'large': '8px',
       },
       boxShadow: {
-        'ring': 'rgba(14,15,12,0.12) 0px 0px 0px 1px',
-        'inset-focus': 'rgb(134,134,133) 0px 0px 0px 1px inset',
+        // Stripe blue-tinted multi-layer shadows
+        'ambient': 'rgba(23,23,23,0.06) 0px 3px 6px',
+        'standard': 'rgba(23,23,23,0.08) 0px 15px 35px',
+        'elevated': 'rgba(50,50,93,0.25) 0px 30px 45px -30px, rgba(0,0,0,0.1) 0px 18px 36px -18px',
+        'deep': 'rgba(3,3,39,0.25) 0px 14px 21px -14px, rgba(0,0,0,0.1) 0px 8px 17px -8px',
+        'focus-ring': '0 0 0 2px #533afd',
+        'card': 'rgba(50,50,93,0.25) 0px 30px 45px -30px, rgba(0,0,0,0.1) 0px 18px 36px -18px',
       },
       backgroundImage: {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+        'gradient-brand': 'linear-gradient(135deg, #ea2261 0%, #f96bee 100%)',
       },
       animation: {
         'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
         'fade-in': 'fadeIn 0.5s ease-in-out',
-        'scale-hover': 'scaleHover 0.2s ease-in-out',
       },
       keyframes: {
         fadeIn: {
           '0%': { opacity: '0' },
           '100%': { opacity: '1' },
-        },
-        scaleHover: {
-          '0%, 100%': { transform: 'scale(1)' },
-          '50%': { transform: 'scale(1.05)' },
         },
       },
     },

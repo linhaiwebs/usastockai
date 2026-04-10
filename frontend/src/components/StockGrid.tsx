@@ -18,7 +18,7 @@ interface StockGridProps {
 }
 
 /**
- * Hot Stocks Grid - Wise style with clean cards
+ * Hot Stocks Grid - Stripe style with clean white cards and blue-tinted shadows
  */
 export function StockGrid({ onStockClick }: StockGridProps) {
   const [stocks, setStocks] = useState<StockData[]>([])
@@ -68,16 +68,19 @@ export function StockGrid({ onStockClick }: StockGridProps) {
 
   if (loading) {
     return (
-      <div className="mb-8">
-        <h2 className="text-lg font-bold text-near-black mb-4 flex items-center gap-2" style={{ lineHeight: '0.85', fontFeatureSettings: '"calt"' }}>
-          <span className="text-xl">🔥</span>
-          Hot Stocks
+      <div className="mb-12">
+        <h2 
+          className="text-sub-heading-large text-deep-navy mb-6 flex items-center gap-3"
+          style={{ fontFeatureSettings: '"ss01"' }}
+        >
+          <span className="text-stripe-purple">●</span>
+          Trending Today
         </h2>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-4">
           {[1, 2, 3, 4].map((i) => (
             <div
               key={i}
-              className="h-28 bg-surface border border-near-black/10 rounded-card-large animate-pulse"
+              className="h-32 bg-surface border border-border-default rounded-relaxed animate-pulse"
             />
           ))}
         </div>
@@ -86,18 +89,24 @@ export function StockGrid({ onStockClick }: StockGridProps) {
   }
 
   return (
-    <div className="mb-8">
-      <h2 className="text-lg font-bold text-near-black mb-4 flex items-center gap-2" style={{ lineHeight: '0.85', fontFeatureSettings: '"calt"' }}>
-        <span className="text-xl">🔥</span>
-        Hot Stocks
+    <div className="mb-12">
+      <h2 
+        className="text-sub-heading-large text-deep-navy mb-6 flex items-center gap-3"
+        style={{ fontFeatureSettings: '"ss01"' }}
+      >
+        <span className="text-stripe-purple">●</span>
+        Trending Today
         {stocks.length > 4 && (
-          <span className="text-xs text-gray font-normal ml-auto font-sans">
-            Auto-rotating
+          <span 
+            className="text-caption text-body-text font-normal ml-auto"
+            style={{ fontFeatureSettings: '"ss01"' }}
+          >
+            Auto-updating
           </span>
         )}
       </h2>
       
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 gap-4">
         {displayStocks.map((stock) => (
           <StockCard
             key={stock.symbol}
@@ -108,17 +117,17 @@ export function StockGrid({ onStockClick }: StockGridProps) {
         ))}
       </div>
 
-      {/* Carousel indicators - Wise green accent */}
+      {/* Carousel indicators - Stripe purple accent */}
       {stocks.length > 4 && (
-        <div className="flex justify-center gap-1.5 mt-3">
+        <div className="flex justify-center gap-2 mt-5">
           {Array.from({ length: indicatorCount }).map((_, i) => (
             <button
               key={i}
               onClick={() => handleIndicatorClick(i)}
-              className={`h-1.5 rounded-pill transition-all ${
+              className={`h-1.5 rounded-standard transition-all ${
                 Math.floor(currentIndex / 4) === i 
-                  ? 'bg-wise-green w-4' 
-                  : 'bg-surface hover:bg-light-mint w-1.5'
+                  ? 'bg-stripe-purple w-6' 
+                  : 'bg-border-default hover:bg-purple-light w-1.5'
               }`}
               aria-label={`Go to slide ${i + 1}`}
             />

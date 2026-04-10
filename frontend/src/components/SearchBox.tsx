@@ -7,7 +7,7 @@ interface SearchBoxProps {
 }
 
 /**
- * Search Box Component - Wise style with pill buttons and clean inputs
+ * Search Box Component - Stripe style with conservative border-radius and blue-tinted shadows
  */
 export function SearchBox({ onAnalyze }: SearchBoxProps) {
   const [query, setQuery] = useState('')
@@ -29,22 +29,22 @@ export function SearchBox({ onAnalyze }: SearchBoxProps) {
   }
 
   return (
-    <div className="relative mb-8">
-      {/* Search input - Wise style with ring shadow */}
+    <div className="mb-10">
+      {/* Search input - Stripe style with 6px radius, blue-tinted shadow */}
       <div className="relative">
         <input
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onKeyPress={handleKeyPress}
-          placeholder="Enter stock symbol (e.g., AAPL, TSLA)"
-          className="w-full px-4 py-3.5 pl-12 bg-white border border-near-black/10 rounded-2xl text-near-black placeholder-gray focus:outline-none focus:shadow-ring transition-all"
-          style={{ fontFeatureSettings: '"calt"' }}
+          placeholder="Search any stock symbol (AAPL, TSLA, NVDA...)"
+          className="w-full px-4 py-4 pl-12 bg-white border border-border-default rounded-relaxed text-deep-navy placeholder-body-text focus:outline-none focus:border-stripe-purple focus:shadow-focus-ring transition-all"
+          style={{ fontFeatureSettings: '"ss01"' }}
         />
         
         {/* Search icon */}
         <svg
-          className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray"
+          className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-body-text"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -58,15 +58,20 @@ export function SearchBox({ onAnalyze }: SearchBoxProps) {
         </svg>
       </div>
 
-      {/* Analyze button - Wise green pill button */}
+      {/* Analyze button - Stripe primary purple button */}
       <button
         onClick={handleSubmit}
         disabled={!query.trim()}
-        className="w-full mt-3 py-3.5 bg-wise-green text-dark-green font-semibold rounded-pill shadow-none hover:scale-105 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
-        style={{ fontFeatureSettings: '"calt"' }}
+        className="w-full mt-4 py-4 bg-stripe-purple text-white font-normal rounded-standard shadow-elevated hover:bg-purple-hover active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100"
+        style={{ fontFeatureSettings: '"ss01"' }}
       >
-        Start AI Diagnosis
+        Analyze with AI
       </button>
+      
+      {/* Helper text */}
+      <p className="mt-3 text-caption-small text-body-text text-center opacity-70" style={{ fontFeatureSettings: '"ss01"' }}>
+        Enter a stock symbol to get AI-powered analysis and insights
+      </p>
     </div>
   )
 }

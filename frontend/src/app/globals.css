@@ -3,18 +3,18 @@
 @tailwind utilities;
 
 :root {
-  --foreground-rgb: 14, 15, 12;
+  --foreground-rgb: 6, 27, 49;
   --background-rgb: 255, 255, 255;
-  --font-inter: 'Inter', sans-serif;
-  --font-mono: 'JetBrains Mono', monospace;
+  --font-primary: 'sohne-var', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'SourceCodePro', 'SFMono-Regular', monospace;
 }
 
 body {
   color: rgb(var(--foreground-rgb));
   background: rgb(var(--background-rgb));
-  font-feature-settings: 'calt', 'cv02', 'cv03', 'cv04', 'cv11';
-  font-variation-settings: 'wght' 600;
-  font-family: var(--font-inter);
+  font-feature-settings: 'ss01';
+  font-variation-settings: 'wght' 300;
+  font-family: var(--font-primary);
 }
 
 @layer utilities {
@@ -23,30 +23,30 @@ body {
   }
 }
 
-/* Custom scrollbar - Wise style */
+/* Custom scrollbar - Stripe style */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #e8ebe6;
+  background: #f7fafc;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #9fe870;
+  background: #b9b9f9;
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #163300;
+  background: #533afd;
 }
 
-/* Typography - Wise style */
+/* Typography - Stripe style */
 h1, h2, h3, h4, h5, h6 {
-  font-weight: 900;
-  letter-spacing: normal;
-  line-height: 0.85;
+  font-weight: 300;
+  font-feature-settings: 'ss01';
+  color: #061b31;
 }
 
 /* Better text rendering */
@@ -60,69 +60,81 @@ code, pre, .font-mono {
   font-family: var(--font-mono);
 }
 
-/* Numbers in stock data */
+/* Numbers in stock data - tabular nums for financial data */
 .stock-number {
   font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum';
 }
 
-/* Wise-style button hover animation */
-.btn-scale-hover {
-  transition: transform 0.2s ease-in-out;
-}
-
-.btn-scale-hover:hover {
-  transform: scale(1.05);
-}
-
-.btn-scale-hover:active {
-  transform: scale(0.95);
-}
-
-/* Card styles */
-.wise-card {
-  border-radius: 30px;
-  border: 1px solid rgba(14, 15, 12, 0.12);
+/* Stripe-style card hover */
+.stripe-card {
+  border-radius: 6px;
+  border: 1px solid #e5edf5;
   background: #ffffff;
+  transition: box-shadow 0.2s ease-in-out;
 }
 
-.wise-card:hover {
-  box-shadow: rgba(14,15,12,0.12) 0px 0px 0px 1px;
+.stripe-card:hover {
+  box-shadow: rgba(50,50,93,0.25) 0px 30px 45px -30px, rgba(0,0,0,0.1) 0px 18px 36px -18px;
 }
 
-/* Pill button styles */
-.wise-pill-btn {
-  border-radius: 9999px;
-  padding: 5px 16px;
-  font-weight: 600;
-  font-feature-settings: 'calt';
-  transition: transform 0.2s ease-in-out;
+/* Primary purple button */
+.stripe-primary-btn {
+  background-color: #533afd;
+  color: #ffffff;
+  border-radius: 4px;
+  padding: 8px 16px;
+  font-weight: 400;
+  font-feature-settings: 'ss01';
+  transition: background-color 0.2s ease-in-out, transform 0.2s ease-in-out;
 }
 
-.wise-pill-btn:hover {
-  transform: scale(1.05);
+.stripe-primary-btn:hover {
+  background-color: #4434d4;
 }
 
-.wise-pill-btn:active {
-  transform: scale(0.95);
+.stripe-primary-btn:active {
+  transform: scale(0.98);
 }
 
-/* Primary green button */
-.wise-green-btn {
-  background-color: #9fe870;
-  color: #163300;
+/* Secondary ghost button */
+.stripe-ghost-btn {
+  background-color: transparent;
+  color: #533afd;
+  border: 1px solid #b9b9f9;
+  border-radius: 4px;
+  padding: 8px 16px;
+  font-weight: 400;
+  font-feature-settings: 'ss01';
+  transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out;
 }
 
-.wise-green-btn:hover {
-  background-color: #cdffad;
+.stripe-ghost-btn:hover {
+  background-color: #f7f9ff;
+  border-color: #533afd;
 }
 
-/* Secondary subtle button */
-.wise-secondary-btn {
-  background-color: rgba(22, 51, 0, 0.08);
-  color: #0e0f0c;
+/* Focus ring for accessibility */
+*:focus-visible {
+  outline: 2px solid #533afd;
+  outline-offset: 2px;
 }
 
-.wise-secondary-btn:hover {
-  background-color: rgba(22, 51, 0, 0.12);
+/* Success badge */
+.success-badge {
+  background: rgba(21,190,83,0.2);
+  color: #108c3d;
+  border: 1px solid rgba(21,190,83,0.4);
+  border-radius: 4px;
+  padding: 1px 6px;
+  font-size: 10px;
+  font-weight: 300;
+  font-feature-settings: 'ss01';
+}
+
+/* Gradient decoration for hero */
+.gradient-decoration {
+  background: linear-gradient(135deg, #ea2261 0%, #f96bee 100%);
+  opacity: 0.15;
 }

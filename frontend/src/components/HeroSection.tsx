@@ -1,26 +1,45 @@
 'use client'
 
 /**
- * Hero Section - Wise style with bold typography
+ * Hero Section - Stripe style with whisper-weight typography
+ * Uses sohne-var at weight 300, negative letter-spacing, deep navy headings
  */
 export function HeroSection() {
   return (
-    <div className="pt-12 pb-8 text-center">
-      {/* Main title - Wise Sans style at weight 900, line-height 0.85 */}
-      <h1 className="text-4xl md:text-5xl font-black mb-4 text-near-black" style={{ lineHeight: '0.85', fontFeatureSettings: '"calt"' }}>
-        AI-Powered Stock Diagnosis
+    <div className="pt-16 pb-10 text-center relative overflow-hidden">
+      {/* Decorative gradient element - Ruby to Magenta */}
+      <div className="absolute top-8 right-0 w-64 h-64 bg-gradient-brand opacity-5 blur-3xl rounded-full pointer-events-none" />
+      <div className="absolute bottom-0 left-0 w-48 h-48 bg-gradient-brand opacity-5 blur-3xl rounded-full pointer-events-none" />
+      
+      {/* Main title - sohne-var weight 300, line-height 1.03, letter-spacing -1.4px */}
+      <h1 
+        className="text-display-large md:text-display-hero text-deep-navy mb-6 relative z-10"
+        style={{ fontFeatureSettings: '"ss01"' }}
+      >
+        Intelligent Stock Analysis
       </h1>
       
-      {/* Subtitle - Inter weight 600 */}
-      <p className="text-body-semibold text-warm-dark leading-relaxed" style={{ fontFeatureSettings: '"calt"' }}>
-        Real-time Quotes · Intelligent Analysis · Investment Decisions
+      {/* Subtitle - Body large weight 300, line-height 1.40, body-text color */}
+      <p 
+        className="text-body-large text-body-text max-w-md mx-auto leading-relaxed mb-8"
+        style={{ fontFeatureSettings: '"ss01"' }}
+      >
+        Real-time market data powered by advanced AI. Make informed investment decisions with confidence.
       </p>
       
-      {/* Decorative elements - Wise Green accent */}
-      <div className="mt-6 flex justify-center gap-2">
-        <div className="w-12 h-1.5 bg-wise-green rounded-full" />
-        <div className="w-3 h-1.5 bg-light-mint rounded-full" />
-        <div className="w-2 h-1.5 bg-pastel-green rounded-full" />
+      {/* Trust indicators - Stripe style subtle badges */}
+      <div className="flex justify-center gap-3 flex-wrap">
+        <span className="text-caption text-body-text opacity-60">
+          Trusted by 10,000+ investors
+        </span>
+        <span className="text-caption text-body-text opacity-30">•</span>
+        <span className="text-caption text-body-text opacity-60">
+          Real-time NASDAQ data
+        </span>
+        <span className="text-caption text-body-text opacity-30">•</span>
+        <span className="text-caption text-body-text opacity-60">
+          AI-powered insights
+        </span>
       </div>
     </div>
   )
