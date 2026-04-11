@@ -3,45 +3,45 @@
 import Link from 'next/link'
 
 /**
- * Footer Component - Stripe style with dark brand background
+ * Footer Component - Airbnb style with clean white background
  */
 export function Footer() {
   return (
-    <footer className="py-10 border-t border-border-default">
+    <footer className="py-10 border-t border-border-light">
       <div className="text-center">
         <p 
-          className="text-caption text-body-text mb-3"
-          style={{ fontFeatureSettings: '"ss01"' }}
+          className="text-body text-text-secondary mb-3"
+          style={{ fontFeatureSettings: '"salt"' }}
         >
           © 2026 AI Stock Analysis Platform
         </p>
         <p 
-          className="text-caption-small text-body-text opacity-70 mb-5 max-w-xs mx-auto"
-          style={{ fontFeatureSettings: '"ss01"' }}
+          className="text-small text-text-secondary opacity-70 mb-5 max-w-xs mx-auto"
+          style={{ fontFeatureSettings: '"salt"' }}
         >
           For educational purposes only. Not financial advice.
         </p>
-        <div className="flex justify-center gap-6 text-caption text-body-text">
+        <div className="flex justify-center gap-6 text-body text-text-secondary">
           <Link 
             href="/privacy" 
-            className="hover:text-stripe-purple transition-colors"
-            style={{ fontFeatureSettings: '"ss01"' }}
+            className="hover:text-rausch transition-colors"
+            style={{ fontFeatureSettings: '"salt"' }}
           >
             Privacy
           </Link>
           <span className="opacity-30">•</span>
           <Link 
             href="/terms" 
-            className="hover:text-stripe-purple transition-colors"
-            style={{ fontFeatureSettings: '"ss01"' }}
+            className="hover:text-rausch transition-colors"
+            style={{ fontFeatureSettings: '"salt"' }}
           >
             Terms
           </Link>
           <span className="opacity-30">•</span>
           <Link 
             href="/contact" 
-            className="hover:text-stripe-purple transition-colors"
-            style={{ fontFeatureSettings: '"ss01"' }}
+            className="hover:text-rausch transition-colors"
+            style={{ fontFeatureSettings: '"salt"' }}
           >
             Contact
           </Link>

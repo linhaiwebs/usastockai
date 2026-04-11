@@ -18,7 +18,7 @@ interface StockGridProps {
 }
 
 /**
- * Hot Stocks Grid - Stripe style with clean white cards and blue-tinted shadows
+ * Hot Stocks Grid - Airbnb style with clean white cards and three-layer shadows
  */
 export function StockGrid({ onStockClick }: StockGridProps) {
   const [stocks, setStocks] = useState<StockData[]>([])
@@ -40,7 +40,7 @@ export function StockGrid({ onStockClick }: StockGridProps) {
     fetchStocks()
   }, [fetchStocks])
 
-  // Auto carousel - 使用useCallback优化
+  // Auto carousel
   useEffect(() => {
     if (stocks.length <= 4) return
     
@@ -51,17 +51,14 @@ export function StockGrid({ onStockClick }: StockGridProps) {
     return () => clearInterval(timer)
   }, [stocks.length])
 
-  // 使用useMemo优化显示的股票列表
   const displayStocks = useMemo(() => {
     return stocks.slice(0, 4)
   }, [stocks])
 
-  // 使用useMemo优化指示器数量
   const indicatorCount = useMemo(() => {
     return Math.ceil((stocks.length - 4) / 4) + 1
   }, [stocks.length])
 
-  // 使用useCallback优化点击处理
   const handleIndicatorClick = useCallback((index: number) => {
     setCurrentIndex(index * 4)
   }, [])
@@ -70,17 +67,17 @@ export function StockGrid({ onStockClick }: StockGridProps) {
     return (
       <div className="mb-12">
         <h2 
-          className="text-sub-heading-large text-deep-navy mb-6 flex items-center gap-3"
-          style={{ fontFeatureSettings: '"ss01"' }}
+          className="text-section-heading text-text-primary mb-6 flex items-center gap-3"
+          style={{ fontFeatureSettings: '"salt"' }}
         >
-          <span className="text-stripe-purple">●</span>
+          <span className="w-2 h-2 rounded-circle bg-rausch inline-block"></span>
           Trending Today
         </h2>
         <div className="grid grid-cols-2 gap-4">
           {[1, 2, 3, 4].map((i) => (
             <div
               key={i}
-              className="h-32 bg-surface border border-border-default rounded-relaxed animate-pulse"
+              className="h-32 bg-surface rounded-card animate-pulse"
             />
           ))}
         </div>
@@ -91,15 +88,15 @@ export function StockGrid({ onStockClick }: StockGridProps) {
   return (
     <div className="mb-12">
       <h2 
-        className="text-sub-heading-large text-deep-navy mb-6 flex items-center gap-3"
-        style={{ fontFeatureSettings: '"ss01"' }}
+        className="text-section-heading text-text-primary mb-6 flex items-center gap-3"
+        style={{ fontFeatureSettings: '"salt"' }}
       >
-        <span className="text-stripe-purple">●</span>
+        <span className="w-2 h-2 rounded-circle bg-rausch inline-block"></span>
         Trending Today
         {stocks.length > 4 && (
           <span 
-            className="text-caption text-body-text font-normal ml-auto"
-            style={{ fontFeatureSettings: '"ss01"' }}
+            className="text-body text-text-secondary font-normal ml-auto"
+            style={{ fontFeatureSettings: '"salt"' }}
           >
             Auto-updating
           </span>
@@ -117,7 +114,7 @@ export function StockGrid({ onStockClick }: StockGridProps) {
         ))}
       </div>
 
-      {/* Carousel indicators - Stripe purple accent */}
+      {/* Carousel indicators - Rausch accent */}
       {stocks.length > 4 && (
         <div className="flex justify-center gap-2 mt-5">
           {Array.from({ length: indicatorCount }).map((_, i) => (
@@ -126,8 +123,8 @@ export function StockGrid({ onStockClick }: StockGridProps) {
               onClick={() => handleIndicatorClick(i)}
               className={`h-1.5 rounded-standard transition-all ${
                 Math.floor(currentIndex / 4) === i 
-                  ? 'bg-stripe-purple w-6' 
-                  : 'bg-border-default hover:bg-purple-light w-1.5'
+                  ? 'bg-rausch w-6' 
+                  : 'bg-border-default hover:bg-rausch opacity-30 w-1.5'
               }`}
               aria-label={`Go to slide ${i + 1}`}
             />

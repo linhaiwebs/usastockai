@@ -9,110 +9,124 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['sohne-var', 'SF Pro Display', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'sans-serif'],
-        display: ['sohne-var', 'SF Pro Display', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'sans-serif'],
-        mono: ['SourceCodePro', 'SFMono-Regular', 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Mono', 'monospace'],
+        // Airbnb Cereal VF - warm, rounded terminals
+        sans: ['Airbnb Cereal VF', 'Circular', '-apple-system', 'system-ui', 'Roboto', 'Helvetica Neue', 'sans-serif'],
+        display: ['Airbnb Cereal VF', 'Circular', '-apple-system', 'system-ui', 'Roboto', 'Helvetica Neue', 'sans-serif'],
+        mono: ['SF Mono', 'Monaco', 'Inconsolata', 'Fira Mono', 'monospace'],
       },
       colors: {
-        // Stripe Design System Colors
+        // Airbnb Design System Colors
         background: '#ffffff',
-        surface: '#f7fafc',
+        surface: '#f7f7f7',
         'surface-elevated': '#ffffff',
         
-        // Primary Brand - Stripe Purple
-        'stripe-purple': '#533afd',
-        'purple-hover': '#4434d4',
-        'purple-deep': '#2e2b8c',
-        'purple-light': '#b9b9f9',
-        'purple-mid': '#665efd',
-        'purple-soft': '#d6d9fc',
+        // Primary Brand - Rausch Red
+        'rausch': '#ff385c',
+        'rausch-deep': '#e00b41',
         
-        // Headings - Deep Navy
-        'deep-navy': '#061b31',
-        'dark-navy': '#0d253d',
+        // Premium Tiers
+        'luxe-purple': '#460479',
+        'plus-magenta': '#92174d',
         
-        // Brand Dark
-        'brand-dark': '#1c1e54',
+        // Text Scale - Warm near-black
+        'text-primary': '#222222',
+        'text-focused': '#3f3f3f',
+        'text-secondary': '#6a6a6a',
+        'text-disabled': 'rgba(0, 0, 0, 0.24)',
+        'link-disabled': '#929292',
         
-        // Text colors
-        'label-text': '#273951',
-        'body-text': '#64748d',
-        
-        // Accent colors - Ruby & Magenta (decorative only)
-        'ruby': '#ea2261',
-        'magenta': '#f96bee',
-        'magenta-light': '#ffd7ef',
+        // Interactive
+        'legal-blue': '#428bff',
+        'border-gray': '#c1c1c1',
+        'light-surface': '#f2f2f2',
         
         // Semantic
-        'positive-green': '#15be53',
-        'positive-text': '#108c3d',
-        'danger-red': '#ea2261',
-        'warning-lemon': '#9b6829',
+        'positive-green': '#008a05',
+        'danger-red': '#c13515',
+        'danger-dark': '#b32505',
         
         // Borders
-        'border-default': '#e5edf5',
-        'border-purple': '#b9b9f9',
-        'border-magenta': '#ffd7ef',
-        'border-dashed': '#362baa',
-        
-        // Neutral
-        gray: '#64748d',
+        'border-default': '#dddddd',
+        'border-light': '#ebebeb',
         
         // Legacy compatibility
-        primary: '#533afd',
-        secondary: '#64748d',
-        accent: '#533afd',
-        text: '#061b31',
-        'text-secondary': '#64748d',
-        profit: '#15be53',
-        loss: '#ea2261',
+        primary: '#ff385c',
+        secondary: '#6a6a6a',
+        accent: '#ff385c',
+        text: '#222222',
+        'text-body': '#6a6a6a',
+        profit: '#008a05',
+        loss: '#c13515',
       },
       fontSize: {
-        // Display sizes - Stripe style with weight 300
-        'display-hero': ['3.50rem', { lineHeight: '1.03', letterSpacing: '-1.4px', fontWeight: '300' }],
-        'display-large': ['3.00rem', { lineHeight: '1.15', letterSpacing: '-0.96px', fontWeight: '300' }],
-        'section-heading': ['2.00rem', { lineHeight: '1.10', letterSpacing: '-0.64px', fontWeight: '300' }],
-        'sub-heading-large': ['1.63rem', { lineHeight: '1.12', letterSpacing: '-0.26px', fontWeight: '300' }],
-        'sub-heading': ['1.38rem', { lineHeight: '1.10', letterSpacing: '-0.22px', fontWeight: '300' }],
-        'body-large': ['1.13rem', { lineHeight: '1.40', letterSpacing: '0', fontWeight: '300' }],
-        'body': ['1.00rem', { lineHeight: '1.40', letterSpacing: '0', fontWeight: '300' }],
-        'button': ['1.00rem', { lineHeight: '1.00', letterSpacing: '0', fontWeight: '400' }],
-        'button-small': ['0.88rem', { lineHeight: '1.00', letterSpacing: '0', fontWeight: '400' }],
-        'link': ['0.88rem', { lineHeight: '1.00', letterSpacing: '0', fontWeight: '400' }],
-        'caption': ['0.81rem', { lineHeight: '1.33', letterSpacing: '0', fontWeight: '400' }],
-        'caption-small': ['0.75rem', { lineHeight: '1.33', letterSpacing: '0', fontWeight: '300' }],
-        'caption-tabular': ['0.75rem', { lineHeight: '1.33', letterSpacing: '-0.36px', fontWeight: '300' }],
-        'micro': ['0.63rem', { lineHeight: '1.15', letterSpacing: '0.1px', fontWeight: '300' }],
+        // Airbnb Typography - weights 500-700
+        'section-heading': ['1.75rem', { lineHeight: '1.43', letterSpacing: '0', fontWeight: '700' }],
+        'card-heading': ['1.38rem', { lineHeight: '1.18', letterSpacing: '-0.44px', fontWeight: '600' }],
+        'card-heading-medium': ['1.38rem', { lineHeight: '1.18', letterSpacing: '-0.44px', fontWeight: '500' }],
+        'sub-heading': ['1.31rem', { lineHeight: '1.43', letterSpacing: '0', fontWeight: '700' }],
+        'feature-title': ['1.25rem', { lineHeight: '1.20', letterSpacing: '-0.18px', fontWeight: '600' }],
+        'ui-medium': ['1.00rem', { lineHeight: '1.25', letterSpacing: '0', fontWeight: '500' }],
+        'ui-semibold': ['1.00rem', { lineHeight: '1.25', letterSpacing: '0', fontWeight: '600' }],
+        'button': ['1.00rem', { lineHeight: '1.25', letterSpacing: '0', fontWeight: '500' }],
+        'body': ['0.88rem', { lineHeight: '1.43', letterSpacing: '0', fontWeight: '400' }],
+        'body-medium': ['0.88rem', { lineHeight: '1.29', letterSpacing: '0', fontWeight: '500' }],
+        'caption-salt': ['0.88rem', { lineHeight: '1.43', letterSpacing: '0', fontWeight: '600' }],
+        'small': ['0.81rem', { lineHeight: '1.23', letterSpacing: '0', fontWeight: '400' }],
+        'tag': ['0.75rem', { lineHeight: '1.33', letterSpacing: '0', fontWeight: '400' }],
+        'badge': ['0.69rem', { lineHeight: '1.18', letterSpacing: '0', fontWeight: '600' }],
+        'micro-uppercase': ['0.50rem', { lineHeight: '1.25', letterSpacing: '0.32px', fontWeight: '700' }],
+        
+        // Hero sizes
+        'display-hero': ['3.00rem', { lineHeight: '1.1', letterSpacing: '-0.44px', fontWeight: '700' }],
+        'display-large': ['2.25rem', { lineHeight: '1.2', letterSpacing: '-0.44px', fontWeight: '700' }],
       },
       borderRadius: {
-        'micro': '1px',
-        'standard': '4px',
-        'comfortable': '5px',
-        'relaxed': '6px',
-        'large': '8px',
+        'subtle': '4px',
+        'standard': '8px',
+        'badge': '14px',
+        'card': '20px',
+        'large': '32px',
+        'circle': '50%',
       },
       boxShadow: {
-        // Stripe blue-tinted multi-layer shadows
-        'ambient': 'rgba(23,23,23,0.06) 0px 3px 6px',
-        'standard': 'rgba(23,23,23,0.08) 0px 15px 35px',
-        'elevated': 'rgba(50,50,93,0.25) 0px 30px 45px -30px, rgba(0,0,0,0.1) 0px 18px 36px -18px',
-        'deep': 'rgba(3,3,39,0.25) 0px 14px 21px -14px, rgba(0,0,0,0.1) 0px 8px 17px -8px',
-        'focus-ring': '0 0 0 2px #533afd',
-        'card': 'rgba(50,50,93,0.25) 0px 30px 45px -30px, rgba(0,0,0,0.1) 0px 18px 36px -18px',
+        // Airbnb three-layer shadow system
+        'card': 'rgba(0, 0, 0, 0.02) 0px 0px 0px 1px, rgba(0, 0, 0, 0.04) 0px 2px 6px, rgba(0, 0, 0, 0.1) 0px 4px 8px',
+        'hover': 'rgba(0, 0, 0, 0.08) 0px 4px 12px',
+        'focus-ring': '0 0 0 2px #222222',
       },
       backgroundImage: {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
-        'gradient-brand': 'linear-gradient(135deg, #ea2261 0%, #f96bee 100%)',
+        'gradient-brand': 'linear-gradient(135deg, #ff385c 0%, #e00b41 100%)',
       },
       animation: {
         'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
         'fade-in': 'fadeIn 0.5s ease-in-out',
+        'slide-up': 'slideUp 0.3s ease-out',
+        'float': 'float 6s ease-in-out infinite',
+        'ticker': 'ticker 30s linear infinite',
       },
       keyframes: {
         fadeIn: {
           '0%': { opacity: '0' },
           '100%': { opacity: '1' },
         },
+        slideUp: {
+          '0%': { opacity: '0', transform: 'translateY(10px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+        float: {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '50%': { transform: 'translateY(-10px)' },
+        },
+        ticker: {
+          '0%': { transform: 'translateX(0)' },
+          '100%': { transform: 'translateX(-50%)' },
+        },
+      },
+      spacing: {
+        '11': '2.75rem',
+        '15': '3.75rem',
+        '22': '5.5rem',
       },
     },
   },
