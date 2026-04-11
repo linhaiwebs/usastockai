@@ -1,246 +1,180 @@
-# Design System Inspired by Airbnb
+# Design System Inspired by BMW
 
 ## 1. Visual Theme & Atmosphere
 
-Airbnb's website is a warm, photography-forward marketplace that feels like flipping through a travel magazine where every page invites you to book. The design operates on a foundation of pure white (`#ffffff`) with the iconic Rausch Red (`#ff385c`) — named after Airbnb's first street address — serving as the singular brand accent. The result is a clean, airy canvas where listing photography, category icons, and the red CTA button are the only sources of color.
+BMW's website is automotive engineering made visual — a design system that communicates precision, performance, and German industrial confidence. The page alternates between deep dark hero sections (featuring full-bleed automotive photography) and clean white content areas, creating a cinematic rhythm reminiscent of a luxury car showroom where vehicles are lit against darkness. The BMW CI2020 design language (their corporate identity refresh) defines every element.
 
-The typography uses Airbnb Cereal VF — a custom variable font that's warm and approachable, with rounded terminals that echo the brand's "belong anywhere" philosophy. The font operates in a tight weight range: 500 (medium) for most UI, 600 (semibold) for emphasis, and 700 (bold) for primary headings. Slight negative letter-spacing (-0.18px to -0.44px) on headings creates a cozy, intimate reading experience rather than the compressed efficiency of tech companies.
+The typography is built on BMWTypeNextLatin — a proprietary typeface in two variants: BMWTypeNextLatin Light (weight 300) for massive uppercase display headings, and BMWTypeNextLatin Regular for body and UI text. The 60px uppercase headline at weight 300 is the defining typographic gesture — light-weight type that whispers authority rather than shouting it. The fallback stack includes Helvetica and Japanese fonts (Hiragino, Meiryo), reflecting BMW's global presence.
 
-What distinguishes Airbnb is its palette-based token system (`--palette-*`) and multi-layered shadow approach. The primary card shadow uses a three-layer stack (`rgba(0,0,0,0.02) 0px 0px 0px 1px, rgba(0,0,0,0.04) 0px 2px 6px, rgba(0,0,0,0.1) 0px 4px 8px`) that creates a subtle, warm lift. Combined with generous border-radius (8px–32px), circular navigation controls (50%), and a category pill bar with horizontal scrolling, the interface feels tactile and inviting — designed for browsing, not commanding.
+What makes BMW distinctive is its CSS variable-driven theming system. Context-aware variables (`--site-context-highlight-color: #1c69d4`, `--site-context-focus-color: #0653b6`, `--site-context-metainfo-color: #757575`) suggest a design system built for multi-brand, multi-context deployment where colors can be swapped globally. The blue highlight color (`#1c69d4`) is BMW's signature blue — used sparingly for interactive elements and focus states, never decoratively. Zero border-radius was detected — BMW's design is angular, sharp-cornered, and uncompromisingly geometric.
 
 **Key Characteristics:**
-- Pure white canvas with Rausch Red (`#ff385c`) as singular brand accent
-- Airbnb Cereal VF — custom variable font with warm, rounded terminals
-- Palette-based token system (`--palette-*`) for systematic color management
-- Three-layer card shadows: border ring + soft blur + stronger blur
-- Generous border-radius: 8px buttons, 14px badges, 20px cards, 32px large elements
-- Circular navigation controls (50% radius)
-- Photography-first listing cards — images are the hero content
-- Near-black text (`#222222`) — warm, not cold
-- Luxe Purple (`#460479`) and Plus Magenta (`#92174d`) for premium tiers
+- BMWTypeNextLatin Light (weight 300) uppercase for display — whispered authority
+- BMW Blue (`#1c69d4`) as singular accent — used only for interactive elements
+- Zero border-radius detected — angular, sharp-cornered, industrial geometry
+- Dark hero photography + white content sections — showroom lighting rhythm
+- CSS variable-driven theming: `--site-context-*` tokens for brand flexibility
+- Weight 900 for navigation emphasis — extreme contrast with 300 display
+- Tight line-heights (1.15–1.30) throughout — compressed, efficient, German engineering
+- Full-bleed automotive photography as primary visual content
 
 ## 2. Color Palette & Roles
 
 ### Primary Brand
-- **Rausch Red** (`#ff385c`): `--palette-bg-primary-core`, primary CTA, brand accent, active states
-- **Deep Rausch** (`#e00b41`): `--palette-bg-tertiary-core`, pressed/dark variant of brand red
-- **Error Red** (`#c13515`): `--palette-text-primary-error`, error text on light
-- **Error Dark** (`#b32505`): `--palette-text-secondary-error-hover`, error hover
+- **Pure White** (`#ffffff`): `--site-context-theme-color`, primary surface, card backgrounds
+- **BMW Blue** (`#1c69d4`): `--site-context-highlight-color`, primary interactive accent
+- **BMW Focus Blue** (`#0653b6`): `--site-context-focus-color`, keyboard focus and active states
 
-### Premium Tiers
-- **Luxe Purple** (`#460479`): `--palette-bg-primary-luxe`, Airbnb Luxe tier branding
-- **Plus Magenta** (`#92174d`): `--palette-bg-primary-plus`, Airbnb Plus tier branding
+### Neutral Scale
+- **Near Black** (`#262626`): Primary text on light surfaces, dark link text
+- **Meta Gray** (`#757575`): `--site-context-metainfo-color`, secondary text, metadata
+- **Silver** (`#bbbbbb`): Tertiary text, muted links, footer elements
 
-### Text Scale
-- **Near Black** (`#222222`): `--palette-text-primary`, primary text — warm, not cold
-- **Focused Gray** (`#3f3f3f`): `--palette-text-focused`, focused state text
-- **Secondary Gray** (`#6a6a6a`): Secondary text, descriptions
-- **Disabled** (`rgba(0,0,0,0.24)`): `--palette-text-material-disabled`, disabled state
-- **Link Disabled** (`#929292`): `--palette-text-link-disabled`, disabled links
+### Interactive States
+- All links hover to white (`#ffffff`) — suggesting primarily dark-surface navigation
+- Text links use underline: none on hover — clean interaction
 
-### Interactive
-- **Legal Blue** (`#428bff`): `--palette-text-legal`, legal links, informational
-- **Border Gray** (`#c1c1c1`): Border color for cards and dividers
-- **Light Surface** (`#f2f2f2`): Circular navigation buttons, secondary surfaces
-
-### Surface & Shadows
-- **Pure White** (`#ffffff`): Page background, card surfaces
-- **Card Shadow** (`rgba(0,0,0,0.02) 0px 0px 0px 1px, rgba(0,0,0,0.04) 0px 2px 6px, rgba(0,0,0,0.1) 0px 4px 8px`): Three-layer warm lift
-- **Hover Shadow** (`rgba(0,0,0,0.08) 0px 4px 12px`): Button hover elevation
+### Shadows
+- Minimal shadow system — depth through photography and dark/light section contrast
 
 ## 3. Typography Rules
 
-### Font Family
-- **Primary**: `Airbnb Cereal VF`, fallbacks: `Circular, -apple-system, system-ui, Roboto, Helvetica Neue`
-- **OpenType Features**: `"salt"` (stylistic alternates) on specific caption elements
+### Font Families
+- **Display Light**: `BMWTypeNextLatin Light`, fallbacks: `Helvetica, Arial, Hiragino Kaku Gothic ProN, Hiragino Sans, Meiryo`
+- **Body / UI**: `BMWTypeNextLatin`, same fallback stack
 
 ### Hierarchy
 
-| Role | Font | Size | Weight | Line Height | Letter Spacing | Notes |
-|------|------|------|--------|-------------|----------------|-------|
-| Section Heading | Airbnb Cereal VF | 28px (1.75rem) | 700 | 1.43 | normal | Primary headings |
-| Card Heading | Airbnb Cereal VF | 22px (1.38rem) | 600 | 1.18 (tight) | -0.44px | Category/card titles |
-| Card Heading Medium | Airbnb Cereal VF | 22px (1.38rem) | 500 | 1.18 (tight) | -0.44px | Lighter variant |
-| Sub-heading | Airbnb Cereal VF | 21px (1.31rem) | 700 | 1.43 | normal | Bold sub-headings |
-| Feature Title | Airbnb Cereal VF | 20px (1.25rem) | 600 | 1.20 (tight) | -0.18px | Feature headings |
-| UI Medium | Airbnb Cereal VF | 16px (1.00rem) | 500 | 1.25 (tight) | normal | Nav, emphasized text |
-| UI Semibold | Airbnb Cereal VF | 16px (1.00rem) | 600 | 1.25 (tight) | normal | Strong emphasis |
-| Button | Airbnb Cereal VF | 16px (1.00rem) | 500 | 1.25 (tight) | normal | Button labels |
-| Body / Link | Airbnb Cereal VF | 14px (0.88rem) | 400 | 1.43 | normal | Standard body |
-| Body Medium | Airbnb Cereal VF | 14px (0.88rem) | 500 | 1.29 (tight) | normal | Medium body |
-| Caption Salt | Airbnb Cereal VF | 14px (0.88rem) | 600 | 1.43 | normal | `"salt"` feature |
-| Small | Airbnb Cereal VF | 13px (0.81rem) | 400 | 1.23 (tight) | normal | Descriptions |
-| Tag | Airbnb Cereal VF | 12px (0.75rem) | 400–700 | 1.33 | normal | Tags, prices |
-| Badge | Airbnb Cereal VF | 11px (0.69rem) | 600 | 1.18 (tight) | normal | `"salt"` feature |
-| Micro Uppercase | Airbnb Cereal VF | 8px (0.50rem) | 700 | 1.25 (tight) | 0.32px | `text-transform: uppercase` |
+| Role | Font | Size | Weight | Line Height | Notes |
+|------|------|------|--------|-------------|-------|
+| Display Hero | BMWTypeNextLatin Light | 60px (3.75rem) | 300 | 1.30 (tight) | `text-transform: uppercase` |
+| Section Heading | BMWTypeNextLatin | 32px (2.00rem) | 400 | 1.30 (tight) | Major section titles |
+| Nav Emphasis | BMWTypeNextLatin | 18px (1.13rem) | 900 | 1.30 (tight) | Navigation bold items |
+| Body | BMWTypeNextLatin | 16px (1.00rem) | 400 | 1.15 (tight) | Standard body text |
+| Button Bold | BMWTypeNextLatin | 16px (1.00rem) | 700 | 1.20–2.88 | CTA buttons |
+| Button | BMWTypeNextLatin | 16px (1.00rem) | 400 | 1.15 (tight) | Standard buttons |
 
 ### Principles
-- **Warm weight range**: 500–700 dominate. No weight 300 or 400 for headings — Airbnb's type is always at least medium weight, creating a warm, confident voice.
-- **Negative tracking on headings**: -0.18px to -0.44px letter-spacing on display creates intimate, cozy headings rather than cold, compressed ones.
-- **"salt" OpenType feature**: Stylistic alternates on specific UI elements (badges, captions) create subtle glyph variations that add visual interest.
-- **Variable font precision**: Cereal VF enables continuous weight interpolation, though the design system uses discrete stops at 500, 600, and 700.
+- **Light display, heavy navigation**: Weight 300 for hero headlines creates whispered elegance; weight 900 for navigation creates stark authority. This extreme weight contrast (300 vs 900) is the signature typographic tension.
+- **Universal uppercase display**: The 60px hero is always uppercase — creating a monumental, architectural quality.
+- **Tight everything**: Line-heights from 1.15 to 1.30 across the entire system. Nothing breathes — every line is compressed, efficient, German-engineered.
+- **Single font family**: BMWTypeNextLatin handles everything from 60px display to 16px body — unity through one typeface at different weights.
 
 ## 4. Component Stylings
 
 ### Buttons
-
-**Primary Dark**
-- Background: `#222222` (near-black, not pure black)
-- Text: `#ffffff`
-- Padding: 0px 24px
-- Radius: 8px
-- Hover: transitions to error/brand accent via `var(--accent-bg-error)`
-- Focus: `0 0 0 2px var(--palette-grey1000)` ring + scale(0.92)
-
-**Circular Nav**
-- Background: `#f2f2f2`
-- Text: `#222222`
-- Radius: 50% (circle)
-- Hover: shadow `rgba(0,0,0,0.08) 0px 4px 12px` + translateX(50%)
-- Active: 4px white border ring + focus shadow
-- Focus: scale(0.92) shrink animation
+- Text: 16px BMWTypeNextLatin, weight 700 for primary, 400 for secondary
+- Line-height: 1.15–2.88 (large variation suggests padding-driven sizing)
+- Border: white bottom-border on dark surfaces (`1px solid #ffffff`)
+- No border-radius — sharp rectangular buttons
 
 ### Cards & Containers
-- Background: `#ffffff`
-- Radius: 14px (badges), 20px (cards/buttons), 32px (large)
-- Shadow: `rgba(0,0,0,0.02) 0px 0px 0px 1px, rgba(0,0,0,0.04) 0px 2px 6px, rgba(0,0,0,0.1) 0px 4px 8px` (three-layer)
-- Listing cards: full-width photography on top, details below
-- Carousel controls: circular 50% buttons
-
-### Inputs
-- Search: `#222222` text
-- Focus: `var(--palette-bg-primary-error)` background tint + `0 0 0 2px` ring
-- Radius: depends on context (search bar uses pill-like rounding)
+- No border-radius — all containers are sharp-cornered rectangles
+- White backgrounds on light sections
+- Dark backgrounds for hero/feature sections
+- No visible borders on most elements
 
 ### Navigation
-- White sticky header with search bar centered
-- Airbnb logo (Rausch Red) left-aligned
-- Category filter pills: horizontal scroll below search
-- Circular nav controls for carousel navigation
-- "Become a Host" text link, avatar/menu right-aligned
+- BMWTypeNextLatin 18px weight 900 for primary nav links
+- White text on dark header
+- BMW logo 54x54px
+- Hover: remains white, text-decoration none
+- "Home" text link in header
 
 ### Image Treatment
-- Listing photography fills card top with generous height
-- Image carousel with dot indicators
-- Heart/wishlist icon overlay on images
-- 8px–14px radius on contained images
+- Full-bleed automotive photography
+- Dark cinematic lighting
+- Edge-to-edge hero images
+- Car photography as primary visual content
 
 ## 5. Layout Principles
 
 ### Spacing System
 - Base unit: 8px
-- Scale: 2px, 3px, 4px, 6px, 8px, 10px, 11px, 12px, 15px, 16px, 22px, 24px, 32px
+- Scale: 1px, 5px, 8px, 10px, 12px, 15px, 16px, 20px, 24px, 30px, 32px, 40px, 45px, 56px, 60px
 
 ### Grid & Container
-- Full-width header with centered search
-- Category pill bar: horizontal scrollable row
-- Listing grid: responsive multi-column (3–5 columns on desktop)
-- Full-width footer with link columns
+- Full-width hero photography
+- Centered content sections
+- Footer: multi-column link grid
 
 ### Whitespace Philosophy
-- **Travel-magazine spacing**: Generous vertical padding between sections creates a leisurely browsing pace — you're meant to scroll slowly, like browsing a magazine.
-- **Photography density**: Listing cards are packed relatively tightly, but each image is large enough to feel immersive.
-- **Search bar prominence**: The search bar gets maximum vertical space in the header — finding your destination is the primary action.
+- **Showroom pacing**: Dark hero sections with generous padding create the feeling of walking through a showroom where each vehicle is spotlit in its own space.
+- **Compressed content**: Body text areas use tight line-heights and compact spacing — information-dense, no waste.
 
 ### Border Radius Scale
-- Subtle (4px): Small links
-- Standard (8px): Buttons, tabs, search elements
-- Badge (14px): Status badges, labels
-- Card (20px): Feature cards, large buttons
-- Large (32px): Large containers, hero elements
-- Circle (50%): Nav controls, avatars, icons
+- **None detected.** BMW uses sharp corners exclusively — every element is a precise rectangle. This is the most angular design system analyzed.
 
 ## 6. Depth & Elevation
 
 | Level | Treatment | Use |
 |-------|-----------|-----|
-| Flat (Level 0) | No shadow | Page background, text blocks |
-| Card (Level 1) | `rgba(0,0,0,0.02) 0px 0px 0px 1px, rgba(0,0,0,0.04) 0px 2px 6px, rgba(0,0,0,0.1) 0px 4px 8px` | Listing cards, search bar |
-| Hover (Level 2) | `rgba(0,0,0,0.08) 0px 4px 12px` | Button hover, interactive lift |
-| Active Focus (Level 3) | `rgb(255,255,255) 0px 0px 0px 4px` + focus ring | Active/focused elements |
+| Photography (Level 0) | Full-bleed dark imagery | Hero backgrounds |
+| Flat (Level 1) | White surface, no shadow | Content sections |
+| Focus (Accessibility) | BMW Focus Blue (`#0653b6`) | Focus states |
 
-**Shadow Philosophy**: Airbnb's three-layer shadow system creates a warm, natural lift. Layer 1 (`0px 0px 0px 1px` at 0.02 opacity) is an ultra-subtle border. Layer 2 (`0px 2px 6px` at 0.04) provides soft ambient shadow. Layer 3 (`0px 4px 8px` at 0.1) adds the primary lift. This graduated approach creates shadows that feel like natural light rather than CSS effects.
+**Shadow Philosophy**: BMW uses virtually no shadows. Depth is created entirely through the contrast between dark photographic sections and white content sections — the automotive lighting does the elevation work.
 
 ## 7. Do's and Don'ts
 
 ### Do
-- Use `#222222` (warm near-black) for text — never pure `#000000`
-- Apply Rausch Red (`#ff385c`) only for primary CTAs and brand moments — it's the singular accent
-- Use Airbnb Cereal VF at weight 500–700 — the warm weight range is intentional
-- Apply the three-layer card shadow for all elevated surfaces
-- Use generous border-radius: 8px for buttons, 20px for cards, 50% for controls
-- Use photography as the primary visual content — listings are image-first
-- Apply negative letter-spacing (-0.18px to -0.44px) on headings for intimacy
-- Use circular (50%) buttons for carousel/navigation controls
+- Use BMWTypeNextLatin Light (300) uppercase for all display headings
+- Keep ALL corners sharp (0px radius) — angular geometry is non-negotiable
+- Use BMW Blue (`#1c69d4`) only for interactive elements — never decoratively
+- Apply weight 900 for navigation emphasis — the extreme weight contrast is intentional
+- Use full-bleed automotive photography for hero sections
+- Keep line-heights tight (1.15–1.30) throughout
+- Use `--site-context-*` CSS variables for theming
 
 ### Don't
-- Don't use pure black (`#000000`) for text — always `#222222` (warm)
-- Don't apply Rausch Red to backgrounds or large surfaces — it's an accent only
-- Don't use thin font weights (300, 400) for headings — 500 minimum
-- Don't use heavy shadows (>0.1 opacity as primary layer) — keep them warm and graduated
-- Don't use sharp corners (0–4px) on cards — the generous rounding (20px+) is core
-- Don't introduce additional brand colors beyond the Rausch/Luxe/Plus system
-- Don't override the palette token system — use `--palette-*` variables consistently
+- Don't round corners — zero radius is the BMW identity
+- Don't use BMW Blue for backgrounds or large surfaces — it's an accent only
+- Don't use medium font weights (500–600) — the system uses 300, 400, 700, 900 extremes
+- Don't add decorative elements — the photography and typography carry everything
+- Don't use relaxed line-heights — BMW text is always compressed
+- Don't lighten the dark hero sections — the contrast with white IS the design
 
 ## 8. Responsive Behavior
 
 ### Breakpoints
 | Name | Width | Key Changes |
 |------|-------|-------------|
-| Mobile Small | <375px | Single column, compact search |
-| Mobile | 375–550px | Standard mobile listing grid |
-| Tablet Small | 550–744px | 2-column listings |
-| Tablet | 744–950px | Search bar expansion |
-| Desktop Small | 950–1128px | 3-column listings |
-| Desktop | 1128–1440px | 4-column grid, full header |
-| Large Desktop | 1440–1920px | 5-column grid |
-| Ultra-wide | >1920px | Maximum grid width |
-
-*Note: Airbnb has 61 detected breakpoints — one of the most granular responsive systems observed, reflecting their obsession with layout at every possible screen size.*
-
-### Touch Targets
-- Circular nav buttons: adequate 50% radius sizing
-- Listing cards: full-card tap target on mobile
-- Search bar: prominently sized for thumb interaction
-- Category pills: horizontally scrollable with generous padding
+| Mobile Small | <375px | Minimum supported |
+| Mobile | 375–480px | Single column |
+| Mobile Large | 480–640px | Slight adjustments |
+| Tablet Small | 640–768px | 2-column begins |
+| Tablet | 768–920px | Standard tablet |
+| Desktop Small | 920–1024px | Desktop layout begins |
+| Desktop | 1024–1280px | Standard desktop |
+| Large Desktop | 1280–1440px | Expanded |
+| Ultra-wide | 1440–1600px | Maximum layout |
 
 ### Collapsing Strategy
-- Listing grid: 5 → 4 → 3 → 2 → 1 columns
-- Search: expanded bar → compact bar → overlay
-- Category pills: horizontal scroll at all sizes
-- Navigation: full header → mobile simplified
-- Map: side panel → overlay/toggle
-
-### Image Behavior
-- Listing photos: carousel with swipe on mobile
-- Responsive image sizing with aspect ratio maintained
-- Heart overlay positioned consistently across sizes
-- Photo quality adjusts based on viewport
+- Hero: 60px → scales down, maintains uppercase
+- Navigation: horizontal → hamburger
+- Photography: full-bleed maintained at all sizes
+- Content sections: stack vertically
+- Footer: multi-column → stacked
 
 ## 9. Agent Prompt Guide
 
 ### Quick Color Reference
 - Background: Pure White (`#ffffff`)
-- Text: Near Black (`#222222`)
-- Brand accent: Rausch Red (`#ff385c`)
-- Secondary text: `#6a6a6a`
-- Disabled: `rgba(0,0,0,0.24)`
-- Card border: `rgba(0,0,0,0.02) 0px 0px 0px 1px`
-- Card shadow: full three-layer stack
-- Button surface: `#f2f2f2`
+- Text: Near Black (`#262626`)
+- Secondary text: Meta Gray (`#757575`)
+- Accent: BMW Blue (`#1c69d4`)
+- Focus: BMW Focus Blue (`#0653b6`)
+- Muted: Silver (`#bbbbbb`)
 
 ### Example Component Prompts
-- "Create a listing card: white background, 20px radius. Three-layer shadow: rgba(0,0,0,0.02) 0px 0px 0px 1px, rgba(0,0,0,0.04) 0px 2px 6px, rgba(0,0,0,0.1) 0px 4px 8px. Photo area on top (16:10 ratio), details below: 16px Airbnb Cereal VF weight 600 title, 14px weight 400 description in #6a6a6a."
-- "Design search bar: white background, full card shadow, 32px radius on container. Search text at 14px Cereal VF weight 400. Red search button (#ff385c, 50% radius, white icon)."
-- "Build category pill bar: horizontal scrollable row. Each pill: 14px Cereal VF weight 600, #222222 text, bottom border on active. Circular prev/next arrows (#f2f2f2 bg, 50% radius)."
-- "Create a CTA button: #222222 background, white text, 8px radius, 16px Cereal VF weight 500, 0px 24px padding. Hover: brand red accent."
-- "Design a heart/wishlist button: transparent background, 50% radius, white heart icon with dark shadow outline."
+- "Create a hero: full-width dark automotive photography background. Heading at 60px BMWTypeNextLatin Light weight 300, uppercase, line-height 1.30, white text. No border-radius anywhere."
+- "Design navigation: dark background. BMWTypeNextLatin 18px weight 900 for links, white text. BMW logo 54x54. Sharp rectangular layout."
+- "Build a button: 16px BMWTypeNextLatin weight 700, line-height 1.20. Sharp corners (0px radius). White bottom border on dark surface."
+- "Create content section: white background. Heading at 32px weight 400, line-height 1.30, #262626. Body at 16px weight 400, line-height 1.15."
 
 ### Iteration Guide
-1. Start with white — the photography provides all the color
-2. Rausch Red (#ff385c) is the singular accent — use sparingly for CTAs only
-3. Near-black (#222222) for text — the warmth matters
-4. Three-layer shadows create natural, warm lift — always use all three layers
-5. Generous radius: 8px buttons, 20px cards, 50% controls
-6. Cereal VF at 500–700 weight — no thin weights for any heading
-7. Photography is hero — every listing card is image-first
+1. Zero border-radius — every corner is sharp, no exceptions
+2. Weight extremes: 300 (display), 400 (body), 700 (buttons), 900 (nav)
+3. BMW Blue for interactive only — never as background or decoration
+4. Photography carries emotion — the UI is pure precision
+5. Tight line-heights everywhere — 1.15 to 1.30 is the range
