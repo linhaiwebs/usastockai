@@ -1,0 +1,201 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Airbnb Palette Token System */
+  --palette-bg-primary-core: #ff385c;
+  --palette-bg-tertiary-core: #e00b41;
+  --palette-bg-primary-luxe: #460479;
+  --palette-bg-primary-plus: #92174d;
+  
+  --palette-text-primary: #222222;
+  --palette-text-focused: #3f3f3f;
+  --palette-text-secondary: #6a6a6a;
+  --palette-text-material-disabled: rgba(0, 0, 0, 0.24);
+  --palette-text-link-disabled: #929292;
+  --palette-text-primary-error: #c13515;
+  --palette-text-secondary-error-hover: #b32505;
+  --palette-text-legal: #428bff;
+  
+  --palette-grey1000: #222222;
+  
+  /* Fonts */
+  --font-primary: 'Airbnb Cereal VF', 'Circular', -apple-system, system-ui, Roboto, 'Helvetica Neue', sans-serif;
+  --font-mono: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Mono', monospace;
+  
+  /* Background */
+  --background-rgb: 255, 255, 255;
+  --foreground-rgb: 34, 34, 34;
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: rgb(var(--background-rgb));
+  font-family: var(--font-primary);
+  font-weight: 400;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+/* Custom scrollbar - Airbnb style */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f7f7f7;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #6a6a6a;
+}
+
+/* Typography - Airbnb style with warm weights */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 700;
+  color: #222222;
+}
+
+/* Salt OpenType feature for badges and captions */
+.font-salt {
+  font-feature-settings: 'salt';
+}
+
+/* Tabular numbers for financial data */
+.tabular-nums {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum';
+}
+
+/* Airbnb-style card */
+.airbnb-card {
+  border-radius: 20px;
+  background: #ffffff;
+  box-shadow: rgba(0, 0, 0, 0.02) 0px 0px 0px 1px,
+              rgba(0, 0, 0, 0.04) 0px 2px 6px,
+              rgba(0, 0, 0, 0.1) 0px 4px 8px;
+  transition: box-shadow 0.2s ease-in-out;
+}
+
+.airbnb-card:hover {
+  box-shadow: rgba(0, 0, 0, 0.08) 0px 4px 12px;
+}
+
+/* Primary dark button - Airbnb style */
+.airbnb-primary-btn {
+  background-color: #222222;
+  color: #ffffff;
+  border-radius: 8px;
+  padding: 10px 24px;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 1.25;
+  transition: all 0.2s ease-in-out;
+}
+
+.airbnb-primary-btn:hover {
+  background-color: #000000;
+}
+
+.airbnb-primary-btn:active {
+  transform: scale(0.98);
+}
+
+.airbnb-primary-btn:focus-visible {
+  outline: 2px solid #222222;
+  outline-offset: 2px;
+}
+
+/* Rausch red CTA button */
+.rausch-btn {
+  background-color: #ff385c;
+  color: #ffffff;
+  border-radius: 8px;
+  padding: 10px 24px;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 1.25;
+  transition: all 0.2s ease-in-out;
+}
+
+.rausch-btn:hover {
+  background-color: #e00b41;
+}
+
+.rausch-btn:active {
+  transform: scale(0.98);
+}
+
+.rausch-btn:focus-visible {
+  outline: 2px solid #222222;
+  outline-offset: 2px;
+}
+
+/* Circular nav button */
+.circular-btn {
+  background-color: #f2f2f2;
+  color: #222222;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease-in-out;
+}
+
+.circular-btn:hover {
+  box-shadow: rgba(0, 0, 0, 0.08) 0px 4px 12px;
+}
+
+.circular-btn:active {
+  transform: scale(0.92);
+}
+
+/* Focus ring for accessibility */
+*:focus-visible {
+  outline: 2px solid #222222;
+  outline-offset: 2px;
+}
+
+/* Ticker animation for stock data */
+@keyframes ticker-scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-ticker-scroll {
+  animation: ticker-scroll 30s linear infinite;
+}
+
+/* Gradient decoration for hero */
+.gradient-decoration {
+  background: linear-gradient(135deg, #ff385c 0%, #e00b41 100%);
+  opacity: 0.1;
+}
+
+/* K-line chart background pattern */
+.kline-pattern {
+  background-image: 
+    linear-gradient(90deg, rgba(255, 56, 92, 0.05) 1px, transparent 1px),
+    linear-gradient(rgba(255, 56, 92, 0.05) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
