@@ -10,9 +10,12 @@ export interface SearchBoxRef {
   clearAndFocus: () => void
 }
 
+// Hot stocks for random selection
+const hotStocks = ['TSLA', 'GME', 'NVDA', 'AAPL', 'META', 'AMZN', 'GOOGL', 'MSFT']
+
 /**
- * Search Box Component - Mobile-first with example pills and validation
- * Airbnb style with generous border-radius and three-layer shadows
+ * Search Box Component - BMW Design System
+ * Sharp corners, BMW Blue accent, tight line-height
  */
 export const SearchBox = forwardRef<SearchBoxRef, SearchBoxProps>(({ onAnalyze }, ref) => {
   const [query, setQuery] = useState('')
@@ -50,7 +53,7 @@ export const SearchBox = forwardRef<SearchBoxRef, SearchBoxProps>(({ onAnalyze }
     
     // Trigger Google Analytics event
     if (typeof window !== 'undefined' && typeof (window as any).gtag === 'function') {
-      (window as any).gtag('event', 'Bdd');
+      (window as any).gtag('event', 'Bdd')
     }
     
     onAnalyze?.(trimmedQuery)
@@ -62,87 +65,73 @@ export const SearchBox = forwardRef<SearchBoxRef, SearchBoxProps>(({ onAnalyze }
     }
   }
 
-  const handleExampleClick = (symbol: string) => {
-    setQuery(symbol)
+  const handleRandomStock = () => {
+    const randomStock = hotStocks[Math.floor(Math.random() * hotStocks.length)]
+    setQuery(randomStock)
     setError('')
-    setIsFocused(true)
   }
-
-  const exampleStocks = ['AAPL', 'NVDA', 'META']
 
   return (
     <div className="mb-8">
-      {/* Search input container - Airbnb card style */}
-      <div className={`relative shadow-card hover:shadow-hover transition-shadow rounded-large bg-white ${
-        error ? 'ring-2 ring-danger-red' : ''
-      }`}>
-        <input
-          type="text"
-          value={query}
-          onChange={(e) => {
-            setQuery(e.target.value.toUpperCase())
-            setError('')
-          }}
-          onKeyPress={handleKeyPress}
-          onFocus={() => setIsFocused(true)}
-          onBlur={() => setIsFocused(false)}
-          placeholder="AAPL, MSFT, TSLA or any US stock"
-          className="w-full px-5 py-4 bg-white rounded-large text-text-primary placeholder-text-secondary focus:outline-none transition-all"
-          style={{ fontFeatureSettings: '"salt"' }}
-          autoFocus={isFocused}
-        />
+      {/* Search input container - BMW sharp corners */}
+      <div className={`relative border ${error ? 'border-danger-red' : 'border-border-default'} bg-white transition-colors`}>
+        <div className="flex items-center">
+          {/* Magnifier icon */}
+          <div className="pl-4 flex items-center">
+            <svg className="w-5 h-5 text-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </div>
+          
+          {/* $ prefix */}
+          <span className="pl-3 text-text-secondary font-medium">$</span>
+          
+          {/* Input field */}
+          <input
+            type="text"
+            value={query}
+            onChange={(e) => {
+              setQuery(e.target.value.toUpperCase())
+              setError('')
+            }}
+            onKeyPress={handleKeyPress}
+            onFocus={() => setIsFocused(true)}
+            onBlur={() => setIsFocused(false)}
+            placeholder="TSLA, GME, NVDA..."
+            className="flex-1 px-2 py-4 bg-white text-text-primary placeholder-text-secondary focus:outline-none text-body"
+            autoFocus={isFocused}
+          />
+          
+          {/* Random stock button (emoji) */}
+          <button
+            type="button"
+            onClick={handleRandomStock}
+            className="px-3 py-2 hover:bg-surface transition-colors text-lg"
+            title="Random hot stock"
+          >
+            🔥
+          </button>
+          
+          {/* Diagnose button */}
+          <button
+            onClick={handleSubmit}
+            disabled={!query.trim()}
+            className="px-6 py-4 bg-bmw-blue text-white font-semibold hover:bg-bmw-blue-focus active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100"
+          >
+            DIAGNOSE
+          </button>
+        </div>
       </div>
 
       {/* Error message */}
       {error && (
-        <p 
-          className="mt-2 text-small text-danger-red flex items-center gap-1"
-          style={{ fontFeatureSettings: '"salt"' }}
-        >
+        <p className="mt-2 text-small text-danger-red flex items-center gap-1">
           <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
             <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
           </svg>
           {error}
         </p>
       )}
-
-      {/* Example pills */}
-      <div className="mt-4 flex items-center gap-2 flex-wrap">
-        <span 
-          className="text-small text-text-secondary"
-          style={{ fontFeatureSettings: '"salt"' }}
-        >
-          Try examples:
-        </span>
-        {exampleStocks.map((symbol) => (
-          <button
-            key={symbol}
-            onClick={() => handleExampleClick(symbol)}
-            className="px-3 py-1.5 bg-surface rounded-badge text-body-medium text-text-primary hover:bg-surface/80 transition-colors"
-            style={{ fontFeatureSettings: '"salt"' }}
-          >
-            {symbol}
-          </button>
-        ))}
-      </div>
-
-      {/* Diagnose button - Rausch Red CTA */}
-      <button
-        onClick={handleSubmit}
-        disabled={!query.trim()}
-        className="w-full mt-4 py-4 bg-rausch text-white font-medium rounded-standard hover:bg-rausch-deep active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100"
-        style={{ fontFeatureSettings: '"salt"' }}
-      >
-        Diagnose
-      </button>
-      
-      {/* Helper text */}
-      <p 
-        className="mt-3 text-small text-text-secondary text-center"
-        style={{ fontFeatureSettings: '"salt"' }}
-      >
-        No login. Instant results. Always free.
-      </p>
     </div>
   )
 })

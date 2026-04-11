@@ -6,97 +6,80 @@ const config: Config = {
     './src/components/**/*.{js,ts,jsx,tsx,mdx}',
     './src/app/**/*.{js,ts,jsx,tsx,mdx}',
   ],
+  darkMode: 'class',
   theme: {
     extend: {
       fontFamily: {
-        // Airbnb Cereal VF - warm, rounded terminals
-        sans: ['Airbnb Cereal VF', 'Circular', '-apple-system', 'system-ui', 'Roboto', 'Helvetica Neue', 'sans-serif'],
-        display: ['Airbnb Cereal VF', 'Circular', '-apple-system', 'system-ui', 'Roboto', 'Helvetica Neue', 'sans-serif'],
+        // BMW Type System - fallback to Helvetica/Arial
+        sans: ['BMWTypeNextLatin', 'Helvetica', 'Arial', 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', 'Meiryo', 'sans-serif'],
+        display: ['BMWTypeNextLatin', 'Helvetica', 'Arial', 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', 'Meiryo', 'sans-serif'],
         mono: ['SF Mono', 'Monaco', 'Inconsolata', 'Fira Mono', 'monospace'],
       },
       colors: {
-        // Airbnb Design System Colors
-        background: '#ffffff',
-        surface: '#f7f7f7',
+        // BMW Design System Colors
+        background: 'var(--bg-primary)',
+        surface: 'var(--bg-secondary)',
         'surface-elevated': '#ffffff',
         
-        // Primary Brand - Rausch Red
-        'rausch': '#ff385c',
-        'rausch-deep': '#e00b41',
+        // Primary Brand - BMW Blue (interactive only)
+        'bmw-blue': '#1c69d4',
+        'bmw-blue-focus': '#0653b6',
+        'bmw-blue-hover': '#1479e0',
         
-        // Premium Tiers
-        'luxe-purple': '#460479',
-        'plus-magenta': '#92174d',
-        
-        // Text Scale - Warm near-black
-        'text-primary': '#222222',
-        'text-focused': '#3f3f3f',
-        'text-secondary': '#6a6a6a',
+        // Text Scale - BMW Near Black & Gray
+        'text-primary': '#262626',
+        'text-secondary': '#757575',
+        'text-muted': '#bbbbbb',
         'text-disabled': 'rgba(0, 0, 0, 0.24)',
-        'link-disabled': '#929292',
-        
-        // Interactive
-        'legal-blue': '#428bff',
-        'border-gray': '#c1c1c1',
-        'light-surface': '#f2f2f2',
         
         // Semantic
         'positive-green': '#008a05',
         'danger-red': '#c13515',
-        'danger-dark': '#b32505',
         
-        // Borders
+        // Borders - Sharp corners, minimal borders
         'border-default': '#dddddd',
         'border-light': '#ebebeb',
         
         // Legacy compatibility
-        primary: '#ff385c',
-        secondary: '#6a6a6a',
-        accent: '#ff385c',
-        text: '#222222',
-        'text-body': '#6a6a6a',
+        primary: '#1c69d4',
+        secondary: '#757575',
+        accent: '#1c69d4',
+        text: '#262626',
+        'text-body': '#757575',
         profit: '#008a05',
         loss: '#c13515',
       },
       fontSize: {
-        // Airbnb Typography - weights 500-700
-        'section-heading': ['1.75rem', { lineHeight: '1.43', letterSpacing: '0', fontWeight: '700' }],
-        'card-heading': ['1.38rem', { lineHeight: '1.18', letterSpacing: '-0.44px', fontWeight: '600' }],
-        'card-heading-medium': ['1.38rem', { lineHeight: '1.18', letterSpacing: '-0.44px', fontWeight: '500' }],
-        'sub-heading': ['1.31rem', { lineHeight: '1.43', letterSpacing: '0', fontWeight: '700' }],
-        'feature-title': ['1.25rem', { lineHeight: '1.20', letterSpacing: '-0.18px', fontWeight: '600' }],
-        'ui-medium': ['1.00rem', { lineHeight: '1.25', letterSpacing: '0', fontWeight: '500' }],
-        'ui-semibold': ['1.00rem', { lineHeight: '1.25', letterSpacing: '0', fontWeight: '600' }],
-        'button': ['1.00rem', { lineHeight: '1.25', letterSpacing: '0', fontWeight: '500' }],
-        'body': ['0.88rem', { lineHeight: '1.43', letterSpacing: '0', fontWeight: '400' }],
-        'body-medium': ['0.88rem', { lineHeight: '1.29', letterSpacing: '0', fontWeight: '500' }],
-        'caption-salt': ['0.88rem', { lineHeight: '1.43', letterSpacing: '0', fontWeight: '600' }],
-        'small': ['0.81rem', { lineHeight: '1.23', letterSpacing: '0', fontWeight: '400' }],
-        'tag': ['0.75rem', { lineHeight: '1.33', letterSpacing: '0', fontWeight: '400' }],
-        'badge': ['0.69rem', { lineHeight: '1.18', letterSpacing: '0', fontWeight: '600' }],
-        'micro-uppercase': ['0.50rem', { lineHeight: '1.25', letterSpacing: '0.32px', fontWeight: '700' }],
-        
-        // Hero sizes
-        'display-hero': ['3.00rem', { lineHeight: '1.1', letterSpacing: '-0.44px', fontWeight: '700' }],
-        'display-large': ['2.25rem', { lineHeight: '1.2', letterSpacing: '-0.44px', fontWeight: '700' }],
+        // BMW Typography System - Tight line-heights (1.15-1.30)
+        'display-hero': ['3.75rem', { lineHeight: '1.30', letterSpacing: '0', fontWeight: '300' }], // 60px
+        'section-heading': ['2.00rem', { lineHeight: '1.30', letterSpacing: '0', fontWeight: '400' }], // 32px
+        'nav-emphasis': ['1.13rem', { lineHeight: '1.30', letterSpacing: '0', fontWeight: '900' }], // 18px
+        'body': ['1.00rem', { lineHeight: '1.15', letterSpacing: '0', fontWeight: '400' }], // 16px
+        'button-bold': ['1.00rem', { lineHeight: '1.20', letterSpacing: '0', fontWeight: '700' }], // 16px
+        'button': ['1.00rem', { lineHeight: '1.15', letterSpacing: '0', fontWeight: '400' }], // 16px
+        'small': ['0.875rem', { lineHeight: '1.15', letterSpacing: '0', fontWeight: '400' }], // 14px
+        'caption': ['0.75rem', { lineHeight: '1.15', letterSpacing: '0', fontWeight: '400' }], // 12px
       },
       borderRadius: {
-        'subtle': '4px',
-        'standard': '8px',
-        'badge': '14px',
-        'card': '20px',
-        'large': '32px',
+        // BMW - ZERO border-radius
+        'none': '0px',
+        'subtle': '0px',
+        'standard': '0px',
+        'badge': '0px',
+        'card': '0px',
+        'large': '0px',
         'circle': '50%',
       },
       boxShadow: {
-        // Airbnb three-layer shadow system
-        'card': 'rgba(0, 0, 0, 0.02) 0px 0px 0px 1px, rgba(0, 0, 0, 0.04) 0px 2px 6px, rgba(0, 0, 0, 0.1) 0px 4px 8px',
-        'hover': 'rgba(0, 0, 0, 0.08) 0px 4px 12px',
-        'focus-ring': '0 0 0 2px #222222',
+        // BMW - Minimal shadows, depth through contrast
+        'card': 'none',
+        'hover': 'none',
+        'focus-ring': '0 0 0 2px #0653b6',
       },
       backgroundImage: {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
-        'gradient-brand': 'linear-gradient(135deg, #ff385c 0%, #e00b41 100%)',
+        'gradient-bmw': 'linear-gradient(135deg, #1c69d4 0%, #0653b6 100%)',
+        'rainbow-header': 'linear-gradient(90deg, #ff6b6b, #ffa500, #ffd700, #4ade80, #06b6d4, #8b5cf6, #ec4899)',
       },
       animation: {
         'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
@@ -124,6 +107,7 @@ const config: Config = {
         },
       },
       spacing: {
+        // BMW 8px base unit system
         '11': '2.75rem',
         '15': '3.75rem',
         '22': '5.5rem',

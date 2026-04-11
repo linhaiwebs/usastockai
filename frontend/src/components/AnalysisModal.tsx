@@ -10,7 +10,8 @@ interface AnalysisModalProps {
 }
 
 /**
- * AI Analysis Modal - Airbnb style with Rausch Red accents and three-layer shadows
+ * AI Analysis Modal - BMW Design System
+ * Sharp corners, BMW Blue accents, tight line-heights
  */
 export function AnalysisModal({ query, isOpen, onClose }: AnalysisModalProps) {
   const [content, setContent] = useState('')
@@ -191,26 +192,20 @@ export function AnalysisModal({ query, isOpen, onClose }: AnalysisModalProps) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-text-primary/80 backdrop-blur-sm">
-      <div className="w-full max-w-2xl max-h-[85vh] bg-white rounded-card shadow-card overflow-hidden flex flex-col">
+      <div className="w-full max-w-2xl max-h-[85vh] bg-white border border-border-default overflow-hidden flex flex-col">
         {/* Header */}
-        <div className="p-6 border-b border-border-light flex items-center justify-between">
+        <div className="p-6 border-b border-border-default flex items-center justify-between">
           <div>
-            <h2 
-              className="text-section-heading text-text-primary"
-              style={{ fontFeatureSettings: '"salt"' }}
-            >
-              AI Analysis Report
+            <h2 className="text-section-heading text-text-primary uppercase">
+              AI ANALYSIS REPORT
             </h2>
-            <p 
-              className="text-body text-text-secondary mt-1"
-              style={{ fontFeatureSettings: '"salt"' }}
-            >
+            <p className="text-small text-text-secondary mt-1">
               Query: {query}
             </p>
           </div>
           <button
             onClick={onClose}
-            className="circular-btn"
+            className="w-10 h-10 flex items-center justify-center border border-border-default hover:border-bmw-blue transition-colors"
           >
             <svg
               className="w-5 h-5"
@@ -237,18 +232,12 @@ export function AnalysisModal({ query, isOpen, onClose }: AnalysisModalProps) {
           {loading && content.length === 0 && (
             <div className="flex flex-col items-center justify-center py-12">
               <div className="relative mb-6">
-                <div className="w-16 h-16 border-4 border-rausch/20 border-t-rausch rounded-circle animate-spin"></div>
+                <div className="w-16 h-16 border-4 border-bmw-blue/20 border-t-bmw-blue animate-spin" style={{ borderRadius: 0 }}></div>
               </div>
-              <p 
-                className="text-ui-semibold text-text-primary mb-2"
-                style={{ fontFeatureSettings: '"salt"' }}
-              >
-                AI is analyzing{thinkingDots}
+              <p className="text-body font-semibold text-text-primary mb-2">
+                AI IS ANALYZING{thinkingDots}
               </p>
-              <p 
-                className="text-body text-text-secondary text-center max-w-sm"
-                style={{ fontFeatureSettings: '"salt"' }}
-              >
+              <p className="text-small text-text-secondary text-center max-w-sm">
                 Advanced AI is analyzing your request. This usually takes 1-3 seconds.
               </p>
             </div>
@@ -256,17 +245,13 @@ export function AnalysisModal({ query, isOpen, onClose }: AnalysisModalProps) {
 
           {/* Error state */}
           {error && (
-            <div className="p-4 bg-danger-red/10 border border-danger-red/30 rounded-standard">
-              <p 
-                className="text-ui-medium text-danger-red"
-                style={{ fontFeatureSettings: '"salt"' }}
-              >
+            <div className="p-4 bg-danger-red/10 border border-danger-red/30">
+              <p className="text-body text-danger-red">
                 {error}
               </p>
               <button
                 onClick={startAnalysis}
-                className="mt-2 text-body text-rausch hover:underline"
-                style={{ fontFeatureSettings: '"salt"' }}
+                className="mt-2 text-small text-bmw-blue hover:underline"
               >
                 Retry analysis
               </button>
@@ -281,17 +266,11 @@ export function AnalysisModal({ query, isOpen, onClose }: AnalysisModalProps) {
                 if (index === 0) {
                   if (content.includes('<think/>')) {
                     return (
-                      <div key={index} className="mb-4 p-4 bg-luxe-purple/10 border border-luxe-purple/30 rounded-standard">
-                        <p 
-                          className="text-badge text-luxe-purple mb-2 uppercase tracking-wider"
-                          style={{ fontFeatureSettings: '"salt"' }}
-                        >
-                          AI Thinking Process
+                      <div key={index} className="mb-4 p-4 bg-bmw-blue/10 border border-bmw-blue/30">
+                        <p className="text-caption text-bmw-blue mb-2 uppercase tracking-wider">
+                          AI THINKING PROCESS
                         </p>
-                        <div 
-                          className="text-body text-text-secondary whitespace-pre-wrap"
-                          style={{ fontFeatureSettings: '"salt"' }}
-                        >
+                        <div className="text-small text-text-secondary whitespace-pre-wrap">
                           {part}
                         </div>
                       </div>
@@ -300,8 +279,8 @@ export function AnalysisModal({ query, isOpen, onClose }: AnalysisModalProps) {
                   return (
                     <div 
                       key={index} 
-                      className="text-body text-text-primary whitespace-pre-wrap leading-relaxed"
-                      style={{ fontFeatureSettings: '"salt"' }}
+                      className="text-body text-text-primary whitespace-pre-wrap"
+                      style={{ lineHeight: '1.15' }}
                     >
                       {part}
                     </div>
@@ -310,8 +289,8 @@ export function AnalysisModal({ query, isOpen, onClose }: AnalysisModalProps) {
                 return (
                   <div 
                     key={index} 
-                    className="text-body text-text-primary whitespace-pre-wrap leading-relaxed"
-                    style={{ fontFeatureSettings: '"salt"' }}
+                    className="text-body text-text-primary whitespace-pre-wrap"
+                    style={{ lineHeight: '1.15' }}
                   >
                     {part}
                   </div>
@@ -322,13 +301,12 @@ export function AnalysisModal({ query, isOpen, onClose }: AnalysisModalProps) {
         </div>
 
         {/* Footer with WhatsApp button */}
-        <div className="p-6 border-t border-border-light">
+        <div className="p-6 border-t border-border-default">
           {redirectUrl && (
             <>
               <button
                 onClick={handleWhatsAppClick}
-                className="w-full py-4 px-4 bg-rausch hover:bg-rausch-deep text-white font-medium rounded-standard shadow-card hover:shadow-hover transition-all flex items-center justify-center gap-2 active:scale-[0.98]"
-                style={{ fontFeatureSettings: '"salt"' }}
+                className="w-full py-4 px-4 bg-bmw-blue hover:bg-bmw-blue-focus text-white font-semibold border-0 shadow-none hover:shadow-none transition-all flex items-center justify-center gap-2 active:scale-[0.98]"
               >
                 <svg
                   className="w-5 h-5"
@@ -337,12 +315,9 @@ export function AnalysisModal({ query, isOpen, onClose }: AnalysisModalProps) {
                 >
                   <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
                 </svg>
-                <span>Get Personalized Analysis on WhatsApp</span>
+                <span>GET PERSONALIZED ANALYSIS ON WHATSAPP</span>
               </button>
-              <p 
-                className="mt-3 text-small text-text-secondary text-center opacity-70"
-                style={{ fontFeatureSettings: '"salt"' }}
-              >
+              <p className="mt-3 text-small text-text-secondary text-center opacity-70">
                 Disclaimer: This is not investment advice. AI-generated analysis for reference only.
               </p>
             </>
@@ -351,8 +326,7 @@ export function AnalysisModal({ query, isOpen, onClose }: AnalysisModalProps) {
           {!redirectUrl && !loading && content && (
             <button
               disabled
-              className="w-full py-4 px-4 bg-surface text-text-secondary font-medium rounded-standard flex items-center justify-center gap-2 opacity-50 cursor-not-allowed"
-              style={{ fontFeatureSettings: '"salt"' }}
+              className="w-full py-4 px-4 bg-surface text-text-secondary font-semibold border-0 flex items-center justify-center gap-2 opacity-50 cursor-not-allowed"
             >
               <svg
                 className="w-5 h-5 animate-spin"
@@ -362,7 +336,7 @@ export function AnalysisModal({ query, isOpen, onClose }: AnalysisModalProps) {
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
               </svg>
-              <span>Loading...</span>
+              <span>LOADING...</span>
             </button>
           )}
         </div>
