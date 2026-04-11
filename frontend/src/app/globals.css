@@ -1,0 +1,286 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Revolut Color System */
+  --rui-color-action-label: #ffffff;
+  --rui-color-blue: #494fdf;
+  --rui-color-action-photo-header-text: #4f55f1;
+  --rui-color-danger: #e23b4a;
+  --rui-color-deep-pink: #e61e49;
+  --rui-color-warning: #ec7e00;
+  --rui-color-yellow: #b09000;
+  --rui-color-teal: #00a87e;
+  --rui-color-light-green: #428619;
+  --rui-color-light-blue: #007bc2;
+  --rui-color-brown: #936d62;
+  --rui-color-grey-tone-20: #c9c9cd;
+  
+  --website-color-blue-text: #376cd5;
+  --website-color-green-text: #006400;
+  --website-color-red-text: #8b0000;
+  
+  --foreground-rgb: 25, 28, 31;
+  --background-rgb: 255, 255, 255;
+  --font-display: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'SourceCodePro', 'SFMono-Regular', monospace;
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: rgb(var(--background-rgb));
+  font-family: var(--font-display);
+  font-feature-settings: normal;
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+/* Custom scrollbar - Revolut minimal style */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f4f4f4;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c9c9cd;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #8d969e;
+}
+
+/* Typography - Revolut style */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 500;
+  color: #191c1f;
+  font-family: var(--font-display);
+}
+
+/* Better text rendering */
+* {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Code and numbers use monospace font */
+code, pre, .font-mono {
+  font-family: var(--font-mono);
+}
+
+/* Numbers in stock data - tabular nums for financial data */
+.stock-number {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum';
+}
+
+/* Revolut-style pill button */
+.revolut-btn-primary {
+  background-color: #191c1f;
+  color: #ffffff;
+  border-radius: 9999px;
+  padding: 12px 24px;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 1.40;
+  transition: opacity 0.2s ease-in-out;
+}
+
+.revolut-btn-primary:hover {
+  opacity: 0.85;
+}
+
+.revolut-btn-primary:active {
+  transform: scale(0.98);
+}
+
+/* Revolut-style secondary button */
+.revolut-btn-secondary {
+  background-color: #f4f4f4;
+  color: #000000;
+  border-radius: 9999px;
+  padding: 12px 24px;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 1.40;
+  transition: opacity 0.2s ease-in-out;
+}
+
+.revolut-btn-secondary:hover {
+  opacity: 0.85;
+}
+
+/* Revolut-style outlined button */
+.revolut-btn-outlined {
+  background-color: transparent;
+  color: #191c1f;
+  border: 2px solid #191c1f;
+  border-radius: 9999px;
+  padding: 12px 24px;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 1.40;
+  transition: opacity 0.2s ease-in-out;
+}
+
+.revolut-btn-outlined:hover {
+  opacity: 0.85;
+}
+
+/* Revolut-style ghost button on dark */
+.revolut-btn-ghost {
+  background-color: rgba(244, 244, 244, 0.1);
+  color: #f4f4f4;
+  border: 2px solid #f4f4f4;
+  border-radius: 9999px;
+  padding: 12px 24px;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 1.40;
+  transition: opacity 0.2s ease-in-out;
+}
+
+.revolut-btn-ghost:hover {
+  opacity: 0.85;
+}
+
+/* Focus ring for accessibility */
+*:focus-visible {
+  outline: 0.125rem solid #191c1f;
+  outline-offset: 2px;
+}
+
+/* Success badge */
+.success-badge {
+  background: rgba(0, 168, 126, 0.2);
+  color: #00a87e;
+  border: 1px solid rgba(0, 168, 126, 0.4);
+  border-radius: 9999px;
+  padding: 4px 12px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* Danger badge */
+.danger-badge {
+  background: rgba(226, 59, 74, 0.2);
+  color: #e23b4a;
+  border: 1px solid rgba(226, 59, 74, 0.4);
+  border-radius: 9999px;
+  padding: 4px 12px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* Mobile responsive - Adjust font sizes for better readability */
+@media (max-width: 768px) {
+  /* Typography scale - Mobile optimized */
+  h1, .text-display-mega {
+    font-size: 3rem !important;
+    letter-spacing: -0.96px !important;
+  }
+  
+  .text-display-hero {
+    font-size: 2.5rem !important;
+    letter-spacing: -0.4px !important;
+  }
+  
+  .text-display-large {
+    font-size: 2rem !important;
+    letter-spacing: -0.32px !important;
+  }
+  
+  .text-section-heading {
+    font-size: 1.5rem !important;
+    letter-spacing: -0.2px !important;
+  }
+  
+  .text-card-title {
+    font-size: 1.25rem !important;
+    letter-spacing: -0.18px !important;
+  }
+  
+  .text-feature-title {
+    font-size: 1.125rem !important;
+  }
+  
+  .text-nav-ui {
+    font-size: 1rem !important;
+  }
+  
+  .text-body-large {
+    font-size: 1.125rem !important;
+  }
+  
+  .text-body {
+    font-size: 1rem !important;
+  }
+  
+  .text-button {
+    font-size: 1rem !important;
+  }
+  
+  .text-button-small {
+    font-size: 0.875rem !important;
+  }
+  
+  .text-caption {
+    font-size: 0.875rem !important;
+  }
+  
+  .text-caption-small {
+    font-size: 0.75rem !important;
+  }
+  
+  /* Button sizes for mobile */
+  .revolut-btn-primary,
+  .revolut-btn-secondary,
+  .revolut-btn-outlined,
+  .revolut-btn-ghost {
+    font-size: 1rem !important;
+    padding: 14px 28px !important;
+  }
+  
+  /* Badge sizes for mobile */
+  .success-badge,
+  .danger-badge {
+    font-size: 0.875rem !important;
+    padding: 4px 12px !important;
+  }
+  
+  /* Avatar and loading spinner sizes - mobile optimized */
+  [class*="w-20"][class*="h-20"] {
+    width: 4rem !important;
+    height: 4rem !important;
+  }
+  
+  [class*="w-16"][class*="h-16"] {
+    width: 3.5rem !important;
+    height: 3.5rem !important;
+  }
+  
+  [class*="w-12"][class*="h-12"] {
+    width: 3rem !important;
+    height: 3rem !important;
+  }
+  
+  [class*="w-10"][class*="h-10"] {
+    width: 2.5rem !important;
+    height: 2.5rem !important;
+  }
+  
+  /* Max height for modal on mobile */
+  .max-h-\\[85vh\\] {
+    max-height: 90vh !important;
+  }
+}
