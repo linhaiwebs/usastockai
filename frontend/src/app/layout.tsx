@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next'
-import { Inter, JetBrains_Mono } from 'next/font/google'
+import { Inter, Inconsolata } from 'next/font/google'
 import './globals.css'
 import ClientLayout from '@/components/ClientLayout'
 
@@ -9,29 +9,31 @@ const inter = Inter({
   variable: '--font-inter',
   preload: true,
   fallback: ['system-ui', 'arial'],
+  weight: ['400', '500', '600', '700', '900'],
 })
 
-const jetbrainsMono = JetBrains_Mono({
+const inconsolata = Inconsolata({
   subsets: ['latin'],
   display: 'swap',
   variable: '--font-mono',
-  preload: false, // 等宽字体不预加载，按需加载
+  preload: false,
+  weight: ['600'],
 })
 
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
   maximumScale: 5,
-  themeColor: '#9fe870',
+  themeColor: '#000000',
 }
 
 export const metadata: Metadata = {
-  title: 'Stock AI Diagnostic - Intelligent Stock Analysis System',
-  description: 'AI-powered US stock diagnostic system providing real-time stock data, intelligent analysis, and investment recommendations',
-  keywords: ['stock analysis', 'AI', 'US stocks', 'investment', 'real-time quotes', 'stock diagnostic'],
-  authors: [{ name: 'Stock AI Team' }],
-  creator: 'Stock AI',
-  publisher: 'Stock AI',
+  title: 'MarketPulse AI - Real-time Stock Sentiment Analysis',
+  description: 'AI scans 10,000+ articles and posts in real time. Get instant sentiment analysis for any US stock.',
+  keywords: ['stock sentiment', 'AI', 'US stocks', 'investment', 'real-time news', 'market analysis', 'stock scanner'],
+  authors: [{ name: 'MarketPulse AI Team' }],
+  creator: 'MarketPulse AI',
+  publisher: 'MarketPulse AI',
   robots: {
     index: true,
     follow: true,
@@ -46,14 +48,14 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'en_US',
-    title: 'Stock AI Diagnostic - Intelligent Stock Analysis',
-    description: 'AI-powered US stock diagnostic system',
-    siteName: 'Stock AI Diagnostic',
+    title: 'MarketPulse AI - Real-time Stock Sentiment Analysis',
+    description: 'AI scans 10,000+ articles and posts in real time',
+    siteName: 'MarketPulse AI',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Stock AI Diagnostic',
-    description: 'AI-powered US stock diagnostic system',
+    title: 'MarketPulse AI',
+    description: 'AI scans 10,000+ articles and posts in real time',
   },
   verification: {
     google: 'your-google-verification-code',
@@ -75,7 +77,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" className={`${inter.variable} ${jetbrainsMono.variable}`}>
+    <html lang="en" className={`${inter.variable} ${inconsolata.variable}`}>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />

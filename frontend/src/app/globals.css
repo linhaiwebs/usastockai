@@ -3,41 +3,40 @@
 @tailwind utilities;
 
 :root {
-  /* BMW Design System Variables */
+  /* ClickHouse Design System Variables */
   --site-context-theme-color: #ffffff;
-  --site-context-highlight-color: #1c69d4;
-  --site-context-focus-color: #0653b6;
-  --site-context-metainfo-color: #757575;
+  --site-context-highlight-color: #faff69;
+  --site-context-focus-color: #f4f692;
+  --site-context-metainfo-color: #a0a0a0;
   
-  /* BMW Color Palette */
-  --bg-primary: #ffffff;
-  --bg-secondary: #f7f7f7;
-  --text-primary: #262626;
-  --text-secondary: #757575;
-  --text-muted: #bbbbbb;
-  
-  /* BMW Blue - Interactive Only */
-  --bmw-blue: #1c69d4;
-  --bmw-blue-focus: #0653b6;
-  --bmw-blue-hover: #1479e0;
-  
-  /* Fonts */
-  --font-primary: 'BMWTypeNextLatin', 'Helvetica', 'Arial', 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', 'Meiryo', sans-serif;
-  --font-mono: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Mono', monospace;
-  
-  /* Background */
-  --background-rgb: 255, 255, 255;
-  --foreground-rgb: 38, 38, 38;
-}
-
-/* Dark mode support */
-.dark {
-  --bg-primary: #0a0a0a;
-  --bg-secondary: #1a1a1a;
+  /* ClickHouse Color Palette - Pure Black Canvas */
+  --bg-primary: #000000;
+  --bg-secondary: #141414;
+  --bg-elevated: #1a1a1a;
   --text-primary: #ffffff;
   --text-secondary: #a0a0a0;
-  --text-muted: #6a6a6a;
-  --background-rgb: 10, 10, 10;
+  --text-muted: #585858;
+  
+  /* Neon Volt - Primary Accent */
+  --neon-volt: #faff69;
+  --neon-volt-hover: #f4f692;
+  
+  /* Forest Green - Secondary CTA */
+  --forest-green: #166534;
+  --dark-forest: #14572f;
+  
+  /* Charcoal Borders */
+  --charcoal-border: rgba(65, 65, 65, 0.8);
+  --deep-charcoal: #343434;
+  --hover-gray: #3a3a3a;
+  
+  /* Fonts - Inter Weight Spectrum */
+  --font-primary: 'Inter', 'Helvetica', 'Arial', sans-serif;
+  --font-display: 'Inter', 'Helvetica', 'Arial', sans-serif;
+  --font-mono: 'Inconsolata', 'Fira Mono', monospace;
+  
+  /* Background */
+  --background-rgb: 0, 0, 0;
   --foreground-rgb: 255, 255, 255;
 }
 
@@ -56,139 +55,165 @@ body {
   }
 }
 
-/* Custom scrollbar - BMW style (minimal) */
+/* Custom scrollbar - ClickHouse style (dark theme) */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #f7f7f7;
+  background: #141414;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
-  border-radius: 0;
+  background: #343434;
+  border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #757575;
+  background: #414141;
 }
 
-/* Typography - BMW style with tight line-heights */
+/* Typography - ClickHouse heavy weights, uppercase labels */
 h1, h2, h3, h4, h5, h6 {
-  font-weight: 300;
-  color: #262626;
-  text-transform: uppercase;
-  line-height: 1.30;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1.0;
 }
 
-/* BMW-style card - Sharp corners, no shadow */
-.bmw-card {
-  border-radius: 0;
-  background: #ffffff;
-  border: 1px solid #ebebeb;
+/* ClickHouse-style card - Charcoal borders, dark surface */
+.ch-card {
+  border-radius: 8px;
+  background: transparent;
+  border: 1px solid rgba(65, 65, 65, 0.8);
   transition: border-color 0.2s ease-in-out;
 }
 
-.bmw-card:hover {
-  border-color: #1c69d4;
+.ch-card:hover {
+  border-color: rgba(65, 65, 65, 1);
 }
 
-/* BMW primary button - Sharp corners, BMW Blue */
-.bmw-primary-btn {
-  background-color: #1c69d4;
-  color: #ffffff;
-  border-radius: 0;
-  padding: 10px 24px;
+.ch-card-highlighted {
+  border-color: #faff69;
+}
+
+/* ClickHouse primary button - Neon Volt with dark text */
+.ch-primary-btn {
+  background-color: #faff69;
+  color: #151515;
+  border-radius: 4px;
+  padding: 0px 16px;
   font-weight: 700;
   font-size: 16px;
-  line-height: 1.20;
+  line-height: 1.50;
+  border: 1px solid #faff69;
   transition: all 0.2s ease-in-out;
 }
 
-.bmw-primary-btn:hover {
-  background-color: #0653b6;
+.ch-primary-btn:hover {
+  background-color: #1d1d1d;
+  color: #faff69;
 }
 
-.bmw-primary-btn:active {
-  transform: scale(0.98);
+.ch-primary-btn:active {
+  color: #f4f692;
 }
 
-.bmw-primary-btn:focus-visible {
-  outline: 2px solid #0653b6;
+.ch-primary-btn:focus-visible {
+  outline: 2px solid #faff69;
   outline-offset: 2px;
 }
 
-/* BMW ghost button - Sharp corners, transparent */
-.bmw-ghost-btn {
-  background-color: transparent;
-  color: #262626;
-  border-radius: 0;
-  padding: 10px 24px;
-  font-weight: 400;
-  font-size: 16px;
-  line-height: 1.15;
-  border: 1px solid #262626;
-  transition: all 0.2s ease-in-out;
-}
-
-.bmw-ghost-btn:hover {
-  background-color: #262626;
+/* ClickHouse forest green button - Secondary CTA */
+.ch-green-btn {
+  background-color: #166534;
   color: #ffffff;
+  border-radius: 4px;
+  padding: 12px 16px;
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 1.50;
+  border: 1px solid #141414;
+  transition: all 0.2s ease-in-out;
 }
 
-.bmw-ghost-btn:active {
-  transform: scale(0.98);
+.ch-green-btn:hover {
+  background-color: #3a3a3a;
 }
 
-.bmw-ghost-btn:focus-visible {
-  outline: 2px solid #0653b6;
+.ch-green-btn:active {
+  color: #f4f692;
+}
+
+.ch-green-btn:focus-visible {
+  outline: 2px solid #166534;
   outline-offset: 2px;
 }
 
-/* Focus ring for accessibility - BMW Focus Blue */
+/* ClickHouse ghost button - Olive border */
+.ch-ghost-btn {
+  background-color: transparent;
+  color: #ffffff;
+  border-radius: 4px;
+  padding: 0px 32px;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 1.50;
+  border: 1px solid #4f5100;
+  transition: all 0.2s ease-in-out;
+}
+
+.ch-ghost-btn:hover {
+  background-color: #3a3a3a;
+}
+
+.ch-ghost-btn:active {
+  color: #f4f692;
+}
+
+.ch-ghost-btn:focus-visible {
+  outline: 2px solid #faff69;
+  outline-offset: 2px;
+}
+
+/* Focus ring for accessibility - Neon Volt */
 *:focus-visible {
-  outline: 2px solid #0653b6;
+  outline: 2px solid #faff69;
   outline-offset: 2px;
 }
 
-/* Ticker animation for stock data */
-@keyframes ticker-scroll {
-  0% {
-    transform: translateX(0);
-  }
-  100% {
-    transform: translateX(-50%);
-  }
+/* Inset shadow for pressed states */
+.inset-shadow {
+  box-shadow: rgba(0, 0, 0, 0.06) 0px 4px 4px, rgba(0, 0, 0, 0.14) 0px 4px 25px inset;
 }
 
-.animate-ticker-scroll {
-  animation: ticker-scroll 30s linear infinite;
-}
-
-/* Rainbow gradient for table headers */
-.rainbow-gradient {
-  background: linear-gradient(90deg, #ff6b6b, #ffa500, #ffd700, #4ade80, #06b6d4, #8b5cf6, #ec4899);
-}
-
-/* BMW input style - Sharp corners */
-.bmw-input {
-  border-radius: 0;
-  border: 1px solid #ebebeb;
+/* ClickHouse input style - Dark surface, neon accent */
+.ch-input {
+  border-radius: 4px;
+  border: 1px solid rgba(65, 65, 65, 0.8);
   padding: 12px 16px;
   font-size: 16px;
-  line-height: 1.15;
+  line-height: 1.50;
+  background: #141414;
+  color: #ffffff;
   transition: border-color 0.2s ease-in-out;
 }
 
-.bmw-input:focus {
-  border-color: #1c69d4;
-  outline: 2px solid #0653b6;
-  outline-offset: 0;
+.ch-input:focus {
+  border-color: #faff69;
+  outline: none;
 }
 
-.bmw-input::placeholder {
-  color: #757575;
+.ch-input::placeholder {
+  color: #a0a0a0;
+}
+
+/* Uppercase label styling */
+.uppercase-label {
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 1.4px;
+  text-transform: uppercase;
+  color: #a0a0a0;
 }
 

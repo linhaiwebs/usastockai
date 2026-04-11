@@ -10,8 +10,9 @@ import { Footer } from '@/components/Footer'
 import { AnalysisModal } from '@/components/AnalysisModal'
 
 /**
- * Main Page - BMW Design System
- * Sharp corners, tight line-heights, BMW Blue accents
+ * Main Page - ClickHouse Design System
+ * Pure black canvas, Neon Volt accents, charcoal borders
+ * Module-based layout with max-width 1200px
  */
 export default function Home() {
   const [modalOpen, setModalOpen] = useState(false)
@@ -37,20 +38,21 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-background pb-20">
-      {/* Main container with generous padding */}
-      <div className="max-w-[520px] mx-auto px-5 py-8">
-        {/* Module 1: Hero Section with brand and input */}
+      {/* Main container with max-width 1200px */}
+      <div className="max-w-[1200px] mx-auto px-6 py-8">
+        {/* Module 1: Top Brand Bar */}
         <HeroSection />
         
-        {/* Module 1: Search Box with validation */}
+        {/* Module 2: Central Input Area */}
         <SearchBox ref={searchBoxRef} onAnalyze={handleAnalyze} />
         
-        {/* Module 2: Notification Bar */}
+        {/* Module 3: Real-time Sentiment Indicators */}
         <NotificationBar />
         
-        {/* Module 3: Comparison Matrix */}
+        {/* Module 4: News Source Trust Badges */}
         <ComparisonMatrix />
         
+        {/* Footer */}
         <Footer />
         
         {/* AI Analysis Modal */}
@@ -61,7 +63,7 @@ export default function Home() {
         />
       </div>
 
-      {/* Module 4: Fixed Bottom Bar */}
+      {/* Module 5: Fixed Bottom Bar */}
       <FixedBottomBar 
         onNewDiagnosis={handleNewDiagnosis} 
         hasCompletedDiagnosis={hasCompletedDiagnosis}

@@ -10,76 +10,85 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        // BMW Type System - fallback to Helvetica/Arial
-        sans: ['BMWTypeNextLatin', 'Helvetica', 'Arial', 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', 'Meiryo', 'sans-serif'],
-        display: ['BMWTypeNextLatin', 'Helvetica', 'Arial', 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', 'Meiryo', 'sans-serif'],
-        mono: ['SF Mono', 'Monaco', 'Inconsolata', 'Fira Mono', 'monospace'],
+        // ClickHouse Type System - Inter with full weight spectrum
+        sans: ['Inter', 'Helvetica', 'Arial', 'sans-serif'],
+        display: ['Inter', 'Helvetica', 'Arial', 'sans-serif'],
+        mono: ['Inconsolata', 'Fira Mono', 'monospace'],
       },
       colors: {
-        // BMW Design System Colors
-        background: 'var(--bg-primary)',
-        surface: 'var(--bg-secondary)',
-        'surface-elevated': '#ffffff',
+        // ClickHouse Design System - Pure Black Canvas
+        background: '#000000',
+        surface: '#141414',
+        'surface-elevated': '#1a1a1a',
         
-        // Primary Brand - BMW Blue (interactive only)
-        'bmw-blue': '#1c69d4',
-        'bmw-blue-focus': '#0653b6',
-        'bmw-blue-hover': '#1479e0',
+        // Neon Volt - Primary Accent
+        'neon-volt': '#faff69',
+        'neon-volt-hover': '#f4f692',
         
-        // Text Scale - BMW Near Black & Gray
-        'text-primary': '#262626',
-        'text-secondary': '#757575',
-        'text-muted': '#bbbbbb',
-        'text-disabled': 'rgba(0, 0, 0, 0.24)',
+        // Forest Green - Secondary CTA
+        'forest-green': '#166534',
+        'dark-forest': '#14572f',
+        
+        // Text Scale
+        'text-primary': '#ffffff',
+        'text-secondary': '#a0a0a0',
+        'text-muted': '#585858',
+        'text-disabled': 'rgba(255, 255, 255, 0.28)',
+        
+        // Charcoal Borders
+        'charcoal': 'rgba(65, 65, 65, 0.8)',
+        'deep-charcoal': '#343434',
+        'hover-gray': '#3a3a3a',
         
         // Semantic
         'positive-green': '#008a05',
         'danger-red': '#c13515',
         
-        // Borders - Sharp corners, minimal borders
-        'border-default': '#dddddd',
-        'border-light': '#ebebeb',
+        // Borders - ClickHouse charcoal
+        'border-default': 'rgba(65, 65, 65, 0.8)',
+        'border-light': 'rgba(65, 65, 65, 0.5)',
         
         // Legacy compatibility
-        primary: '#1c69d4',
-        secondary: '#757575',
-        accent: '#1c69d4',
-        text: '#262626',
-        'text-body': '#757575',
+        primary: '#faff69',
+        secondary: '#a0a0a0',
+        accent: '#faff69',
+        text: '#ffffff',
+        'text-body': '#a0a0a0',
         profit: '#008a05',
         loss: '#c13515',
       },
       fontSize: {
-        // BMW Typography System - Tight line-heights (1.15-1.30)
-        'display-hero': ['3.75rem', { lineHeight: '1.30', letterSpacing: '0', fontWeight: '300' }], // 60px
-        'section-heading': ['2.00rem', { lineHeight: '1.30', letterSpacing: '0', fontWeight: '400' }], // 32px
-        'nav-emphasis': ['1.13rem', { lineHeight: '1.30', letterSpacing: '0', fontWeight: '900' }], // 18px
-        'body': ['1.00rem', { lineHeight: '1.15', letterSpacing: '0', fontWeight: '400' }], // 16px
-        'button-bold': ['1.00rem', { lineHeight: '1.20', letterSpacing: '0', fontWeight: '700' }], // 16px
-        'button': ['1.00rem', { lineHeight: '1.15', letterSpacing: '0', fontWeight: '400' }], // 16px
-        'small': ['0.875rem', { lineHeight: '1.15', letterSpacing: '0', fontWeight: '400' }], // 14px
-        'caption': ['0.75rem', { lineHeight: '1.15', letterSpacing: '0', fontWeight: '400' }], // 12px
+        // ClickHouse Typography System - Weight IS hierarchy
+        'display-mega': ['6rem', { lineHeight: '1.00', letterSpacing: '0', fontWeight: '900' }], // 96px
+        'display-hero': ['4.5rem', { lineHeight: '1.00', letterSpacing: '0', fontWeight: '700' }], // 72px
+        'feature-heading': ['2.25rem', { lineHeight: '1.30', letterSpacing: '0', fontWeight: '600' }], // 36px
+        'sub-heading': ['1.5rem', { lineHeight: '1.17', letterSpacing: '0', fontWeight: '600' }], // 24px
+        'feature-title': ['1.25rem', { lineHeight: '1.40', letterSpacing: '0', fontWeight: '600' }], // 20px
+        'body-large': ['1.13rem', { lineHeight: '1.56', letterSpacing: '0', fontWeight: '400' }], // 18px
+        'body': ['1rem', { lineHeight: '1.50', letterSpacing: '0', fontWeight: '400' }], // 16px
+        'caption': ['0.875rem', { lineHeight: '1.43', letterSpacing: '0', fontWeight: '400' }], // 14px
+        'uppercase-label': ['0.875rem', { lineHeight: '1.43', letterSpacing: '0.0875rem', fontWeight: '600' }], // 14px, 1.4px tracking
+        'code': ['1rem', { lineHeight: '1.50', letterSpacing: '0', fontWeight: '600' }], // 16px
+        'small': ['0.75rem', { lineHeight: '1.33', letterSpacing: '0', fontWeight: '500' }], // 12px
+        'micro': ['0.7rem', { lineHeight: '1.79', letterSpacing: '0', fontWeight: '500' }], // 11.2px
       },
       borderRadius: {
-        // BMW - ZERO border-radius
+        // ClickHouse - Sharp geometry (4px/8px)
         'none': '0px',
-        'subtle': '0px',
-        'standard': '0px',
-        'badge': '0px',
-        'card': '0px',
-        'large': '0px',
+        'sharp': '4px',
+        'comfortable': '8px',
+        'pill': '9999px',
         'circle': '50%',
       },
       boxShadow: {
-        // BMW - Minimal shadows, depth through contrast
-        'card': 'none',
-        'hover': 'none',
-        'focus-ring': '0 0 0 2px #0653b6',
+        // ClickHouse - Subtle shadows on black
+        'subtle': '0px 1px 3px rgba(0,0,0,0.1), 0px 1px 2px -1px rgba(0,0,0,0.1)',
+        'elevated': '0px 10px 15px -3px rgba(0,0,0,0.1), 0px 4px 6px -4px rgba(0,0,0,0.1)',
+        'inset': 'rgba(0,0,0,0.06) 0px 4px 4px, rgba(0,0,0,0.14) 0px 4px 25px inset',
+        'focus-ring': '0 0 0 2px #faff69',
       },
       backgroundImage: {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
-        'gradient-bmw': 'linear-gradient(135deg, #1c69d4 0%, #0653b6 100%)',
-        'rainbow-header': 'linear-gradient(90deg, #ff6b6b, #ffa500, #ffd700, #4ade80, #06b6d4, #8b5cf6, #ec4899)',
       },
       animation: {
         'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
@@ -87,6 +96,7 @@ const config: Config = {
         'slide-up': 'slideUp 0.3s ease-out',
         'float': 'float 6s ease-in-out infinite',
         'ticker': 'ticker 30s linear infinite',
+        'data-refresh': 'dataRefresh 5s ease-in-out infinite',
       },
       keyframes: {
         fadeIn: {
@@ -105,9 +115,13 @@ const config: Config = {
           '0%': { transform: 'translateX(0)' },
           '100%': { transform: 'translateX(-50%)' },
         },
+        dataRefresh: {
+          '0%, 100%': { opacity: '1' },
+          '50%': { opacity: '0.7' },
+        },
       },
       spacing: {
-        // BMW 8px base unit system
+        // ClickHouse 8px base unit system
         '11': '2.75rem',
         '15': '3.75rem',
         '22': '5.5rem',

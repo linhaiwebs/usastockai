@@ -10,8 +10,8 @@ interface AnalysisModalProps {
 }
 
 /**
- * AI Analysis Modal - BMW Design System
- * Sharp corners, BMW Blue accents, tight line-heights
+ * AI Analysis Modal - ClickHouse Design System
+ * Pure black canvas, Neon Volt accents, charcoal borders
  */
 export function AnalysisModal({ query, isOpen, onClose }: AnalysisModalProps) {
   const [content, setContent] = useState('')
@@ -191,24 +191,24 @@ export function AnalysisModal({ query, isOpen, onClose }: AnalysisModalProps) {
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-text-primary/80 backdrop-blur-sm">
-      <div className="w-full max-w-2xl max-h-[85vh] bg-white border border-border-default overflow-hidden flex flex-col">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+      <div className="w-full max-w-2xl max-h-[85vh] bg-surface border border-charcoal rounded-comfortable overflow-hidden flex flex-col">
         {/* Header */}
-        <div className="p-6 border-b border-border-default flex items-center justify-between">
+        <div className="p-6 border-b border-charcoal flex items-center justify-between">
           <div>
-            <h2 className="text-section-heading text-text-primary uppercase">
-              AI ANALYSIS REPORT
+            <h2 className="text-sub-heading font-bold text-text-primary">
+              AI Analysis Report
             </h2>
             <p className="text-small text-text-secondary mt-1">
-              Query: {query}
+              Query: <span className="text-neon-volt">{query}</span>
             </p>
           </div>
           <button
             onClick={onClose}
-            className="w-10 h-10 flex items-center justify-center border border-border-default hover:border-bmw-blue transition-colors"
+            className="w-10 h-10 flex items-center justify-center border border-charcoal hover:border-neon-volt hover:text-neon-volt transition-colors rounded-sharp"
           >
             <svg
-              className="w-5 h-5"
+              className="w-5 h-5 text-text-primary"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -232,10 +232,10 @@ export function AnalysisModal({ query, isOpen, onClose }: AnalysisModalProps) {
           {loading && content.length === 0 && (
             <div className="flex flex-col items-center justify-center py-12">
               <div className="relative mb-6">
-                <div className="w-16 h-16 border-4 border-bmw-blue/20 border-t-bmw-blue animate-spin" style={{ borderRadius: 0 }}></div>
+                <div className="w-16 h-16 border-4 border-charcoal border-t-neon-volt animate-spin rounded-comfortable"></div>
               </div>
               <p className="text-body font-semibold text-text-primary mb-2">
-                AI IS ANALYZING{thinkingDots}
+                AI is analyzing{thinkingDots}
               </p>
               <p className="text-small text-text-secondary text-center max-w-sm">
                 Advanced AI is analyzing your request. This usually takes 1-3 seconds.
@@ -245,13 +245,13 @@ export function AnalysisModal({ query, isOpen, onClose }: AnalysisModalProps) {
 
           {/* Error state */}
           {error && (
-            <div className="p-4 bg-danger-red/10 border border-danger-red/30">
+            <div className="p-4 bg-danger-red/10 border border-danger-red/30 rounded-sharp">
               <p className="text-body text-danger-red">
                 {error}
               </p>
               <button
                 onClick={startAnalysis}
-                className="mt-2 text-small text-bmw-blue hover:underline"
+                className="mt-2 text-small text-neon-volt hover:underline"
               >
                 Retry analysis
               </button>
@@ -266,9 +266,9 @@ export function AnalysisModal({ query, isOpen, onClose }: AnalysisModalProps) {
                 if (index === 0) {
                   if (content.includes('<think/>')) {
                     return (
-                      <div key={index} className="mb-4 p-4 bg-bmw-blue/10 border border-bmw-blue/30">
-                        <p className="text-caption text-bmw-blue mb-2 uppercase tracking-wider">
-                          AI THINKING PROCESS
+                      <div key={index} className="mb-4 p-4 bg-surface-elevated border border-charcoal rounded-sharp">
+                        <p className="uppercase-label text-neon-volt mb-2">
+                          AI Thinking Process
                         </p>
                         <div className="text-small text-text-secondary whitespace-pre-wrap">
                           {part}
@@ -280,7 +280,6 @@ export function AnalysisModal({ query, isOpen, onClose }: AnalysisModalProps) {
                     <div 
                       key={index} 
                       className="text-body text-text-primary whitespace-pre-wrap"
-                      style={{ lineHeight: '1.15' }}
                     >
                       {part}
                     </div>
@@ -290,7 +289,6 @@ export function AnalysisModal({ query, isOpen, onClose }: AnalysisModalProps) {
                   <div 
                     key={index} 
                     className="text-body text-text-primary whitespace-pre-wrap"
-                    style={{ lineHeight: '1.15' }}
                   >
                     {part}
                   </div>
@@ -301,12 +299,12 @@ export function AnalysisModal({ query, isOpen, onClose }: AnalysisModalProps) {
         </div>
 
         {/* Footer with WhatsApp button */}
-        <div className="p-6 border-t border-border-default">
+        <div className="p-6 border-t border-charcoal">
           {redirectUrl && (
             <>
               <button
                 onClick={handleWhatsAppClick}
-                className="w-full py-4 px-4 bg-bmw-blue hover:bg-bmw-blue-focus text-white font-semibold border-0 shadow-none hover:shadow-none transition-all flex items-center justify-center gap-2 active:scale-[0.98]"
+                className="w-full py-4 px-4 bg-forest-green hover:bg-dark-forest text-white font-semibold rounded-sharp transition-all flex items-center justify-center gap-2 active:text-neon-volt-hover"
               >
                 <svg
                   className="w-5 h-5"
@@ -315,7 +313,7 @@ export function AnalysisModal({ query, isOpen, onClose }: AnalysisModalProps) {
                 >
                   <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
                 </svg>
-                <span>GET PERSONALIZED ANALYSIS ON WHATSAPP</span>
+                <span>Get Personalized Analysis on WhatsApp</span>
               </button>
               <p className="mt-3 text-small text-text-secondary text-center opacity-70">
                 Disclaimer: This is not investment advice. AI-generated analysis for reference only.
@@ -326,7 +324,7 @@ export function AnalysisModal({ query, isOpen, onClose }: AnalysisModalProps) {
           {!redirectUrl && !loading && content && (
             <button
               disabled
-              className="w-full py-4 px-4 bg-surface text-text-secondary font-semibold border-0 flex items-center justify-center gap-2 opacity-50 cursor-not-allowed"
+              className="w-full py-4 px-4 bg-surface text-text-secondary font-semibold border border-charcoal rounded-sharp flex items-center justify-center gap-2 opacity-50 cursor-not-allowed"
             >
               <svg
                 className="w-5 h-5 animate-spin"
@@ -336,7 +334,7 @@ export function AnalysisModal({ query, isOpen, onClose }: AnalysisModalProps) {
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
               </svg>
-              <span>LOADING...</span>
+              <span>Loading...</span>
             </button>
           )}
         </div>

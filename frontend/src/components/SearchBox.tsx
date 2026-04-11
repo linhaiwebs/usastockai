@@ -10,28 +10,30 @@ export interface SearchBoxRef {
   clearAndFocus: () => void
 }
 
-// Hot stocks for random selection
-const hotStocks = ['TSLA', 'GME', 'NVDA', 'AAPL', 'META', 'AMZN', 'GOOGL', 'MSFT']
+// Hot stocks for display and random selection
+const hotStocks = ['GME', 'AMC', 'TSLA', 'BBBY']
 
 /**
- * Search Box Component - BMW Design System
- * Sharp corners, BMW Blue accent, tight line-height
+ * Module 2: Central Input Area - ClickHouse Design System
+ * Big title, subtitle, search input with magnifier
+ * Scan Now button (red), hot stocks, free scan text
  */
 export const SearchBox = forwardRef<SearchBoxRef, SearchBoxProps>(({ onAnalyze }, ref) => {
   const [query, setQuery] = useState('')
   const [error, setError] = useState('')
-  const [isFocused, setIsFocused] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+  const [progress, setProgress] = useState(0)
 
   useImperativeHandle(ref, () => ({
     clearAndFocus: () => {
       setQuery('')
       setError('')
-      setIsFocused(true)
+      setIsLoading(false)
+      setProgress(0)
     }
   }))
 
   const validateStockSymbol = (symbol: string): boolean => {
-    // Basic validation: 1-5 uppercase letters
     const validPattern = /^[A-Z]{1,5}$/
     return validPattern.test(symbol.toUpperCase())
   }
@@ -51,30 +53,60 @@ export const SearchBox = forwardRef<SearchBoxRef, SearchBoxProps>(({ onAnalyze }
     
     setError('')
     
+    // Simulate loading state
+    setIsLoading(true)
+    setProgress(0)
+    
+    // Simulate progress
+    const progressInterval = setInterval(() => {
+      setProgress(prev => {
+        if (prev >= 95) {
+          clearInterval(progressInterval)
+          return prev
+        }
+        return prev + Math.random() * 15
+      })
+    }, 200)
+    
     // Trigger Google Analytics event
     if (typeof window !== 'undefined' && typeof (window as any).gtag === 'function') {
-      (window as any).gtag('event', 'Bdd')
+      (window as any).gtag('event', 'scan_start')
     }
     
-    onAnalyze?.(trimmedQuery)
+    // Call onAnalyze after short delay to show loading
+    setTimeout(() => {
+      clearInterval(progressInterval)
+      setIsLoading(false)
+      setProgress(100)
+      onAnalyze?.(trimmedQuery)
+    }, 1500)
   }
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
+    if (e.key === 'Enter' && !isLoading) {
       handleSubmit()
     }
   }
 
-  const handleRandomStock = () => {
-    const randomStock = hotStocks[Math.floor(Math.random() * hotStocks.length)]
-    setQuery(randomStock)
+  const handleHotStockClick = (stock: string) => {
+    setQuery(stock)
     setError('')
   }
 
   return (
     <div className="mb-8">
-      {/* Search input container - BMW sharp corners */}
-      <div className={`relative border ${error ? 'border-danger-red' : 'border-border-default'} bg-white transition-colors`}>
+      {/* Big Title */}
+      <h1 className="text-feature-heading font-bold text-text-primary text-center mb-3">
+        What's the news saying about your stock?
+      </h1>
+      
+      {/* Subtitle */}
+      <p className="text-body text-text-secondary text-center mb-6">
+        AI scans 10,000+ articles and posts — in real time
+      </p>
+      
+      {/* Search input container - ClickHouse dark style */}
+      <div className={`relative border ${error ? 'border-danger-red' : 'border-charcoal'} bg-surface rounded-sharp transition-colors`}>
         <div className="flex items-center">
           {/* Magnifier icon */}
           <div className="pl-4 flex items-center">
@@ -82,9 +114,6 @@ export const SearchBox = forwardRef<SearchBoxRef, SearchBoxProps>(({ onAnalyze }
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
           </div>
-          
-          {/* $ prefix */}
-          <span className="pl-3 text-text-secondary font-medium">$</span>
           
           {/* Input field */}
           <input
@@ -95,30 +124,25 @@ export const SearchBox = forwardRef<SearchBoxRef, SearchBoxProps>(({ onAnalyze }
               setError('')
             }}
             onKeyPress={handleKeyPress}
-            onFocus={() => setIsFocused(true)}
-            onBlur={() => setIsFocused(false)}
-            placeholder="TSLA, GME, NVDA..."
-            className="flex-1 px-2 py-4 bg-white text-text-primary placeholder-text-secondary focus:outline-none text-body"
-            autoFocus={isFocused}
+            placeholder="Search any ticker or company name..."
+            className="flex-1 px-3 py-4 bg-surface text-text-primary placeholder-text-secondary focus:outline-none text-body"
+            disabled={isLoading}
           />
           
-          {/* Random stock button (emoji) */}
-          <button
-            type="button"
-            onClick={handleRandomStock}
-            className="px-3 py-2 hover:bg-surface transition-colors text-lg"
-            title="Random hot stock"
-          >
-            🔥
-          </button>
-          
-          {/* Diagnose button */}
+          {/* Scan Now button - Red */}
           <button
             onClick={handleSubmit}
-            disabled={!query.trim()}
-            className="px-6 py-4 bg-bmw-blue text-white font-semibold hover:bg-bmw-blue-focus active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100"
+            disabled={!query.trim() || isLoading}
+            className="px-6 py-4 bg-danger-red text-white font-semibold hover:bg-red-700 active:text-neon-volt-hover transition-all disabled:opacity-50 disabled:cursor-not-allowed rounded-r-sharp"
           >
-            DIAGNOSE
+            {isLoading ? (
+              <span className="flex items-center gap-2">
+                Scraping news...
+                <span className="text-small">{Math.min(Math.round(progress), 100)}%</span>
+              </span>
+            ) : (
+              'Scan Now'
+            )}
           </button>
         </div>
       </div>
@@ -132,6 +156,25 @@ export const SearchBox = forwardRef<SearchBoxRef, SearchBoxProps>(({ onAnalyze }
           {error}
         </p>
       )}
+
+      {/* Today's Hot Stocks */}
+      <div className="mt-4 flex items-center justify-center gap-3">
+        <span className="text-caption text-text-muted">Today's hot:</span>
+        {hotStocks.map((stock) => (
+          <button
+            key={stock}
+            onClick={() => handleHotStockClick(stock)}
+            className="px-3 py-1 bg-surface border border-charcoal rounded-sharp text-caption text-text-primary hover:border-neon-volt hover:text-neon-volt transition-colors"
+          >
+            ${stock}
+          </button>
+        ))}
+      </div>
+
+      {/* Free scan text */}
+      <p className="mt-4 text-caption text-text-muted text-center">
+        Free. No account. 10 free scans per day.
+      </p>
     </div>
   )
 })
