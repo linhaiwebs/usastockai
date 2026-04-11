@@ -18,9 +18,8 @@ interface StockGridProps {
 }
 
 /**
- * Hot Stocks Grid - Revolut style compact layout
- * No shadows, flat design with border contrast
- * Mobile: 2 columns, Desktop: 4 columns
+ * Hot Stocks Grid - Ultra compact mobile-first layout
+ * 2 columns on all screen sizes for consistency
  */
 export function StockGrid({ onStockClick }: StockGridProps) {
   const [stocks, setStocks] = useState<StockData[]>([])
@@ -67,22 +66,22 @@ export function StockGrid({ onStockClick }: StockGridProps) {
 
   if (loading) {
     return (
-      <section className="py-10 px-4">
+      <section className="py-8 px-4">
         <div className="max-w-6xl mx-auto">
           <h2 
-            className="text-section-heading font-medium text-revolut-dark mb-4"
+            className="text-section-heading font-medium text-revolut-dark mb-3"
             style={{ 
               lineHeight: '1.20',
-              letterSpacing: '-0.28px'
+              letterSpacing: '-0.2px'
             }}
           >
             Trending Today
           </h2>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 gap-2">
             {[1, 2, 3, 4].map((i) => (
               <div
                 key={i}
-                className="h-28 bg-surface border-2 border-gray-tone rounded-card animate-pulse"
+                className="h-24 bg-surface border-2 border-gray-tone rounded-card animate-pulse"
               />
             ))}
           </div>
@@ -92,27 +91,27 @@ export function StockGrid({ onStockClick }: StockGridProps) {
   }
 
   return (
-    <section className="py-10 px-4">
+    <section className="py-8 px-4">
       <div className="max-w-6xl mx-auto">
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center justify-between mb-3">
           <h2 
             className="text-section-heading font-medium text-revolut-dark"
             style={{ 
               lineHeight: '1.20',
-              letterSpacing: '-0.28px'
+              letterSpacing: '-0.2px'
             }}
           >
             Trending Today
           </h2>
           {stocks.length > 4 && (
-            <span className="text-caption text-mid-slate bg-surface px-3 py-1.5 rounded-pill">
+            <span className="text-caption-small text-mid-slate bg-surface px-2 py-1 rounded-pill">
               Auto-updating
             </span>
           )}
         </div>
         
-        {/* Mobile: 2 columns, Desktop: 4 columns */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        {/* Always 2 columns on all devices */}
+        <div className="grid grid-cols-2 gap-2">
           {displayStocks.map((stock) => (
             <StockCard
               key={stock.symbol}
@@ -123,17 +122,17 @@ export function StockGrid({ onStockClick }: StockGridProps) {
           ))}
         </div>
 
-        {/* Carousel indicators - Revolut minimal style */}
+        {/* Carousel indicators */}
         {stocks.length > 4 && (
-          <div className="flex justify-center gap-2 mt-6">
+          <div className="flex justify-center gap-1.5 mt-4">
             {Array.from({ length: indicatorCount }).map((_, i) => (
               <button
                 key={i}
                 onClick={() => handleIndicatorClick(i)}
-                className={`h-1.5 rounded-pill transition-all ${
+                className={`h-1 rounded-pill transition-all ${
                   Math.floor(currentIndex / 4) === i 
-                    ? 'bg-revolut-dark w-6' 
-                    : 'bg-gray-tone hover:bg-mid-slate w-1.5'
+                    ? 'bg-revolut-dark w-5' 
+                    : 'bg-gray-tone hover:bg-mid-slate w-1'
                 }`}
                 aria-label={`Go to slide ${i + 1}`}
               />

@@ -7,8 +7,8 @@ interface SearchBoxProps {
 }
 
 /**
- * Search Box Component - Revolut style with pill buttons
- * No shadows, flat design with generous padding
+ * Search Box Component - Revolut style ultra compact
+ * No shadows, flat design with smaller padding
  */
 export function SearchBox({ onAnalyze }: SearchBoxProps) {
   const [query, setQuery] = useState('')
@@ -30,24 +30,24 @@ export function SearchBox({ onAnalyze }: SearchBoxProps) {
   }
 
   return (
-    <section className="py-10 px-4 bg-surface">
+    <section className="py-8 px-4 bg-surface">
       <div className="max-w-3xl mx-auto">
-        <div className="text-center mb-6">
+        <div className="text-center mb-4">
           <h2 
-            className="text-section-heading font-medium text-revolut-dark mb-2"
+            className="text-section-heading font-medium text-revolut-dark mb-1"
             style={{ 
               lineHeight: '1.20',
-              letterSpacing: '-0.28px'
+              letterSpacing: '-0.2px'
             }}
           >
             Analyze Any Stock
           </h2>
-          <p className="text-body text-mid-slate">
-            Enter a stock symbol to get AI-powered analysis and insights
+          <p className="text-caption text-mid-slate">
+            Enter a stock symbol to get AI-powered analysis
           </p>
         </div>
 
-        {/* Search input - Revolut style with 20px radius */}
+        {/* Search input - Revolut style */}
         <div className="relative">
           <input
             type="text"
@@ -55,12 +55,12 @@ export function SearchBox({ onAnalyze }: SearchBoxProps) {
             onChange={(e) => setQuery(e.target.value)}
             onKeyPress={handleKeyPress}
             placeholder="AAPL, TSLA, NVDA, MSFT..."
-            className="w-full px-4 py-3 pl-12 bg-white border-2 border-gray-tone rounded-card text-revolut-dark text-body placeholder-cool-gray focus:outline-none focus:border-revolut-dark transition-colors"
+            className="w-full px-3 py-2.5 pl-10 bg-white border-2 border-gray-tone rounded-card text-revolut-dark text-caption placeholder-cool-gray focus:outline-none focus:border-revolut-dark transition-colors"
           />
           
           {/* Search icon */}
           <svg
-            className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-mid-slate"
+            className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-mid-slate"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -78,7 +78,7 @@ export function SearchBox({ onAnalyze }: SearchBoxProps) {
         <button
           onClick={handleSubmit}
           disabled={!query.trim()}
-          className="w-full mt-3 py-3 bg-revolut-dark text-white font-medium text-nav-ui rounded-pill hover:opacity-85 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100"
+          className="w-full mt-2 py-2.5 bg-revolut-dark text-white font-medium text-caption rounded-pill hover:opacity-85 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100"
         >
           Analyze with AI
         </button>
