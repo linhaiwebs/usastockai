@@ -1,180 +1,281 @@
-# Design System Inspired by BMW
+# Design System Inspired by ClickHouse
 
 ## 1. Visual Theme & Atmosphere
 
-BMW's website is automotive engineering made visual — a design system that communicates precision, performance, and German industrial confidence. The page alternates between deep dark hero sections (featuring full-bleed automotive photography) and clean white content areas, creating a cinematic rhythm reminiscent of a luxury car showroom where vehicles are lit against darkness. The BMW CI2020 design language (their corporate identity refresh) defines every element.
+ClickHouse's interface is a high-performance cockpit rendered in acid yellow-green on obsidian black — a design that screams "speed" before you read a single word. The entire experience lives in darkness: pure black backgrounds (`#000000`) with dark charcoal cards (`#414141` borders) creating a terminal-grade aesthetic where the only chromatic interruption is the signature neon yellow-green (`#faff69`) that slashes across CTAs, borders, and highlighted moments like a highlighter pen on a dark console.
 
-The typography is built on BMWTypeNextLatin — a proprietary typeface in two variants: BMWTypeNextLatin Light (weight 300) for massive uppercase display headings, and BMWTypeNextLatin Regular for body and UI text. The 60px uppercase headline at weight 300 is the defining typographic gesture — light-weight type that whispers authority rather than shouting it. The fallback stack includes Helvetica and Japanese fonts (Hiragino, Meiryo), reflecting BMW's global presence.
+The typography is aggressively heavy — Inter at weight 900 (Black) for the hero headline at 96px creates text blocks that feel like they have physical mass. This "database for AI" site communicates raw power through visual weight: thick type, high-contrast neon accents, and performance stats displayed as oversized numbers. There's nothing subtle about ClickHouse's design, and that's entirely the point — it mirrors the product's promise of extreme speed and performance.
 
-What makes BMW distinctive is its CSS variable-driven theming system. Context-aware variables (`--site-context-highlight-color: #1c69d4`, `--site-context-focus-color: #0653b6`, `--site-context-metainfo-color: #757575`) suggest a design system built for multi-brand, multi-context deployment where colors can be swapped globally. The blue highlight color (`#1c69d4`) is BMW's signature blue — used sparingly for interactive elements and focus states, never decoratively. Zero border-radius was detected — BMW's design is angular, sharp-cornered, and uncompromisingly geometric.
+What makes ClickHouse distinctive is the electrifying tension between the near-black canvas and the neon yellow-green accent. This color combination (`#faff69` on `#000000`) creates one of the highest-contrast pairings in any tech brand, making every CTA button, every highlighted card, and every accent border impossible to miss. Supporting this is a forest green (`#166534`) for secondary CTAs that adds depth to the action hierarchy without competing with the neon.
 
 **Key Characteristics:**
-- BMWTypeNextLatin Light (weight 300) uppercase for display — whispered authority
-- BMW Blue (`#1c69d4`) as singular accent — used only for interactive elements
-- Zero border-radius detected — angular, sharp-cornered, industrial geometry
-- Dark hero photography + white content sections — showroom lighting rhythm
-- CSS variable-driven theming: `--site-context-*` tokens for brand flexibility
-- Weight 900 for navigation emphasis — extreme contrast with 300 display
-- Tight line-heights (1.15–1.30) throughout — compressed, efficient, German engineering
-- Full-bleed automotive photography as primary visual content
+- Pure black canvas (#000000) with neon yellow-green (#faff69) accent — maximum contrast
+- Extra-heavy display typography: Inter at weight 900 (Black) up to 96px
+- Dark charcoal card system with #414141 borders at 80% opacity
+- Forest green (#166534) secondary CTA buttons
+- Performance stats as oversized display numbers
+- Uppercase labels with wide letter-spacing (1.4px) for navigation structure
+- Active/pressed state shifts text to pale yellow (#f4f692)
+- All links hover to neon yellow-green — unified interactive signal
+- Inset shadows on select elements creating "pressed into the surface" depth
 
 ## 2. Color Palette & Roles
 
-### Primary Brand
-- **Pure White** (`#ffffff`): `--site-context-theme-color`, primary surface, card backgrounds
-- **BMW Blue** (`#1c69d4`): `--site-context-highlight-color`, primary interactive accent
-- **BMW Focus Blue** (`#0653b6`): `--site-context-focus-color`, keyboard focus and active states
+### Primary
+- **Neon Volt** (`#faff69`): The signature brand color — a vivid acid yellow-green that's the sole chromatic accent on the black canvas. Used for primary CTAs, accent borders, link hovers, and highlighted moments.
+- **Forest Green** (`#166534`): Secondary CTA color — a deep, saturated green for "Get Started" and primary action buttons that need distinction from the neon.
+- **Dark Forest** (`#14572f`): A darker green variant for borders and secondary accents.
 
-### Neutral Scale
-- **Near Black** (`#262626`): Primary text on light surfaces, dark link text
-- **Meta Gray** (`#757575`): `--site-context-metainfo-color`, secondary text, metadata
-- **Silver** (`#bbbbbb`): Tertiary text, muted links, footer elements
+### Secondary & Accent
+- **Pale Yellow** (`#f4f692`): Active/pressed state text color — a softer, more muted version of Neon Volt for state feedback.
+- **Border Olive** (`#4f5100`): A dark olive-yellow for ghost button borders — the neon's muted sibling.
+- **Olive Dark** (`#161600`): The darkest neon-tinted color for subtle brand text.
 
-### Interactive States
-- All links hover to white (`#ffffff`) — suggesting primarily dark-surface navigation
-- Text links use underline: none on hover — clean interaction
+### Surface & Background
+- **Pure Black** (`#000000`): The primary page background — absolute black for maximum contrast.
+- **Near Black** (`#141414`): Button backgrounds and slightly elevated dark surfaces.
+- **Charcoal** (`#414141`): The primary border color at 80% opacity — the workhorse for card and container containment.
+- **Deep Charcoal** (`#343434`): Darker border variant for subtle division lines.
+- **Hover Gray** (`#3a3a3a`): Button hover state background — slightly lighter than Near Black.
 
-### Shadows
-- Minimal shadow system — depth through photography and dark/light section contrast
+### Neutrals & Text
+- **Pure White** (`#ffffff`): Primary text on dark surfaces.
+- **Silver** (`#a0a0a0`): Secondary body text and muted content.
+- **Mid Gray** (`#585858` at 28%): Subtle gray overlay for depth effects.
+- **Border Gray** (`#e5e7eb`): Light border variant (used in rare light contexts).
+
+### Gradient System
+- **None in the traditional sense.** ClickHouse uses flat color blocks and high-contrast borders. The "gradient" is the contrast itself — neon yellow-green against pure black creates a visual intensity that gradients would dilute.
 
 ## 3. Typography Rules
 
-### Font Families
-- **Display Light**: `BMWTypeNextLatin Light`, fallbacks: `Helvetica, Arial, Hiragino Kaku Gothic ProN, Hiragino Sans, Meiryo`
-- **Body / UI**: `BMWTypeNextLatin`, same fallback stack
+### Font Family
+- **Primary**: `Inter` (Next.js optimized variant `__Inter_d1b8ee`)
+- **Secondary Display**: `Basier` (`__basier_a58b65`), with fallbacks: `Arial, Helvetica`
+- **Code**: `Inconsolata` (`__Inconsolata_a25f62`)
 
 ### Hierarchy
 
-| Role | Font | Size | Weight | Line Height | Notes |
-|------|------|------|--------|-------------|-------|
-| Display Hero | BMWTypeNextLatin Light | 60px (3.75rem) | 300 | 1.30 (tight) | `text-transform: uppercase` |
-| Section Heading | BMWTypeNextLatin | 32px (2.00rem) | 400 | 1.30 (tight) | Major section titles |
-| Nav Emphasis | BMWTypeNextLatin | 18px (1.13rem) | 900 | 1.30 (tight) | Navigation bold items |
-| Body | BMWTypeNextLatin | 16px (1.00rem) | 400 | 1.15 (tight) | Standard body text |
-| Button Bold | BMWTypeNextLatin | 16px (1.00rem) | 700 | 1.20–2.88 | CTA buttons |
-| Button | BMWTypeNextLatin | 16px (1.00rem) | 400 | 1.15 (tight) | Standard buttons |
+| Role | Font | Size | Weight | Line Height | Letter Spacing | Notes |
+|------|------|------|--------|-------------|----------------|-------|
+| Display Mega | Inter | 96px (6rem) | 900 | 1.00 (tight) | normal | Maximum impact, extra-heavy |
+| Display / Hero | Inter | 72px (4.5rem) | 700 | 1.00 (tight) | normal | Section hero titles |
+| Feature Heading | Basier | 36px (2.25rem) | 600 | 1.30 (tight) | normal | Feature section anchors |
+| Sub-heading | Inter / Basier | 24px (1.5rem) | 600–700 | 1.17–1.38 | normal | Card headings |
+| Feature Title | Inter / Basier | 20px (1.25rem) | 600–700 | 1.40 | normal | Small feature titles |
+| Body Large | Inter | 18px (1.13rem) | 400–700 | 1.56 | normal | Intro paragraphs, button text |
+| Body / Button | Inter | 16px (1rem) | 400–700 | 1.50 | normal | Standard body, nav, buttons |
+| Caption | Inter | 14px (0.88rem) | 400–700 | 1.43 | normal | Metadata, descriptions, links |
+| Uppercase Label | Inter | 14px (0.88rem) | 600 | 1.43 | 1.4px | Section overlines, wide-tracked |
+| Code | Inconsolata | 16px (1rem) | 600 | 1.50 | normal | Code blocks, commands |
+| Small | Inter | 12px (0.75rem) | 500 | 1.33 | normal | Smallest text |
+| Micro | Inter | 11.2px (0.7rem) | 500 | 1.79 (relaxed) | normal | Tags, tiny labels |
 
 ### Principles
-- **Light display, heavy navigation**: Weight 300 for hero headlines creates whispered elegance; weight 900 for navigation creates stark authority. This extreme weight contrast (300 vs 900) is the signature typographic tension.
-- **Universal uppercase display**: The 60px hero is always uppercase — creating a monumental, architectural quality.
-- **Tight everything**: Line-heights from 1.15 to 1.30 across the entire system. Nothing breathes — every line is compressed, efficient, German-engineered.
-- **Single font family**: BMWTypeNextLatin handles everything from 60px display to 16px body — unity through one typeface at different weights.
+- **Weight 900 is the weapon**: The display headline uses Inter Black (900) — a weight most sites never touch. Combined with 96px size, this creates text with a physical, almost architectural presence.
+- **Full weight spectrum**: The system uses 400, 500, 600, 700, and 900 — covering the full gamut. Weight IS hierarchy.
+- **Uppercase with maximum tracking**: Section overlines use 1.4px letter-spacing — wider than most systems — creating bold structural labels that stand out against the dense dark background.
+- **Dual sans-serif**: Inter handles display and body; Basier handles feature section headings at 600 weight. This creates a subtle personality shift between "data/performance" (Inter) and "product/feature" (Basier) contexts.
 
 ## 4. Component Stylings
 
 ### Buttons
-- Text: 16px BMWTypeNextLatin, weight 700 for primary, 400 for secondary
-- Line-height: 1.15–2.88 (large variation suggests padding-driven sizing)
-- Border: white bottom-border on dark surfaces (`1px solid #ffffff`)
-- No border-radius — sharp rectangular buttons
+
+**Neon Primary**
+- Background: Neon Volt (`#faff69`)
+- Text: Near Black (`#151515`)
+- Padding: 0px 16px
+- Radius: sharp (4px)
+- Border: `1px solid #faff69`
+- Hover: background shifts to dark (`rgb(29, 29, 29)`), text stays
+- Active: text shifts to Pale Yellow (`#f4f692`)
+- The eye-catching CTA — neon on black
+
+**Dark Solid**
+- Background: Near Black (`#141414`)
+- Text: Pure White (`#ffffff`)
+- Padding: 12px 16px
+- Radius: 4px or 8px
+- Border: `1px solid #141414`
+- Hover: bg shifts to Hover Gray (`#3a3a3a`), text to 80% opacity
+- Active: text to Pale Yellow
+- The standard action button
+
+**Forest Green**
+- Background: Forest Green (`#166534`)
+- Text: Pure White (`#ffffff`)
+- Padding: 12px 16px
+- Border: `1px solid #141414`
+- Hover: same dark shift
+- Active: Pale Yellow text
+- The "Get Started" / primary conversion button
+
+**Ghost / Outlined**
+- Background: transparent
+- Text: Pure White (`#ffffff`)
+- Padding: 0px 32px
+- Radius: 4px
+- Border: `1px solid #4f5100` (olive-tinted)
+- Hover: dark bg shift
+- Active: Pale Yellow text
+- Secondary actions with neon-tinted border
+
+**Pill Toggle**
+- Background: transparent
+- Radius: pill (9999px)
+- Used for toggle/switch elements
 
 ### Cards & Containers
-- No border-radius — all containers are sharp-cornered rectangles
-- White backgrounds on light sections
-- Dark backgrounds for hero/feature sections
-- No visible borders on most elements
+- Background: transparent or Near Black
+- Border: `1px solid rgba(65, 65, 65, 0.8)` — the signature charcoal containment
+- Radius: 4px (small elements) or 8px (cards, containers)
+- Shadow Level 1: subtle (`rgba(0,0,0,0.1) 0px 1px 3px, rgba(0,0,0,0.1) 0px 1px 2px -1px`)
+- Shadow Level 2: medium (`rgba(0,0,0,0.1) 0px 10px 15px -3px, rgba(0,0,0,0.1) 0px 4px 6px -4px`)
+- Shadow Level 3: inset (`rgba(0,0,0,0.06) 0px 4px 4px, rgba(0,0,0,0.14) 0px 4px 25px inset`) — the "pressed" effect
+- Neon-highlighted cards: selected/active cards get neon yellow-green border or accent
 
 ### Navigation
-- BMWTypeNextLatin 18px weight 900 for primary nav links
-- White text on dark header
-- BMW logo 54x54px
-- Hover: remains white, text-decoration none
-- "Home" text link in header
+- Dark nav on black background
+- Logo: ClickHouse wordmark + icon in yellow/neon
+- Links: white text, hover to Neon Volt (#faff69)
+- CTA: Neon Volt button or Forest Green button
+- Uppercase labels for categories
 
-### Image Treatment
-- Full-bleed automotive photography
-- Dark cinematic lighting
-- Edge-to-edge hero images
-- Car photography as primary visual content
+### Distinctive Components
+
+**Performance Stats**
+- Oversized numbers (72px+, weight 700–900)
+- Brief descriptions beneath
+- High-contrast neon accents on key metrics
+- The primary visual proof of performance claims
+
+**Neon-Highlighted Card**
+- Standard dark card with neon yellow-green border highlight
+- Creates "selected" or "featured" treatment
+- The accent border makes the card pop against the dark canvas
+
+**Code Blocks**
+- Dark surface with Inconsolata at weight 600
+- Neon and white syntax highlighting
+- Terminal-like aesthetic
+
+**Trust Bar**
+- Company logos on dark background
+- Monochrome/white logo treatment
+- Horizontal layout
 
 ## 5. Layout Principles
 
 ### Spacing System
 - Base unit: 8px
-- Scale: 1px, 5px, 8px, 10px, 12px, 15px, 16px, 20px, 24px, 30px, 32px, 40px, 45px, 56px, 60px
+- Scale: 2px, 6px, 7px, 8px, 10px, 12px, 16px, 20px, 24px, 25px, 32px, 40px, 44px, 48px, 64px
+- Button padding: 12px 16px (standard), 0px 16px (compact), 0px 32px (wide ghost)
+- Section vertical spacing: generous (48–64px)
 
 ### Grid & Container
-- Full-width hero photography
-- Centered content sections
-- Footer: multi-column link grid
+- Max container width: up to 2200px (extra-wide) with responsive scaling
+- Hero: full-width dark with massive typography
+- Feature sections: multi-column card grids with dark borders
+- Stats: horizontal metric bar
+- Full-dark page — no light sections
 
 ### Whitespace Philosophy
-- **Showroom pacing**: Dark hero sections with generous padding create the feeling of walking through a showroom where each vehicle is spotlit in its own space.
-- **Compressed content**: Body text areas use tight line-heights and compact spacing — information-dense, no waste.
+- **Dark void as canvas**: The pure black background provides infinite depth — elements float in darkness.
+- **Dense information**: Feature cards and stats are packed with data, reflecting the database product's performance focus.
+- **Neon highlights as wayfinding**: Yellow-green accents guide the eye through the dark interface like runway lights.
 
 ### Border Radius Scale
-- **None detected.** BMW uses sharp corners exclusively — every element is a precise rectangle. This is the most angular design system analyzed.
+- Sharp (4px): Buttons, badges, small elements, code blocks
+- Comfortable (8px): Cards, containers, dividers
+- Pill (9999px): Toggle buttons, status indicators
 
 ## 6. Depth & Elevation
 
 | Level | Treatment | Use |
 |-------|-----------|-----|
-| Photography (Level 0) | Full-bleed dark imagery | Hero backgrounds |
-| Flat (Level 1) | White surface, no shadow | Content sections |
-| Focus (Accessibility) | BMW Focus Blue (`#0653b6`) | Focus states |
+| Flat (Level 0) | No shadow | Black background, text blocks |
+| Bordered (Level 1) | `1px solid rgba(65,65,65,0.8)` | Standard cards, containers |
+| Subtle (Level 2) | `0px 1px 3px rgba(0,0,0,0.1)` | Subtle card lift |
+| Elevated (Level 3) | `0px 10px 15px -3px rgba(0,0,0,0.1)` | Feature cards, hover states |
+| Pressed/Inset (Level 4) | `0px 4px 25px rgba(0,0,0,0.14) inset` | Active/pressed elements — "sunk into the surface" |
+| Neon Highlight (Level 5) | Neon Volt border (`#faff69`) | Featured/selected cards, maximum emphasis |
 
-**Shadow Philosophy**: BMW uses virtually no shadows. Depth is created entirely through the contrast between dark photographic sections and white content sections — the automotive lighting does the elevation work.
+**Shadow Philosophy**: ClickHouse uses shadows on a black canvas, where they're barely visible — they exist more for subtle dimensionality than obvious elevation. The most distinctive depth mechanism is the **inset shadow** (Level 4), which creates a "pressed into the surface" effect unique to ClickHouse. The neon border highlight (Level 5) is the primary attention-getting depth mechanism.
 
 ## 7. Do's and Don'ts
 
 ### Do
-- Use BMWTypeNextLatin Light (300) uppercase for all display headings
-- Keep ALL corners sharp (0px radius) — angular geometry is non-negotiable
-- Use BMW Blue (`#1c69d4`) only for interactive elements — never decoratively
-- Apply weight 900 for navigation emphasis — the extreme weight contrast is intentional
-- Use full-bleed automotive photography for hero sections
-- Keep line-heights tight (1.15–1.30) throughout
-- Use `--site-context-*` CSS variables for theming
+- Use Neon Volt (#faff69) as the sole chromatic accent — it must pop against pure black
+- Use Inter at weight 900 for hero display text — the extreme weight IS the personality
+- Keep everything on pure black (#000000) — never use dark gray as the page background
+- Use charcoal borders (rgba(65,65,65,0.8)) for all card containment
+- Apply Forest Green (#166534) for primary CTA buttons — distinct from neon for action hierarchy
+- Show performance stats as oversized display numbers — it's the core visual argument
+- Use uppercase with wide letter-spacing (1.4px) for section labels
+- Apply Pale Yellow (#f4f692) for active/pressed text states
+- Link hovers should ALWAYS shift to Neon Volt — unified interactive feedback
 
 ### Don't
-- Don't round corners — zero radius is the BMW identity
-- Don't use BMW Blue for backgrounds or large surfaces — it's an accent only
-- Don't use medium font weights (500–600) — the system uses 300, 400, 700, 900 extremes
-- Don't add decorative elements — the photography and typography carry everything
-- Don't use relaxed line-heights — BMW text is always compressed
-- Don't lighten the dark hero sections — the contrast with white IS the design
+- Don't introduce additional colors — the palette is strictly black, neon, green, and gray
+- Don't use the neon as a background fill — it's an accent and border color only (except on CTA buttons)
+- Don't reduce display weight below 700 — heavy weight is core to the personality
+- Don't use light/white backgrounds anywhere — the entire experience is dark
+- Don't round corners beyond 8px — the sharp geometry reflects database precision
+- Don't use soft/diffused shadows on black — they're invisible. Use border-based depth instead
+- Don't skip the inset shadow on active states — the "pressed" effect is distinctive
+- Don't use warm neutrals — all grays are perfectly neutral
 
 ## 8. Responsive Behavior
 
 ### Breakpoints
 | Name | Width | Key Changes |
 |------|-------|-------------|
-| Mobile Small | <375px | Minimum supported |
-| Mobile | 375–480px | Single column |
-| Mobile Large | 480–640px | Slight adjustments |
-| Tablet Small | 640–768px | 2-column begins |
-| Tablet | 768–920px | Standard tablet |
-| Desktop Small | 920–1024px | Desktop layout begins |
-| Desktop | 1024–1280px | Standard desktop |
-| Large Desktop | 1280–1440px | Expanded |
-| Ultra-wide | 1440–1600px | Maximum layout |
+| Mobile | <640px | Single column, stacked cards |
+| Small Tablet | 640–768px | Minor adjustments |
+| Tablet | 768–1024px | 2-column grids |
+| Desktop | 1024–1280px | Standard layout |
+| Large Desktop | 1280–1536px | Expanded content |
+| Ultra-wide | 1536–2200px | Maximum container width |
+
+### Touch Targets
+- Buttons with 12px 16px padding minimum
+- Card surfaces as touch targets
+- Adequate nav link spacing
 
 ### Collapsing Strategy
-- Hero: 60px → scales down, maintains uppercase
-- Navigation: horizontal → hamburger
-- Photography: full-bleed maintained at all sizes
-- Content sections: stack vertically
-- Footer: multi-column → stacked
+- **Hero text**: 96px → 72px → 48px → 36px
+- **Feature grids**: Multi-column → 2 → 1 column
+- **Stats**: Horizontal → stacked
+- **Navigation**: Full → hamburger
+
+### Image Behavior
+- Product screenshots maintain aspect ratio
+- Code blocks use horizontal scroll on narrow screens
+- All images on dark backgrounds
 
 ## 9. Agent Prompt Guide
 
 ### Quick Color Reference
-- Background: Pure White (`#ffffff`)
-- Text: Near Black (`#262626`)
-- Secondary text: Meta Gray (`#757575`)
-- Accent: BMW Blue (`#1c69d4`)
-- Focus: BMW Focus Blue (`#0653b6`)
-- Muted: Silver (`#bbbbbb`)
+- Brand Accent: "Neon Volt (#faff69)"
+- Page Background: "Pure Black (#000000)"
+- CTA Green: "Forest Green (#166534)"
+- Card Border: "Charcoal (rgba(65,65,65,0.8))"
+- Primary Text: "Pure White (#ffffff)"
+- Secondary Text: "Silver (#a0a0a0)"
+- Active State: "Pale Yellow (#f4f692)"
+- Button Surface: "Near Black (#141414)"
 
 ### Example Component Prompts
-- "Create a hero: full-width dark automotive photography background. Heading at 60px BMWTypeNextLatin Light weight 300, uppercase, line-height 1.30, white text. No border-radius anywhere."
-- "Design navigation: dark background. BMWTypeNextLatin 18px weight 900 for links, white text. BMW logo 54x54. Sharp rectangular layout."
-- "Build a button: 16px BMWTypeNextLatin weight 700, line-height 1.20. Sharp corners (0px radius). White bottom border on dark surface."
-- "Create content section: white background. Heading at 32px weight 400, line-height 1.30, #262626. Body at 16px weight 400, line-height 1.15."
+- "Create a hero section on Pure Black (#000000) with a massive headline at 96px Inter weight 900, line-height 1.0. Pure White text. Add a Neon Volt (#faff69) CTA button (dark text, 4px radius, 0px 16px padding) and a ghost button (transparent, 1px solid #4f5100 border)."
+- "Design a feature card on black with 1px solid rgba(65,65,65,0.8) border and 8px radius. Title at 24px Inter weight 700, body at 16px in Silver (#a0a0a0). Add a neon-highlighted variant with 1px solid #faff69 border."
+- "Build a performance stats bar: large numbers at 72px Inter weight 700 in Pure White. Brief descriptions at 14px in Silver. On black background."
+- "Create a Forest Green (#166534) CTA button: white text, 12px 16px padding, 4px radius, 1px solid #141414 border. Hover: bg shifts to #3a3a3a, text to 80% opacity."
+- "Design an uppercase section label: 14px Inter weight 600, letter-spacing 1.4px, uppercase. Silver (#a0a0a0) text on black background."
 
 ### Iteration Guide
-1. Zero border-radius — every corner is sharp, no exceptions
-2. Weight extremes: 300 (display), 400 (body), 700 (buttons), 900 (nav)
-3. BMW Blue for interactive only — never as background or decoration
-4. Photography carries emotion — the UI is pure precision
-5. Tight line-heights everywhere — 1.15 to 1.30 is the range
+1. Keep everything on pure black — no dark gray alternatives
+2. Neon Volt (#faff69) is for accents and CTAs only — never large backgrounds
+3. Weight 900 for hero, 700 for headings, 600 for labels, 400-500 for body
+4. Active states use Pale Yellow (#f4f692) — not just opacity changes
+5. All links hover to Neon Volt — consistent interactive feedback
+6. Charcoal borders (rgba(65,65,65,0.8)) are the primary depth mechanism
