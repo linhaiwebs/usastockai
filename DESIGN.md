@@ -1,185 +1,246 @@
-# Design System Inspired by Revolut
+# Design System Inspired by Airbnb
 
 ## 1. Visual Theme & Atmosphere
 
-Revolut's website is fintech confidence distilled into pixels — a design system that communicates "your money is in capable hands" through massive typography, generous whitespace, and a disciplined neutral palette. The visual language is built on Aeonik Pro, a geometric grotesque that creates billboard-scale headlines at 136px with weight 500 and aggressive negative tracking (-2.72px). This isn't subtle branding; it's fintech at stadium scale.
+Airbnb's website is a warm, photography-forward marketplace that feels like flipping through a travel magazine where every page invites you to book. The design operates on a foundation of pure white (`#ffffff`) with the iconic Rausch Red (`#ff385c`) — named after Airbnb's first street address — serving as the singular brand accent. The result is a clean, airy canvas where listing photography, category icons, and the red CTA button are the only sources of color.
 
-The color system is built on a comprehensive `--rui-*` (Revolut UI) token architecture with semantic naming for every state: danger (`#e23b4a`), warning (`#ec7e00`), teal (`#00a87e`), blue (`#494fdf`), deep-pink (`#e61e49`), and more. But the marketing surface itself is remarkably restrained — near-black (`#191c1f`) and pure white (`#ffffff`) dominate, with the colorful semantic tokens reserved for the product interface, not the marketing page.
+The typography uses Airbnb Cereal VF — a custom variable font that's warm and approachable, with rounded terminals that echo the brand's "belong anywhere" philosophy. The font operates in a tight weight range: 500 (medium) for most UI, 600 (semibold) for emphasis, and 700 (bold) for primary headings. Slight negative letter-spacing (-0.18px to -0.44px) on headings creates a cozy, intimate reading experience rather than the compressed efficiency of tech companies.
 
-What distinguishes Revolut is its pill-everything button system. Every button uses 9999px radius — primary dark (`#191c1f`), secondary light (`#f4f4f4`), outlined (`transparent + 2px solid`), and ghost on dark (`rgba(244,244,244,0.1) + 2px solid`). The padding is generous (14px 32px–34px), creating large, confident touch targets. Combined with Inter for body text at various weights and positive letter-spacing (0.16px–0.24px), the result is a design that feels both premium and accessible — banking for the modern era.
+What distinguishes Airbnb is its palette-based token system (`--palette-*`) and multi-layered shadow approach. The primary card shadow uses a three-layer stack (`rgba(0,0,0,0.02) 0px 0px 0px 1px, rgba(0,0,0,0.04) 0px 2px 6px, rgba(0,0,0,0.1) 0px 4px 8px`) that creates a subtle, warm lift. Combined with generous border-radius (8px–32px), circular navigation controls (50%), and a category pill bar with horizontal scrolling, the interface feels tactile and inviting — designed for browsing, not commanding.
 
 **Key Characteristics:**
-- Aeonik Pro display at 136px weight 500 — billboard-scale fintech headlines
-- Near-black (`#191c1f`) + white binary with comprehensive `--rui-*` semantic tokens
-- Universal pill buttons (9999px radius) with generous padding (14px 32px)
-- Inter for body text with positive letter-spacing (0.16px–0.24px)
-- Rich semantic color system: blue, teal, pink, yellow, green, brown, danger, warning
-- Zero shadows detected — depth through color contrast only
-- Tight display line-heights (1.00) with relaxed body (1.50–1.56)
+- Pure white canvas with Rausch Red (`#ff385c`) as singular brand accent
+- Airbnb Cereal VF — custom variable font with warm, rounded terminals
+- Palette-based token system (`--palette-*`) for systematic color management
+- Three-layer card shadows: border ring + soft blur + stronger blur
+- Generous border-radius: 8px buttons, 14px badges, 20px cards, 32px large elements
+- Circular navigation controls (50% radius)
+- Photography-first listing cards — images are the hero content
+- Near-black text (`#222222`) — warm, not cold
+- Luxe Purple (`#460479`) and Plus Magenta (`#92174d`) for premium tiers
 
 ## 2. Color Palette & Roles
 
-### Primary
-- **Revolut Dark** (`#191c1f`): Primary dark surface, button background, near-black text
-- **Pure White** (`#ffffff`): `--rui-color-action-label`, primary light surface
-- **Light Surface** (`#f4f4f4`): Secondary button background, subtle surface
+### Primary Brand
+- **Rausch Red** (`#ff385c`): `--palette-bg-primary-core`, primary CTA, brand accent, active states
+- **Deep Rausch** (`#e00b41`): `--palette-bg-tertiary-core`, pressed/dark variant of brand red
+- **Error Red** (`#c13515`): `--palette-text-primary-error`, error text on light
+- **Error Dark** (`#b32505`): `--palette-text-secondary-error-hover`, error hover
 
-### Brand / Interactive
-- **Revolut Blue** (`#494fdf`): `--rui-color-blue`, primary brand blue
-- **Action Blue** (`#4f55f1`): `--rui-color-action-photo-header-text`, header accent
-- **Blue Text** (`#376cd5`): `--website-color-blue-text`, link blue
+### Premium Tiers
+- **Luxe Purple** (`#460479`): `--palette-bg-primary-luxe`, Airbnb Luxe tier branding
+- **Plus Magenta** (`#92174d`): `--palette-bg-primary-plus`, Airbnb Plus tier branding
 
-### Semantic
-- **Danger Red** (`#e23b4a`): `--rui-color-danger`, error/destructive
-- **Deep Pink** (`#e61e49`): `--rui-color-deep-pink`, critical accent
-- **Warning Orange** (`#ec7e00`): `--rui-color-warning`, warning states
-- **Yellow** (`#b09000`): `--rui-color-yellow`, attention
-- **Teal** (`#00a87e`): `--rui-color-teal`, success/positive
-- **Light Green** (`#428619`): `--rui-color-light-green`, secondary success
-- **Green Text** (`#006400`): `--website-color-green-text`, green text
-- **Light Blue** (`#007bc2`): `--rui-color-light-blue`, informational
-- **Brown** (`#936d62`): `--rui-color-brown`, warm neutral accent
-- **Red Text** (`#8b0000`): `--website-color-red-text`, dark red text
+### Text Scale
+- **Near Black** (`#222222`): `--palette-text-primary`, primary text — warm, not cold
+- **Focused Gray** (`#3f3f3f`): `--palette-text-focused`, focused state text
+- **Secondary Gray** (`#6a6a6a`): Secondary text, descriptions
+- **Disabled** (`rgba(0,0,0,0.24)`): `--palette-text-material-disabled`, disabled state
+- **Link Disabled** (`#929292`): `--palette-text-link-disabled`, disabled links
 
-### Neutral Scale
-- **Mid Slate** (`#505a63`): Secondary text
-- **Cool Gray** (`#8d969e`): Muted text, tertiary
-- **Gray Tone** (`#c9c9cd`): `--rui-color-grey-tone-20`, borders/dividers
+### Interactive
+- **Legal Blue** (`#428bff`): `--palette-text-legal`, legal links, informational
+- **Border Gray** (`#c1c1c1`): Border color for cards and dividers
+- **Light Surface** (`#f2f2f2`): Circular navigation buttons, secondary surfaces
+
+### Surface & Shadows
+- **Pure White** (`#ffffff`): Page background, card surfaces
+- **Card Shadow** (`rgba(0,0,0,0.02) 0px 0px 0px 1px, rgba(0,0,0,0.04) 0px 2px 6px, rgba(0,0,0,0.1) 0px 4px 8px`): Three-layer warm lift
+- **Hover Shadow** (`rgba(0,0,0,0.08) 0px 4px 12px`): Button hover elevation
 
 ## 3. Typography Rules
 
-### Font Families
-- **Display**: `Aeonik Pro` — geometric grotesque, no detected fallbacks
-- **Body / UI**: `Inter` — standard system sans
-- **Fallback**: `Arial` for specific button contexts
+### Font Family
+- **Primary**: `Airbnb Cereal VF`, fallbacks: `Circular, -apple-system, system-ui, Roboto, Helvetica Neue`
+- **OpenType Features**: `"salt"` (stylistic alternates) on specific caption elements
 
 ### Hierarchy
 
 | Role | Font | Size | Weight | Line Height | Letter Spacing | Notes |
 |------|------|------|--------|-------------|----------------|-------|
-| Display Mega | Aeonik Pro | 136px (8.50rem) | 500 | 1.00 (tight) | -2.72px | Stadium-scale hero |
-| Display Hero | Aeonik Pro | 80px (5.00rem) | 500 | 1.00 (tight) | -0.8px | Primary hero |
-| Section Heading | Aeonik Pro | 48px (3.00rem) | 500 | 1.21 (tight) | -0.48px | Feature sections |
-| Sub-heading | Aeonik Pro | 40px (2.50rem) | 500 | 1.20 (tight) | -0.4px | Sub-sections |
-| Card Title | Aeonik Pro | 32px (2.00rem) | 500 | 1.19 (tight) | -0.32px | Card headings |
-| Feature Title | Aeonik Pro | 24px (1.50rem) | 400 | 1.33 | normal | Light headings |
-| Nav / UI | Aeonik Pro | 20px (1.25rem) | 500 | 1.40 | normal | Navigation, buttons |
-| Body Large | Inter | 18px (1.13rem) | 400 | 1.56 | -0.09px | Introductions |
-| Body | Inter | 16px (1.00rem) | 400 | 1.50 | 0.24px | Standard reading |
-| Body Semibold | Inter | 16px (1.00rem) | 600 | 1.50 | 0.16px | Emphasized body |
-| Body Bold Link | Inter | 16px (1.00rem) | 700 | 1.50 | 0.24px | Bold links |
+| Section Heading | Airbnb Cereal VF | 28px (1.75rem) | 700 | 1.43 | normal | Primary headings |
+| Card Heading | Airbnb Cereal VF | 22px (1.38rem) | 600 | 1.18 (tight) | -0.44px | Category/card titles |
+| Card Heading Medium | Airbnb Cereal VF | 22px (1.38rem) | 500 | 1.18 (tight) | -0.44px | Lighter variant |
+| Sub-heading | Airbnb Cereal VF | 21px (1.31rem) | 700 | 1.43 | normal | Bold sub-headings |
+| Feature Title | Airbnb Cereal VF | 20px (1.25rem) | 600 | 1.20 (tight) | -0.18px | Feature headings |
+| UI Medium | Airbnb Cereal VF | 16px (1.00rem) | 500 | 1.25 (tight) | normal | Nav, emphasized text |
+| UI Semibold | Airbnb Cereal VF | 16px (1.00rem) | 600 | 1.25 (tight) | normal | Strong emphasis |
+| Button | Airbnb Cereal VF | 16px (1.00rem) | 500 | 1.25 (tight) | normal | Button labels |
+| Body / Link | Airbnb Cereal VF | 14px (0.88rem) | 400 | 1.43 | normal | Standard body |
+| Body Medium | Airbnb Cereal VF | 14px (0.88rem) | 500 | 1.29 (tight) | normal | Medium body |
+| Caption Salt | Airbnb Cereal VF | 14px (0.88rem) | 600 | 1.43 | normal | `"salt"` feature |
+| Small | Airbnb Cereal VF | 13px (0.81rem) | 400 | 1.23 (tight) | normal | Descriptions |
+| Tag | Airbnb Cereal VF | 12px (0.75rem) | 400–700 | 1.33 | normal | Tags, prices |
+| Badge | Airbnb Cereal VF | 11px (0.69rem) | 600 | 1.18 (tight) | normal | `"salt"` feature |
+| Micro Uppercase | Airbnb Cereal VF | 8px (0.50rem) | 700 | 1.25 (tight) | 0.32px | `text-transform: uppercase` |
 
 ### Principles
-- **Weight 500 as display default**: Aeonik Pro uses medium (500) for ALL headings — no bold. This creates authority through size and tracking, not weight.
-- **Billboard tracking**: -2.72px at 136px is extremely compressed — text designed to be read at a glance, like airport signage.
-- **Positive tracking on body**: Inter uses +0.16px to +0.24px, creating airy, well-spaced reading text that contrasts with the compressed headings.
+- **Warm weight range**: 500–700 dominate. No weight 300 or 400 for headings — Airbnb's type is always at least medium weight, creating a warm, confident voice.
+- **Negative tracking on headings**: -0.18px to -0.44px letter-spacing on display creates intimate, cozy headings rather than cold, compressed ones.
+- **"salt" OpenType feature**: Stylistic alternates on specific UI elements (badges, captions) create subtle glyph variations that add visual interest.
+- **Variable font precision**: Cereal VF enables continuous weight interpolation, though the design system uses discrete stops at 500, 600, and 700.
 
 ## 4. Component Stylings
 
 ### Buttons
 
-**Primary Dark Pill**
-- Background: `#191c1f`
+**Primary Dark**
+- Background: `#222222` (near-black, not pure black)
 - Text: `#ffffff`
-- Padding: 14px 32px
-- Radius: 9999px (full pill)
-- Hover: opacity 0.85
-- Focus: `0 0 0 0.125rem` ring
+- Padding: 0px 24px
+- Radius: 8px
+- Hover: transitions to error/brand accent via `var(--accent-bg-error)`
+- Focus: `0 0 0 2px var(--palette-grey1000)` ring + scale(0.92)
 
-**Secondary Light Pill**
-- Background: `#f4f4f4`
-- Text: `#000000`
-- Padding: 14px 34px
-- Radius: 9999px
-- Hover: opacity 0.85
-
-**Outlined Pill**
-- Background: transparent
-- Text: `#191c1f`
-- Border: `2px solid #191c1f`
-- Padding: 14px 32px
-- Radius: 9999px
-
-**Ghost on Dark**
-- Background: `rgba(244, 244, 244, 0.1)`
-- Text: `#f4f4f4`
-- Border: `2px solid #f4f4f4`
-- Padding: 14px 32px
-- Radius: 9999px
+**Circular Nav**
+- Background: `#f2f2f2`
+- Text: `#222222`
+- Radius: 50% (circle)
+- Hover: shadow `rgba(0,0,0,0.08) 0px 4px 12px` + translateX(50%)
+- Active: 4px white border ring + focus shadow
+- Focus: scale(0.92) shrink animation
 
 ### Cards & Containers
-- Radius: 12px (small), 20px (cards)
-- No shadows — flat surfaces with color contrast
-- Dark and light section alternation
+- Background: `#ffffff`
+- Radius: 14px (badges), 20px (cards/buttons), 32px (large)
+- Shadow: `rgba(0,0,0,0.02) 0px 0px 0px 1px, rgba(0,0,0,0.04) 0px 2px 6px, rgba(0,0,0,0.1) 0px 4px 8px` (three-layer)
+- Listing cards: full-width photography on top, details below
+- Carousel controls: circular 50% buttons
+
+### Inputs
+- Search: `#222222` text
+- Focus: `var(--palette-bg-primary-error)` background tint + `0 0 0 2px` ring
+- Radius: depends on context (search bar uses pill-like rounding)
 
 ### Navigation
-- Aeonik Pro 20px weight 500
-- Clean header, hamburger toggle at 12px radius
-- Pill CTAs right-aligned
+- White sticky header with search bar centered
+- Airbnb logo (Rausch Red) left-aligned
+- Category filter pills: horizontal scroll below search
+- Circular nav controls for carousel navigation
+- "Become a Host" text link, avatar/menu right-aligned
+
+### Image Treatment
+- Listing photography fills card top with generous height
+- Image carousel with dot indicators
+- Heart/wishlist icon overlay on images
+- 8px–14px radius on contained images
 
 ## 5. Layout Principles
 
 ### Spacing System
 - Base unit: 8px
-- Scale: 4px, 6px, 8px, 14px, 16px, 20px, 24px, 32px, 40px, 48px, 80px, 88px, 120px
-- Large section spacing: 80px–120px
+- Scale: 2px, 3px, 4px, 6px, 8px, 10px, 11px, 12px, 15px, 16px, 22px, 24px, 32px
+
+### Grid & Container
+- Full-width header with centered search
+- Category pill bar: horizontal scrollable row
+- Listing grid: responsive multi-column (3–5 columns on desktop)
+- Full-width footer with link columns
+
+### Whitespace Philosophy
+- **Travel-magazine spacing**: Generous vertical padding between sections creates a leisurely browsing pace — you're meant to scroll slowly, like browsing a magazine.
+- **Photography density**: Listing cards are packed relatively tightly, but each image is large enough to feel immersive.
+- **Search bar prominence**: The search bar gets maximum vertical space in the header — finding your destination is the primary action.
 
 ### Border Radius Scale
-- Standard (12px): Navigation, small buttons
-- Card (20px): Feature cards
-- Pill (9999px): All buttons
+- Subtle (4px): Small links
+- Standard (8px): Buttons, tabs, search elements
+- Badge (14px): Status badges, labels
+- Card (20px): Feature cards, large buttons
+- Large (32px): Large containers, hero elements
+- Circle (50%): Nav controls, avatars, icons
 
 ## 6. Depth & Elevation
 
 | Level | Treatment | Use |
 |-------|-----------|-----|
-| Flat (Level 0) | No shadow | Everything — Revolut uses zero shadows |
-| Focus | `0 0 0 0.125rem` ring | Accessibility focus |
+| Flat (Level 0) | No shadow | Page background, text blocks |
+| Card (Level 1) | `rgba(0,0,0,0.02) 0px 0px 0px 1px, rgba(0,0,0,0.04) 0px 2px 6px, rgba(0,0,0,0.1) 0px 4px 8px` | Listing cards, search bar |
+| Hover (Level 2) | `rgba(0,0,0,0.08) 0px 4px 12px` | Button hover, interactive lift |
+| Active Focus (Level 3) | `rgb(255,255,255) 0px 0px 0px 4px` + focus ring | Active/focused elements |
 
-**Shadow Philosophy**: Revolut uses ZERO shadows. Depth comes entirely from the dark/light section contrast and the generous whitespace between elements.
+**Shadow Philosophy**: Airbnb's three-layer shadow system creates a warm, natural lift. Layer 1 (`0px 0px 0px 1px` at 0.02 opacity) is an ultra-subtle border. Layer 2 (`0px 2px 6px` at 0.04) provides soft ambient shadow. Layer 3 (`0px 4px 8px` at 0.1) adds the primary lift. This graduated approach creates shadows that feel like natural light rather than CSS effects.
 
 ## 7. Do's and Don'ts
 
 ### Do
-- Use Aeonik Pro weight 500 for all display headings
-- Apply 9999px radius to all buttons — pill shape is universal
-- Use generous button padding (14px 32px)
-- Keep the palette to near-black + white for marketing surfaces
-- Apply positive letter-spacing on Inter body text
+- Use `#222222` (warm near-black) for text — never pure `#000000`
+- Apply Rausch Red (`#ff385c`) only for primary CTAs and brand moments — it's the singular accent
+- Use Airbnb Cereal VF at weight 500–700 — the warm weight range is intentional
+- Apply the three-layer card shadow for all elevated surfaces
+- Use generous border-radius: 8px for buttons, 20px for cards, 50% for controls
+- Use photography as the primary visual content — listings are image-first
+- Apply negative letter-spacing (-0.18px to -0.44px) on headings for intimacy
+- Use circular (50%) buttons for carousel/navigation controls
 
 ### Don't
-- Don't use shadows — Revolut is flat by design
-- Don't use bold (700) for Aeonik Pro headings — 500 is the weight
-- Don't use small buttons — the generous padding is intentional
-- Don't apply semantic colors to marketing surfaces — they're for the product
+- Don't use pure black (`#000000`) for text — always `#222222` (warm)
+- Don't apply Rausch Red to backgrounds or large surfaces — it's an accent only
+- Don't use thin font weights (300, 400) for headings — 500 minimum
+- Don't use heavy shadows (>0.1 opacity as primary layer) — keep them warm and graduated
+- Don't use sharp corners (0–4px) on cards — the generous rounding (20px+) is core
+- Don't introduce additional brand colors beyond the Rausch/Luxe/Plus system
+- Don't override the palette token system — use `--palette-*` variables consistently
 
 ## 8. Responsive Behavior
 
 ### Breakpoints
 | Name | Width | Key Changes |
 |------|-------|-------------|
-| Mobile Small | <400px | Compact, single column |
-| Mobile | 400–720px | Standard mobile |
-| Tablet | 720–1024px | 2-column layouts |
-| Desktop | 1024–1280px | Standard desktop |
-| Large | 1280–1920px | Full layout |
+| Mobile Small | <375px | Single column, compact search |
+| Mobile | 375–550px | Standard mobile listing grid |
+| Tablet Small | 550–744px | 2-column listings |
+| Tablet | 744–950px | Search bar expansion |
+| Desktop Small | 950–1128px | 3-column listings |
+| Desktop | 1128–1440px | 4-column grid, full header |
+| Large Desktop | 1440–1920px | 5-column grid |
+| Ultra-wide | >1920px | Maximum grid width |
+
+*Note: Airbnb has 61 detected breakpoints — one of the most granular responsive systems observed, reflecting their obsession with layout at every possible screen size.*
+
+### Touch Targets
+- Circular nav buttons: adequate 50% radius sizing
+- Listing cards: full-card tap target on mobile
+- Search bar: prominently sized for thumb interaction
+- Category pills: horizontally scrollable with generous padding
+
+### Collapsing Strategy
+- Listing grid: 5 → 4 → 3 → 2 → 1 columns
+- Search: expanded bar → compact bar → overlay
+- Category pills: horizontal scroll at all sizes
+- Navigation: full header → mobile simplified
+- Map: side panel → overlay/toggle
+
+### Image Behavior
+- Listing photos: carousel with swipe on mobile
+- Responsive image sizing with aspect ratio maintained
+- Heart overlay positioned consistently across sizes
+- Photo quality adjusts based on viewport
 
 ## 9. Agent Prompt Guide
 
 ### Quick Color Reference
-- Dark: Revolut Dark (`#191c1f`)
-- Light: White (`#ffffff`)
-- Surface: Light (`#f4f4f4`)
-- Blue: Revolut Blue (`#494fdf`)
-- Danger: Red (`#e23b4a`)
-- Success: Teal (`#00a87e`)
+- Background: Pure White (`#ffffff`)
+- Text: Near Black (`#222222`)
+- Brand accent: Rausch Red (`#ff385c`)
+- Secondary text: `#6a6a6a`
+- Disabled: `rgba(0,0,0,0.24)`
+- Card border: `rgba(0,0,0,0.02) 0px 0px 0px 1px`
+- Card shadow: full three-layer stack
+- Button surface: `#f2f2f2`
 
 ### Example Component Prompts
-- "Create a hero: white background. Headline at 136px Aeonik Pro weight 500, line-height 1.00, letter-spacing -2.72px, #191c1f text. Dark pill CTA (#191c1f, 9999px, 14px 32px). Outlined pill secondary (transparent, 2px solid #191c1f)."
-- "Build a pill button: #191c1f background, white text, 9999px radius, 14px 32px padding, 20px Aeonik Pro weight 500. Hover: opacity 0.85."
+- "Create a listing card: white background, 20px radius. Three-layer shadow: rgba(0,0,0,0.02) 0px 0px 0px 1px, rgba(0,0,0,0.04) 0px 2px 6px, rgba(0,0,0,0.1) 0px 4px 8px. Photo area on top (16:10 ratio), details below: 16px Airbnb Cereal VF weight 600 title, 14px weight 400 description in #6a6a6a."
+- "Design search bar: white background, full card shadow, 32px radius on container. Search text at 14px Cereal VF weight 400. Red search button (#ff385c, 50% radius, white icon)."
+- "Build category pill bar: horizontal scrollable row. Each pill: 14px Cereal VF weight 600, #222222 text, bottom border on active. Circular prev/next arrows (#f2f2f2 bg, 50% radius)."
+- "Create a CTA button: #222222 background, white text, 8px radius, 16px Cereal VF weight 500, 0px 24px padding. Hover: brand red accent."
+- "Design a heart/wishlist button: transparent background, 50% radius, white heart icon with dark shadow outline."
 
 ### Iteration Guide
-1. Aeonik Pro 500 for headings — never bold
-2. All buttons are pills (9999px) with generous padding
-3. Zero shadows — flat is the Revolut identity
-4. Near-black + white for marketing, semantic colors for product
+1. Start with white — the photography provides all the color
+2. Rausch Red (#ff385c) is the singular accent — use sparingly for CTAs only
+3. Near-black (#222222) for text — the warmth matters
+4. Three-layer shadows create natural, warm lift — always use all three layers
+5. Generous radius: 8px buttons, 20px cards, 50% controls
+6. Cereal VF at 500–700 weight — no thin weights for any heading
+7. Photography is hero — every listing card is image-first
