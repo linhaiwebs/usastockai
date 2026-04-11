@@ -41,8 +41,11 @@ RUN adduser --system --uid 1001 nextjs
 # Copy public files (must exist in builder)
 COPY --from=builder /app/public ./public
 
-# Copy Next.js standalone and static files
+# Copy Next.js standalone
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+
+# Copy static files to correct location for standalone mode
+# The standalone server expects static files at .next/static
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
 # 检查文件是否存在
