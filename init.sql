@@ -14,13 +14,16 @@ CREATE TABLE IF NOT EXISTS redirect_links (
 );
 
 -- 创建权重索引
-CREATE INDEX idx_weight ON redirect_links(weight);
+CREATE INDEX IF NOT EXISTS idx_weight ON redirect_links(weight);
 
--- 插入示例数据
-INSERT INTO redirect_links (url, weight) VALUES 
+-- 仅在表为空时插入示例数据（避免覆盖已有数据）
+INSERT INTO redirect_links (url, weight)
+SELECT * FROM (VALUES
     ('https://example.com/broker1', 3),
     ('https://example.com/broker2', 2),
-    ('https://example.com/broker3', 1);
+    ('https://example.com/broker3', 1)
+) AS v(url, weight)
+WHERE NOT EXISTS (SELECT 1 FROM redirect_links LIMIT 1);
 
 -- 谷歌统计配置表
 CREATE TABLE IF NOT EXISTS google_analytics (
@@ -34,4 +37,4 @@ CREATE TABLE IF NOT EXISTS google_analytics (
 );
 
 -- 创建启用状态索引
-CREATE INDEX idx_is_enabled ON google_analytics(is_enabled);
+CREATE INDEX IF NOT EXISTS idx_is_enabled ON google_analytics(is_enabled);
