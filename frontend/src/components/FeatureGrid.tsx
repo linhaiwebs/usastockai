@@ -47,26 +47,20 @@ export function FeatureGrid() {
               key={index}
               className="p-5 bg-white border-2 border-gray-tone rounded-card hover:border-revolut-dark transition-colors group"
             >
-              <div className="flex items-start gap-4">
-                <div 
-                  className="text-3xl flex-shrink-0"
-                >
-                  {feature.icon}
-                </div>
-                <div className="flex-1">
-                  <h3 
-                    className="text-feature-title font-medium text-revolut-dark mb-2 group-hover:text-revolut-blue transition-colors"
-                  >
-                    {feature.title}
-                  </h3>
-                  <p 
-                    className="text-body text-mid-slate"
-                    style={{ letterSpacing: '0.16px' }}
-                  >
-                    {feature.description}
-                  </p>
-                </div>
+              <div className="text-3xl mb-3">
+                {feature.icon}
               </div>
+              <h3 
+                className="text-feature-title font-medium text-revolut-dark mb-2 group-hover:text-revolut-blue transition-colors"
+              >
+                {feature.title}
+              </h3>
+              <p 
+                className="text-body text-mid-slate"
+                style={{ letterSpacing: '0.16px' }}
+              >
+                {feature.description}
+              </p>
             </div>
           ))}
         </div>

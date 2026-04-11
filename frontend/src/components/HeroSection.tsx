@@ -33,15 +33,13 @@ export function HeroSection() {
           decisions with professional-grade analysis tools.
         </p>
         
-        {/* CTA Pills - Revolut style */}
-        <div className="flex flex-col sm:flex-row gap-2 justify-center items-center">
-          <button className="revolut-btn-primary min-w-[140px]">
-            Get Started
-          </button>
-          <button className="revolut-btn-outlined min-w-[140px]">
-            Learn More
-          </button>
-        </div>
+        {/* CTA Button - Anchor to search box */}
+        <a 
+          href="#search-box"
+          className="revolut-btn-primary min-w-[140px] inline-block text-center"
+        >
+          Get Started
+        </a>
         
         {/* Trust indicators - minimal badges */}
         <div className="flex justify-center items-center gap-3 mt-8">

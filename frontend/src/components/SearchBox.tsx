@@ -30,7 +30,7 @@ export function SearchBox({ onAnalyze }: SearchBoxProps) {
   }
 
   return (
-    <section className="py-8 px-4 bg-surface">
+    <section id="search-box" className="py-8 px-4 bg-surface">
       <div className="max-w-3xl mx-auto">
         <div className="text-center mb-4">
           <h2 
