@@ -41,7 +41,7 @@ export function FeatureGrid() {
           Why choose our platform
         </h2>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-4">
           {features.map((feature, index) => (
             <div
               key={index}

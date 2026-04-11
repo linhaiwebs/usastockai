@@ -51,11 +51,11 @@ export function AITimeline() {
           {/* Connection Line */}
           <div className="hidden md:block absolute top-10 left-0 right-0 h-0.5 bg-gray-tone"></div>
           
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 gap-4">
             {timelineSteps.map((item, index) => (
-              <div key={index} className="relative text-center md:text-left">
+              <div key={index} className="relative text-center">
                 {/* Step Circle */}
-                <div className="relative z-10 w-20 h-20 rounded-full bg-revolut-dark text-white flex items-center justify-center text-card-title font-medium mx-auto md:mx-0 mb-4">
+                <div className="relative z-10 w-20 h-20 rounded-full bg-revolut-dark text-white flex items-center justify-center text-card-title font-medium mx-auto mb-4">
                   {item.step}
                 </div>
                 

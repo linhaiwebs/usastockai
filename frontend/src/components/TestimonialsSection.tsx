@@ -44,7 +44,7 @@ export function TestimonialsSection() {
           Join thousands of investors who trust our platform
         </p>
         
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-2 gap-4">
           {testimonials.map((testimonial, index) => (
             <div
               key={index}

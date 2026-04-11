@@ -81,7 +81,7 @@ export function StockGrid({ onStockClick }: StockGridProps) {
             {[1, 2, 3, 4].map((i) => (
               <div
                 key={i}
-                className="h-24 bg-surface border-2 border-gray-tone rounded-card animate-pulse"
+                className="bg-surface border-2 border-gray-tone rounded-card animate-pulse p-4"
               />
             ))}
           </div>
