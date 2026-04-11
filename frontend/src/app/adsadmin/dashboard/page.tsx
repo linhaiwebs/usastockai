@@ -111,7 +111,7 @@ export default function DashboardPage() {
       setRedirectFormData({ name: '', url: '', suffix: '', weight: 1, is_active: true })
       setShowRedirectForm(false)
       setEditingRedirectId(null)
-      loadRedirects()
+      await loadRedirects()
     } catch (err: any) {
       setError(err.message || 'Failed to save redirect')
     }
@@ -134,7 +134,7 @@ export default function DashboardPage() {
     
     try {
       await apiCall(`/api/admin/redirects/${id}`, { method: 'DELETE' })
-      loadRedirects()
+      await loadRedirects()
     } catch (err: any) {
       setError(err.message || 'Failed to delete redirect')
     }
@@ -167,7 +167,7 @@ export default function DashboardPage() {
       setAnalyticsFormData({ ads_tracking_id: '', ga4_property_id: '', conversion_id: '', is_enabled: true })
       setShowAnalyticsForm(false)
       set编辑ingAnalyticsId(null)
-      loadAnalytics()
+      await loadAnalytics()
     } catch (err: any) {
       setError(err.message || '保存谷歌统计配置失败')
     }
@@ -189,7 +189,7 @@ export default function DashboardPage() {
     
     try {
       await apiCall(`/api/admin/google-analytics/${id}`, { method: 'DELETE' })
-      loadAnalytics()
+      await loadAnalytics()
     } catch (err: any) {
       setError(err.message || '删除谷歌统计配置失败')
     }
@@ -562,7 +562,7 @@ export default function DashboardPage() {
                   
                   {analyticsConfigs.length === 0 && (
                     <tr>
-                      <td colSpan={4} className="px-4 py-8 text-center text-text-secondary">
+                      <td colSpan={5} className="px-4 py-8 text-center text-text-secondary">
                         No Google Analytics configurations found. Click "Add Google Analytics" to create one.
                       </td>
                     </tr>
