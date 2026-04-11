@@ -1,62 +1,56 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { HeroSection } from '@/components/HeroSection'
-import { SearchBox } from '@/components/SearchBox'
-import { StockGrid } from '@/components/StockGrid'
-import { SocialProof } from '@/components/SocialProof'
-import { FreemiumHook, useFreeCount } from '@/components/FreemiumHook'
+import { SearchBox, SearchBoxRef } from '@/components/SearchBox'
+import { UsageStatsBar, useFreeCount } from '@/components/FreemiumHook'
 import { ComparisonMatrix } from '@/components/ComparisonMatrix'
-import { ContextualCTA } from '@/components/ContextualCTA'
+import { TrustSection } from '@/components/TrustSection'
+import { FixedBottomBar } from '@/components/ContextualCTA'
 import { Footer } from '@/components/Footer'
 import { AnalysisModal } from '@/components/AnalysisModal'
 
 /**
- * Main Page - Airbnb style landing page
+ * Main Page - Mobile-first design with Airbnb style
  * Clean white background, Rausch Red accents, three-layer shadows
  */
 export default function Home() {
   const [modalOpen, setModalOpen] = useState(false)
   const [analyzeQuery, setAnalyzeQuery] = useState('')
-  const [hasCompletedDiagnosis, setHasCompletedDiagnosis] = useState(false)
   const { freeCount, decrementCount } = useFreeCount()
+  const searchBoxRef = useRef<SearchBoxRef>(null)
 
   const handleAnalyze = (query: string) => {
     if (freeCount > 0) {
       decrementCount()
       setAnalyzeQuery(query)
       setModalOpen(true)
-      setHasCompletedDiagnosis(true)
     }
   }
 
+  const handleNewDiagnosis = () => {
+    // Clear input and focus using ref method
+    searchBoxRef.current?.clearAndFocus()
+  }
+
   return (
-    <main className="min-h-screen bg-background">
+    <main className="min-h-screen bg-background pb-20">
       {/* Main container with generous padding */}
       <div className="max-w-[520px] mx-auto px-5 py-8">
-        {/* 1. Hero Section with value proposition */}
+        {/* Module 1: Hero Section with value proposition */}
         <HeroSection />
         
-        {/* 2. Search Box with compliance text */}
-        <SearchBox onAnalyze={handleAnalyze} />
+        {/* Module 1: Search Box with example pills and validation */}
+        <SearchBox ref={searchBoxRef} onAnalyze={handleAnalyze} />
         
-        {/* 5. Freemium Hook - Free diagnosis banner */}
-        <FreemiumHook onUpgrade={() => {/* Handle upgrade */}} />
+        {/* Module 2: Usage Stats Bar */}
+        <UsageStatsBar />
         
-        {/* 3. Hot Stocks Grid */}
-        <StockGrid onStockClick={handleAnalyze} />
-        
-        {/* 4. Social Proof - User testimonials */}
-        <SocialProof />
-        
-        {/* 6. Comparison Matrix */}
+        {/* Module 3: Comparison Matrix */}
         <ComparisonMatrix />
         
-        {/* 7. Contextual CTA - Dynamic based on user behavior */}
-        <ContextualCTA 
-          hasCompletedDiagnosis={hasCompletedDiagnosis}
-          onUpgrade={() => {/* Handle upgrade */}}
-        />
+        {/* Module 4: Trust Section */}
+        <TrustSection />
         
         <Footer />
         
@@ -67,6 +61,9 @@ export default function Home() {
           onClose={() => setModalOpen(false)}
         />
       </div>
+
+      {/* Module 5: Fixed Bottom Bar */}
+      <FixedBottomBar onNewDiagnosis={handleNewDiagnosis} />
     </main>
   )
 }
