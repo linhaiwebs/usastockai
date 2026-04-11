@@ -7,6 +7,9 @@ from fastapi.responses import JSONResponse
 from .core.config import get_settings
 from .core.database import init_db
 from .api import stocks, analyze, redirects, websocket, admin
+# 导入模型以确保 SQLAlchemy 能创建表
+from .models.redirect import RedirectLink
+from .models.google_analytics import GoogleAnalytics
 import logging
 
 settings = get_settings()
