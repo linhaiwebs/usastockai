@@ -10,7 +10,7 @@ interface AnalysisModalProps {
 }
 
 /**
- * AI Analysis Modal - Airbnb style with Rausch Red accents and three-layer shadows
+ * AI Analysis Modal - Airtable style with Deep Navy and Airtable Blue
  */
 export function AnalysisModal({ query, isOpen, onClose }: AnalysisModalProps) {
   const [content, setContent] = useState('')
@@ -190,30 +190,30 @@ export function AnalysisModal({ query, isOpen, onClose }: AnalysisModalProps) {
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-text-primary/80 backdrop-blur-sm">
-      <div className="w-full max-w-2xl max-h-[85vh] bg-white rounded-card shadow-card overflow-hidden flex flex-col">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-deep-navy/80 backdrop-blur-sm">
+      <div className="w-full max-w-lg max-h-[85vh] bg-white rounded-relaxed shadow-card overflow-hidden flex flex-col">
         {/* Header */}
-        <div className="p-6 border-b border-border-light flex items-center justify-between">
+        <div className="p-4 border-b border-border-light flex items-center justify-between">
           <div>
             <h2 
-              className="text-section-heading text-text-primary"
-              style={{ fontFeatureSettings: '"salt"' }}
+              className="text-sub-heading text-deep-navy"
+              style={{ letterSpacing: '0' }}
             >
               AI Analysis Report
             </h2>
             <p 
-              className="text-body text-text-secondary mt-1"
-              style={{ fontFeatureSettings: '"salt"' }}
+              className="text-caption text-text-secondary mt-0.5"
+              style={{ letterSpacing: '0.18px' }}
             >
               Query: {query}
             </p>
           </div>
           <button
             onClick={onClose}
-            className="circular-btn"
+            className="w-8 h-8 rounded-circle bg-surface flex items-center justify-center hover:bg-border-light transition-colors"
           >
             <svg
-              className="w-5 h-5"
+              className="w-4 h-4 text-text-secondary"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -231,23 +231,23 @@ export function AnalysisModal({ query, isOpen, onClose }: AnalysisModalProps) {
         {/* Content area */}
         <div
           ref={contentRef}
-          className="flex-1 overflow-y-auto p-6"
+          className="flex-1 overflow-y-auto p-4"
         >
           {/* Thinking state */}
           {loading && content.length === 0 && (
-            <div className="flex flex-col items-center justify-center py-12">
-              <div className="relative mb-6">
-                <div className="w-16 h-16 border-4 border-rausch/20 border-t-rausch rounded-circle animate-spin"></div>
+            <div className="flex flex-col items-center justify-center py-10">
+              <div className="relative mb-4">
+                <div className="w-12 h-12 border-3 border-border-light border-t-airtable-blue rounded-circle animate-spin"></div>
               </div>
               <p 
-                className="text-ui-semibold text-text-primary mb-2"
-                style={{ fontFeatureSettings: '"salt"' }}
+                className="text-body-medium text-deep-navy mb-1"
+                style={{ letterSpacing: '0.12px' }}
               >
                 AI is analyzing{thinkingDots}
               </p>
               <p 
-                className="text-body text-text-secondary text-center max-w-sm"
-                style={{ fontFeatureSettings: '"salt"' }}
+                className="text-caption text-text-secondary text-center max-w-xs"
+                style={{ letterSpacing: '0.18px' }}
               >
                 Advanced AI is analyzing your request. This usually takes 1-3 seconds.
               </p>
@@ -256,17 +256,17 @@ export function AnalysisModal({ query, isOpen, onClose }: AnalysisModalProps) {
 
           {/* Error state */}
           {error && (
-            <div className="p-4 bg-danger-red/10 border border-danger-red/30 rounded-standard">
+            <div className="p-3 bg-danger-red/10 border border-danger-red/30 rounded-standard">
               <p 
-                className="text-ui-medium text-danger-red"
-                style={{ fontFeatureSettings: '"salt"' }}
+                className="text-caption text-danger-red"
+                style={{ letterSpacing: '0.18px' }}
               >
                 {error}
               </p>
               <button
                 onClick={startAnalysis}
-                className="mt-2 text-body text-rausch hover:underline"
-                style={{ fontFeatureSettings: '"salt"' }}
+                className="mt-2 text-caption text-airtable-blue hover:underline"
+                style={{ letterSpacing: '0.18px' }}
               >
                 Retry analysis
               </button>
@@ -281,16 +281,16 @@ export function AnalysisModal({ query, isOpen, onClose }: AnalysisModalProps) {
                 if (index === 0) {
                   if (content.includes('<think/>')) {
                     return (
-                      <div key={index} className="mb-4 p-4 bg-luxe-purple/10 border border-luxe-purple/30 rounded-standard">
+                      <div key={index} className="mb-3 p-3 bg-surface border border-border-light rounded-standard">
                         <p 
-                          className="text-badge text-luxe-purple mb-2 uppercase tracking-wider"
-                          style={{ fontFeatureSettings: '"salt"' }}
+                          className="text-small text-text-secondary mb-1 uppercase tracking-wider font-medium"
+                          style={{ letterSpacing: '0.28px' }}
                         >
                           AI Thinking Process
                         </p>
                         <div 
-                          className="text-body text-text-secondary whitespace-pre-wrap"
-                          style={{ fontFeatureSettings: '"salt"' }}
+                          className="text-caption text-text-secondary whitespace-pre-wrap"
+                          style={{ letterSpacing: '0.18px' }}
                         >
                           {part}
                         </div>
@@ -300,8 +300,8 @@ export function AnalysisModal({ query, isOpen, onClose }: AnalysisModalProps) {
                   return (
                     <div 
                       key={index} 
-                      className="text-body text-text-primary whitespace-pre-wrap leading-relaxed"
-                      style={{ fontFeatureSettings: '"salt"' }}
+                      className="text-body text-deep-navy whitespace-pre-wrap leading-relaxed"
+                      style={{ letterSpacing: '0.18px' }}
                     >
                       {part}
                     </div>
@@ -310,8 +310,8 @@ export function AnalysisModal({ query, isOpen, onClose }: AnalysisModalProps) {
                 return (
                   <div 
                     key={index} 
-                    className="text-body text-text-primary whitespace-pre-wrap leading-relaxed"
-                    style={{ fontFeatureSettings: '"salt"' }}
+                    className="text-body text-deep-navy whitespace-pre-wrap leading-relaxed"
+                    style={{ letterSpacing: '0.18px' }}
                   >
                     {part}
                   </div>
@@ -322,16 +322,16 @@ export function AnalysisModal({ query, isOpen, onClose }: AnalysisModalProps) {
         </div>
 
         {/* Footer with WhatsApp button */}
-        <div className="p-6 border-t border-border-light">
+        <div className="p-4 border-t border-border-light">
           {redirectUrl && (
             <>
               <button
                 onClick={handleWhatsAppClick}
-                className="w-full py-4 px-4 bg-rausch hover:bg-rausch-deep text-white font-medium rounded-standard shadow-card hover:shadow-hover transition-all flex items-center justify-center gap-2 active:scale-[0.98]"
-                style={{ fontFeatureSettings: '"salt"' }}
+                className="w-full py-3 px-4 bg-airtable-blue hover:bg-mid-blue text-white font-medium rounded-standard shadow-card hover:shadow-hover transition-all flex items-center justify-center gap-2 active:scale-[0.98]"
+                style={{ letterSpacing: '0.08px', fontSize: '0.8125rem' }}
               >
                 <svg
-                  className="w-5 h-5"
+                  className="w-4 h-4"
                   fill="currentColor"
                   viewBox="0 0 24 24"
                 >
@@ -340,8 +340,8 @@ export function AnalysisModal({ query, isOpen, onClose }: AnalysisModalProps) {
                 <span>Get Personalized Analysis on WhatsApp</span>
               </button>
               <p 
-                className="mt-3 text-small text-text-secondary text-center opacity-70"
-                style={{ fontFeatureSettings: '"salt"' }}
+                className="mt-2 text-small text-text-secondary text-center"
+                style={{ letterSpacing: '0.08px' }}
               >
                 Disclaimer: This is not investment advice. AI-generated analysis for reference only.
               </p>
@@ -351,11 +351,11 @@ export function AnalysisModal({ query, isOpen, onClose }: AnalysisModalProps) {
           {!redirectUrl && !loading && content && (
             <button
               disabled
-              className="w-full py-4 px-4 bg-surface text-text-secondary font-medium rounded-standard flex items-center justify-center gap-2 opacity-50 cursor-not-allowed"
-              style={{ fontFeatureSettings: '"salt"' }}
+              className="w-full py-3 px-4 bg-surface text-text-secondary font-medium rounded-standard flex items-center justify-center gap-2 opacity-50 cursor-not-allowed"
+              style={{ letterSpacing: '0.08px', fontSize: '0.8125rem' }}
             >
               <svg
-                className="w-5 h-5 animate-spin"
+                className="w-4 h-4 animate-spin"
                 fill="none"
                 viewBox="0 0 24 24"
               >
