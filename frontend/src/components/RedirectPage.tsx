@@ -7,18 +7,13 @@ interface RedirectPageProps {
   id: number
 }
 
-/**
- * Redirect Intermediate Page - Shows target URL preview and confirmation
- */
 export function RedirectPage({ id }: RedirectPageProps) {
   const [targetUrl, setTargetUrl] = useState<string>('')
   const [countdown, setCountdown] = useState(5)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
-    fetchRedirectInfo()
-  }, [id])
+  useEffect(() => { fetchRedirectInfo() }, [id])
 
   useEffect(() => {
     if (countdown > 0 && targetUrl) {
@@ -33,10 +28,9 @@ export function RedirectPage({ id }: RedirectPageProps) {
     try {
       const data = await getRedirectInfo(id)
       setTargetUrl(data.url)
-      setLoading(false)
     } catch (err: any) {
-      console.error('Failed to fetch redirect info:', err)
       setError(err.message || 'Link does not exist')
+    } finally {
       setLoading(false)
     }
   }
@@ -46,17 +40,15 @@ export function RedirectPage({ id }: RedirectPageProps) {
       await recordRedirectClick(id)
       window.location.href = targetUrl
     } catch (err) {
-      console.error('Failed to record click:', err)
-      // Redirect even if recording fails
       window.location.href = targetUrl
     }
   }
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-4">
-        <div className="w-full max-w-md bg-surface border border-gray-700 rounded-2xl p-8 text-center">
-          <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+      <div className="min-h-screen bg-surface-alt flex items-center justify-center p-4">
+        <div className="w-full max-w-md bg-white border border-border-default rounded-2xl p-8 text-center shadow-card">
+          <div className="w-10 h-10 border-[3px] border-surface-muted border-t-brand rounded-full animate-spin mx-auto mb-4" />
           <p className="text-text-secondary">Loading...</p>
         </div>
       </div>
@@ -65,15 +57,12 @@ export function RedirectPage({ id }: RedirectPageProps) {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-4">
-        <div className="w-full max-w-md bg-surface border border-loss/30 rounded-2xl p-8 text-center">
-          <div className="text-5xl mb-4">⚠️</div>
-          <h2 className="text-xl font-bold text-text mb-2">Invalid Link</h2>
+      <div className="min-h-screen bg-surface-alt flex items-center justify-center p-4">
+        <div className="w-full max-w-md bg-white border border-red-200 rounded-2xl p-8 text-center shadow-card">
+          <div className="text-4xl mb-4">⚠️</div>
+          <h2 className="text-xl font-bold text-text-primary mb-2">Invalid Link</h2>
           <p className="text-text-secondary">{error}</p>
-          <button
-            onClick={() => window.history.back()}
-            className="mt-6 px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/80 transition-colors"
-          >
+          <button onClick={() => window.history.back()} className="mt-6 px-6 py-2.5 bg-brand text-white rounded-lg font-medium hover:bg-brand-dark transition-colors">
             Go Back
           </button>
         </div>
@@ -82,52 +71,27 @@ export function RedirectPage({ id }: RedirectPageProps) {
   }
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
-      <div className="w-full max-w-md bg-surface border border-gray-700 rounded-2xl p-8 text-center">
-        {/* Icon */}
-        <div className="text-6xl mb-4">🔗</div>
-
-        {/* Title */}
-        <h2 className="text-xl font-bold text-text mb-2">
-          Redirecting
-        </h2>
-
-        {/* Target URL */}
-        <div className="mb-6 p-3 bg-background border border-gray-700 rounded-lg">
-          <p className="text-xs text-text-secondary mb-1">Target Address</p>
-          <p className="text-sm text-primary break-all">{targetUrl}</p>
+    <div className="min-h-screen bg-surface-alt flex items-center justify-center p-4">
+      <div className="w-full max-w-md bg-white border border-border-default rounded-2xl p-8 text-center shadow-card">
+        <div className="text-5xl mb-4">🔗</div>
+        <h2 className="text-xl font-bold text-text-primary mb-2">Redirecting</h2>
+        <div className="mb-6 p-3 bg-surface-alt border border-border-default rounded-xl">
+          <p className="text-xs text-text-muted mb-1">Target Address</p>
+          <p className="text-sm text-brand break-all">{targetUrl}</p>
         </div>
-
-        {/* Countdown */}
         <div className="mb-6">
-          <div className="text-4xl font-bold text-primary mb-2">
-            {countdown}
-          </div>
-          <p className="text-sm text-text-secondary">
-            seconds until auto redirect
-          </p>
+          <div className="text-4xl font-bold text-brand mb-2">{countdown}</div>
+          <p className="text-sm text-text-secondary">seconds until auto redirect</p>
         </div>
-
-        {/* Action buttons */}
         <div className="flex gap-3">
-          <button
-            onClick={() => window.history.back()}
-            className="flex-1 py-3 bg-gray-700 text-text rounded-lg hover:bg-gray-600 transition-colors"
-          >
+          <button onClick={() => window.history.back()} className="flex-1 py-3 bg-surface-alt text-text-primary rounded-lg font-medium hover:bg-surface-muted transition-colors">
             Cancel
           </button>
-          <button
-            onClick={handleRedirect}
-            className="flex-1 py-3 bg-hero-gradient text-white rounded-lg hover:shadow-lg transition-all"
-          >
+          <button onClick={handleRedirect} className="flex-1 py-3 bg-brand text-white rounded-lg font-medium hover:bg-brand-dark transition-colors">
             Redirect Now
           </button>
         </div>
-
-        {/* Security notice */}
-        <p className="mt-6 text-xs text-text-secondary">
-          Please verify the target address is safe before continuing
-        </p>
+        <p className="mt-6 text-xs text-text-muted">Please verify the target address is safe before continuing</p>
       </div>
     </div>
   )

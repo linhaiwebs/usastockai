@@ -1,100 +1,82 @@
-'use client'
-
-import { useState, useEffect } from 'react'
-
-/**
- * Module 1: Top Brand Bar - ClickHouse Design System
- * Left: MarketPulse AI + Beta badge
- * Right: Real-time clock (ET) + Today's Hot dropdown
- * Pure black canvas, Neon Volt accents
- */
 export function HeroSection() {
-  const [currentTime, setCurrentTime] = useState('')
-  const [hotDropdownOpen, setHotDropdownOpen] = useState(false)
-  
-  // Hot stocks for dropdown
-  const hotStocks = ['GME', 'AMC', 'TSLA', 'BBBY']
-
-  useEffect(() => {
-    // Update time every second
-    const updateTime = () => {
-      const now = new Date()
-      // Format as US Eastern Time
-      const options: Intl.DateTimeFormatOptions = {
-        timeZone: 'America/New_York',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-        hour12: true,
-      }
-      setCurrentTime(now.toLocaleTimeString('en-US', options) + ' ET')
-    }
-    
-    updateTime()
-    const interval = setInterval(updateTime, 1000)
-    return () => clearInterval(interval)
-  }, [])
-
   return (
-    <div className="pt-6 pb-4">
-      {/* Brand Header */}
-      <div className="flex items-center justify-between">
-        {/* Left: Logo + Brand Name + Beta Badge */}
-        <div className="flex items-center gap-3">
-          {/* Neon Volt logo square */}
-          <div className="w-10 h-10 bg-neon-volt flex items-center justify-center rounded-sharp">
-            <svg className="w-6 h-6 text-black" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M13 10V3L4 14h7v7l9-11h-7z" />
-            </svg>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="text-feature-title font-bold text-text-primary">
-              MarketPulse AI
-            </span>
-            {/* Beta badge */}
-            <span className="px-2 py-0.5 bg-neon-volt text-black text-micro font-semibold rounded-sharp">
-              BETA
-            </span>
-          </div>
-        </div>
-        
-        {/* Right: Real-time clock + Today's Hot dropdown */}
-        <div className="flex items-center gap-4">
-          {/* Real-time clock */}
-          <div className="text-small font-medium text-text-secondary font-mono">
-            {currentTime}
-          </div>
-          
-          {/* Today's Hot dropdown */}
-          <div className="relative">
-            <button
-              onClick={() => setHotDropdownOpen(!hotDropdownOpen)}
-              className="flex items-center gap-2 px-3 py-2 bg-surface border border-charcoal rounded-sharp hover:border-neon-volt transition-colors"
-            >
-              <span className="text-small font-medium text-text-primary">
-                🔥 Today's Hot
+    <section className="relative overflow-hidden bg-gradient-to-br from-brand-light via-white to-surface-alt">
+      <div className="max-w-6xl mx-auto px-6 py-20 md:py-28">
+        <div className="grid md:grid-cols-2 gap-12 items-center">
+          {/* Left content */}
+          <div className="animate-fade-in">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-brand/10 text-brand text-xs font-semibold rounded-full mb-6">
+              <span className="w-1.5 h-1.5 rounded-full bg-brand animate-pulse" />
+              AI-Powered Stock Intelligence
+            </div>
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-text-primary leading-tight mb-6">
+              Discover What the Market Is{' '}
+              <span className="text-brand">Really Saying</span>
+            </h1>
+            <p className="text-lg text-text-secondary leading-relaxed mb-8 max-w-lg">
+              AI scans 10,000+ articles and social posts in real time. Get instant, deep sentiment analysis for any US stock — free, no account needed.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3">
+              <button
+                onClick={() => document.getElementById('analyze')?.scrollIntoView({ behavior: 'smooth' })}
+                className="px-7 py-3.5 bg-brand text-white font-semibold rounded-lg hover:bg-brand-dark transition-colors shadow-card-hover"
+              >
+                Start Free Analysis
+              </button>
+              <a
+                href="#how-it-works"
+                className="px-7 py-3.5 border border-border-default text-text-primary font-semibold rounded-lg hover:bg-surface-alt transition-colors text-center"
+              >
+                See How It Works
+              </a>
+            </div>
+            <div className="mt-8 flex items-center gap-6 text-sm text-text-muted">
+              <span className="flex items-center gap-1.5">
+                <svg className="w-4 h-4 text-success" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" /></svg>
+                10 free scans/day
               </span>
-              <svg className="w-4 h-4 text-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-              </svg>
-            </button>
-            
-            {hotDropdownOpen && (
-              <div className="absolute right-0 top-full mt-2 w-40 bg-surface border border-charcoal rounded-sharp shadow-elevated z-50">
-                {hotStocks.map((stock) => (
-                  <button
-                    key={stock}
-                    className="w-full px-4 py-2 text-left text-body text-text-primary hover:bg-hover-gray hover:text-neon-volt transition-colors first:rounded-t-sharp last:rounded-b-sharp"
-                    onClick={() => setHotDropdownOpen(false)}
-                  >
-                    ${stock}
-                  </button>
-                ))}
+              <span className="flex items-center gap-1.5">
+                <svg className="w-4 h-4 text-success" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" /></svg>
+                No account required
+              </span>
+              <span className="flex items-center gap-1.5">
+                <svg className="w-4 h-4 text-success" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" /></svg>
+                Real-time data
+              </span>
+            </div>
+          </div>
+
+          {/* Right visual - decorative chart illustration */}
+          <div className="hidden md:flex justify-center animate-slide-up">
+            <div className="relative w-full max-w-md">
+              {/* Main card */}
+              <div className="bg-white rounded-2xl shadow-card-hover p-6 border border-border-default">
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <p className="text-sm text-text-muted">AI Sentiment</p>
+                    <p className="text-2xl font-bold text-text-primary">AAPL</p>
+                  </div>
+                  <span className="px-2.5 py-1 bg-card-green text-success text-xs font-semibold rounded-full">Bullish</span>
+                </div>
+                {/* Chart bars */}
+                <div className="flex items-end gap-1.5 h-32 mb-4">
+                  {[40, 55, 35, 60, 75, 50, 80, 65, 90, 70, 85, 95].map((h, i) => (
+                    <div key={i} className="flex-1 rounded-t" style={{ height: `${h}%`, background: h > 70 ? '#10b981' : h > 50 ? '#137fec' : '#e2e8f0' }} />
+                  ))}
+                </div>
+                <div className="flex justify-between text-xs text-text-muted">
+                  <span>12h ago</span>
+                  <span>Now</span>
+                </div>
               </div>
-            )}
+              {/* Floating badge */}
+              <div className="absolute -top-3 -right-3 bg-brand text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-card">
+                Live
+              </div>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </section>
   )
 }

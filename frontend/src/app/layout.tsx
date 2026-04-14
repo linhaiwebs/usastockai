@@ -1,90 +1,49 @@
 import type { Metadata, Viewport } from 'next'
-import { Inter, Inconsolata } from 'next/font/google'
+import { Inter } from 'next/font/google'
 import './globals.css'
 import ClientLayout from '@/components/ClientLayout'
 
-const inter = Inter({ 
+const inter = Inter({
   subsets: ['latin'],
   display: 'swap',
   variable: '--font-inter',
   preload: true,
   fallback: ['system-ui', 'arial'],
-  weight: ['400', '500', '600', '700', '900'],
-})
-
-const inconsolata = Inconsolata({
-  subsets: ['latin'],
-  display: 'swap',
-  variable: '--font-mono',
-  preload: false,
-  weight: ['600'],
+  weight: ['400', '500', '600', '700', '800'],
 })
 
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
-  maximumScale: 5,
-  themeColor: '#000000',
+  themeColor: '#137fec',
 }
 
 export const metadata: Metadata = {
-  title: 'MarketPulse AI - Real-time Stock Sentiment Analysis',
-  description: 'AI scans 10,000+ articles and posts in real time. Get instant sentiment analysis for any US stock.',
-  keywords: ['stock sentiment', 'AI', 'US stocks', 'investment', 'real-time news', 'market analysis', 'stock scanner'],
-  authors: [{ name: 'MarketPulse AI Team' }],
-  creator: 'MarketPulse AI',
-  publisher: 'MarketPulse AI',
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: {
-      index: true,
-      follow: true,
-      'max-video-preview': -1,
-      'max-image-preview': 'large',
-      'max-snippet': -1,
-    },
-  },
+  title: 'Planet Discovery — AI Stock Analysis',
+  description: 'Discover insights about any US stock with AI-powered real-time analysis. Scan 10,000+ articles instantly.',
+  keywords: ['stock analysis', 'AI', 'US stocks', 'investment', 'real-time news', 'market analysis'],
   openGraph: {
     type: 'website',
     locale: 'en_US',
-    title: 'MarketPulse AI - Real-time Stock Sentiment Analysis',
-    description: 'AI scans 10,000+ articles and posts in real time',
-    siteName: 'MarketPulse AI',
+    title: 'Planet Discovery — AI Stock Analysis',
+    description: 'Discover insights about any US stock with AI-powered real-time analysis.',
+    siteName: 'Planet Discovery',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'MarketPulse AI',
-    description: 'AI scans 10,000+ articles and posts in real time',
+    title: 'Planet Discovery — AI Stock Analysis',
+    description: 'Discover insights about any US stock with AI-powered real-time analysis.',
   },
-  verification: {
-    google: 'your-google-verification-code',
-  },
-  alternates: {
-    canonical: 'https://egfjp.com',
-  },
-  formatDetection: {
-    email: false,
-    address: false,
-    telephone: false,
-  },
-  metadataBase: new URL('https://egfjp.com'),
 }
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${inter.variable} ${inconsolata.variable}`}>
+    <html lang="en" className={inter.variable}>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
-        <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
       </head>
-      <body className="font-sans antialiased">
+      <body className="font-sans antialiased bg-white text-text-primary">
         <ClientLayout>{children}</ClientLayout>
       </body>
     </html>

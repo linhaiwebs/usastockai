@@ -201,43 +201,43 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="text-text">Loading...</div>
+      <div className="min-h-screen flex items-center justify-center bg-surface-alt">
+        <div className="text-text-brand">Loading...</div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-background p-8">
+    <div className="min-h-screen bg-surface-alt p-8">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-text">Admin Dashboard</h1>
+            <h1 className="text-3xl font-bold text-text-brand">Admin Dashboard</h1>
             <p className="text-text-secondary mt-1">Manage your system</p>
           </div>
           <button
             onClick={handleLogout}
-            className="px-4 py-2 bg-loss/20 text-loss rounded-lg hover:bg-loss/30 transition-colors"
+            className="px-4 py-2 bg-error/20 text-error rounded-lg hover:bg-error/30 transition-colors"
           >
             Logout
           </button>
         </div>
 
         {error && (
-          <div className="mb-4 p-4 bg-loss/10 border border-loss/30 rounded-lg text-loss">
+          <div className="mb-4 p-4 bg-error/10 border border-loss/30 rounded-lg text-error">
             {error}
           </div>
         )}
 
         {/* Tabs */}
-        <div className="mb-6 border-b border-gray-700">
+        <div className="mb-6 border-b border-border-default">
           <div className="flex gap-4">
             <button
               onClick={() => setActiveTab('redirects')}
               className={`px-6 py-3 font-medium transition-colors ${
                 activeTab === 'redirects'
-                  ? 'text-primary border-b-2 border-primary'
+                  ? 'text-brand border-b-2 border-primary'
                   : 'text-text-secondary hover:text-text'
               }`}
             >
@@ -247,7 +247,7 @@ export default function DashboardPage() {
               onClick={() => setActiveTab('analytics')}
               className={`px-6 py-3 font-medium transition-colors ${
                 activeTab === 'analytics'
-                  ? 'text-primary border-b-2 border-primary'
+                  ? 'text-brand border-b-2 border-primary'
                   : 'text-text-secondary hover:text-text'
               }`}
             >
@@ -265,14 +265,14 @@ export default function DashboardPage() {
                 setEditingRedirectId(null)
                 setRedirectFormData({ name: '', url: '', suffix: '', weight: 1, is_active: true })
               }}
-              className="mb-6 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/80 transition-colors"
+              className="mb-6 px-4 py-2 bg-brand text-white rounded-lg hover:bg-brand/80 transition-colors"
             >
               {showRedirectForm ? 'Cancel' : '+ Add New Redirect'}
             </button>
 
             {showRedirectForm && (
-              <div className="mb-6 p-6 bg-surface border border-gray-700 rounded-lg">
-                <h2 className="text-xl font-semibold text-text mb-4">
+              <div className="mb-6 p-6 bg-white border border-border-default rounded-lg">
+                <h2 className="text-xl font-semibold text-text-brand mb-4">
                   {editingRedirectId ? '编辑 Redirect' : 'Add New Redirect'}
                 </h2>
                 <form onSubmit={handleRedirectSubmit} className="space-y-4">
@@ -284,7 +284,7 @@ export default function DashboardPage() {
                       type="text"
                       value={redirectFormData.name}
                       onChange={(e) => setRedirectFormData({ ...redirectFormData, name: e.target.value })}
-                      className="w-full px-4 py-2 bg-background border border-gray-700 rounded-lg text-text focus:outline-none focus:border-primary"
+                      className="w-full px-4 py-2 bg-surface-alt border border-border-default rounded-lg text-text-brand focus:outline-none focus:border-brand"
                       placeholder="e.g., WhatsApp Support"
                       required
                     />
@@ -298,7 +298,7 @@ export default function DashboardPage() {
                       type="url"
                       value={redirectFormData.url}
                       onChange={(e) => setRedirectFormData({ ...redirectFormData, url: e.target.value })}
-                      className="w-full px-4 py-2 bg-background border border-gray-700 rounded-lg text-text focus:outline-none focus:border-primary"
+                      className="w-full px-4 py-2 bg-surface-alt border border-border-default rounded-lg text-text-brand focus:outline-none focus:border-brand"
                       placeholder="https://wa.me/1234567890?text="
                       required
                     />
@@ -315,7 +315,7 @@ export default function DashboardPage() {
                       type="text"
                       value={redirectFormData.suffix}
                       onChange={(e) => setRedirectFormData({ ...redirectFormData, suffix: e.target.value })}
-                      className="w-full px-4 py-2 bg-background border border-gray-700 rounded-lg text-text focus:outline-none focus:border-primary"
+                      className="w-full px-4 py-2 bg-surface-alt border border-border-default rounded-lg text-text-brand focus:outline-none focus:border-brand"
                       placeholder="我是自定义后缀文案"
                     />
                     <p className="text-xs text-text-secondary mt-1">
@@ -333,7 +333,7 @@ export default function DashboardPage() {
                       max="100"
                       value={redirectFormData.weight}
                       onChange={(e) => setRedirectFormData({ ...redirectFormData, weight: parseInt(e.target.value) })}
-                      className="w-full px-4 py-2 bg-background border border-gray-700 rounded-lg text-text focus:outline-none focus:border-primary"
+                      className="w-full px-4 py-2 bg-surface-alt border border-border-default rounded-lg text-text-brand focus:outline-none focus:border-brand"
                     />
                   </div>
                   
@@ -352,7 +352,7 @@ export default function DashboardPage() {
                   
                   <button
                     type="submit"
-                    className="px-6 py-2 bg-hero-gradient text-white font-semibold rounded-lg hover:opacity-90 transition-opacity"
+                    className="px-6 py-2 bg-brand text-white font-semibold rounded-lg hover:opacity-90 transition-opacity"
                   >
                     {editingRedirectId ? 'Update' : 'Create'}
                   </button>
@@ -360,50 +360,50 @@ export default function DashboardPage() {
               </div>
             )}
 
-            <div className="bg-surface border border-gray-700 rounded-lg overflow-hidden">
+            <div className="bg-white border border-border-default rounded-lg overflow-hidden">
               <table className="w-full">
-                <thead className="bg-background">
+                <thead className="bg-surface-alt">
                   <tr>
-                    <th className="px-4 py-3 text-left text-sm font-semibold text-text">Name</th>
-                    <th className="px-4 py-3 text-left text-sm font-semibold text-text">URL</th>
-                    <th className="px-4 py-3 text-left text-sm font-semibold text-text">Suffix</th>
-                    <th className="px-4 py-3 text-center text-sm font-semibold text-text">Weight</th>
-                    <th className="px-4 py-3 text-center text-sm font-semibold text-text">状态</th>
-                    <th className="px-4 py-3 text-center text-sm font-semibold text-text">Clicks</th>
-                    <th className="px-4 py-3 text-center text-sm font-semibold text-text">操作</th>
+                    <th className="px-4 py-3 text-left text-sm font-semibold text-text-brand">Name</th>
+                    <th className="px-4 py-3 text-left text-sm font-semibold text-text-brand">URL</th>
+                    <th className="px-4 py-3 text-left text-sm font-semibold text-text-brand">Suffix</th>
+                    <th className="px-4 py-3 text-center text-sm font-semibold text-text-brand">Weight</th>
+                    <th className="px-4 py-3 text-center text-sm font-semibold text-text-brand">状态</th>
+                    <th className="px-4 py-3 text-center text-sm font-semibold text-text-brand">Clicks</th>
+                    <th className="px-4 py-3 text-center text-sm font-semibold text-text-brand">操作</th>
                   </tr>
                 </thead>
                 <tbody>
                   {redirects.map((redirect) => (
-                    <tr key={redirect.id} className="border-t border-gray-700">
-                      <td className="px-4 py-3 text-text">{redirect.name}</td>
+                    <tr key={redirect.id} className="border-t border-border-default">
+                      <td className="px-4 py-3 text-text-brand">{redirect.name}</td>
                       <td className="px-4 py-3 text-text-secondary text-sm max-w-xs truncate">
                         {redirect.url}
                       </td>
                       <td className="px-4 py-3 text-text-secondary text-sm max-w-xs truncate">
                         {redirect.suffix || '-'}
                       </td>
-                      <td className="px-4 py-3 text-text text-center">{redirect.weight}</td>
+                      <td className="px-4 py-3 text-text-brand text-center">{redirect.weight}</td>
                       <td className="px-4 py-3 text-center">
                         <span className={`px-2 py-1 rounded text-xs ${
                           redirect.is_active 
-                            ? 'bg-profit/20 text-profit' 
-                            : 'bg-loss/20 text-loss'
+                            ? 'bg-success/10 text-success' 
+                            : 'bg-error/20 text-error'
                         }`}>
                           {redirect.is_active ? 'Active' : 'Inactive'}
                         </span>
                       </td>
-                      <td className="px-4 py-3 text-text text-center">{redirect.click_count}</td>
+                      <td className="px-4 py-3 text-text-brand text-center">{redirect.click_count}</td>
                       <td className="px-4 py-3 text-center">
                         <button
                           onClick={() => handleEditRedirect(redirect)}
-                          className="px-3 py-1 text-sm text-primary hover:underline mr-2"
+                          className="px-3 py-1 text-sm text-brand hover:underline mr-2"
                         >
                           编辑
                         </button>
                         <button
                           onClick={() => handleDeleteRedirect(redirect.id)}
-                          className="px-3 py-1 text-sm text-loss hover:underline"
+                          className="px-3 py-1 text-sm text-error hover:underline"
                         >
                           删除
                         </button>
@@ -433,14 +433,14 @@ export default function DashboardPage() {
                 set编辑ingAnalyticsId(null)
                 setAnalyticsFormData({ ads_tracking_id: '', ga4_property_id: '', conversion_id: '', is_enabled: true })
               }}
-              className="mb-6 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/80 transition-colors"
+              className="mb-6 px-4 py-2 bg-brand text-white rounded-lg hover:bg-brand/80 transition-colors"
             >
               {showAnalyticsForm ? '取消' : '+ 添加谷歌统计'}
             </button>
 
             {showAnalyticsForm && (
-              <div className="mb-6 p-6 bg-surface border border-gray-700 rounded-lg">
-                <h2 className="text-xl font-semibold text-text mb-4">
+              <div className="mb-6 p-6 bg-white border border-border-default rounded-lg">
+                <h2 className="text-xl font-semibold text-text-brand mb-4">
                   {editingAnalyticsId ? '编辑 Google Analytics' : 'Add Google Analytics'}
                 </h2>
                 <form onSubmit={handleAnalyticsSubmit} className="space-y-4">
@@ -452,7 +452,7 @@ export default function DashboardPage() {
                       type="text"
                       value={analyticsFormData.ads_tracking_id}
                       onChange={(e) => setAnalyticsFormData({ ...analyticsFormData, ads_tracking_id: e.target.value })}
-                      className="w-full px-4 py-2 bg-background border border-gray-700 rounded-lg text-text focus:outline-none focus:border-primary"
+                      className="w-full px-4 py-2 bg-surface-alt border border-border-default rounded-lg text-text-brand focus:outline-none focus:border-brand"
                       placeholder="e.g., AW-17303658824"
                     />
                     <p className="text-xs text-text-secondary mt-1">
@@ -468,7 +468,7 @@ export default function DashboardPage() {
                       type="text"
                       value={analyticsFormData.ga4_property_id}
                       onChange={(e) => setAnalyticsFormData({ ...analyticsFormData, ga4_property_id: e.target.value })}
-                      className="w-full px-4 py-2 bg-background border border-gray-700 rounded-lg text-text focus:outline-none focus:border-primary"
+                      className="w-full px-4 py-2 bg-surface-alt border border-border-default rounded-lg text-text-brand focus:outline-none focus:border-brand"
                       placeholder="e.g., G-BDPP2WPMQR"
                     />
                     <p className="text-xs text-text-secondary mt-1">
@@ -484,7 +484,7 @@ export default function DashboardPage() {
                       type="text"
                       value={analyticsFormData.conversion_id}
                       onChange={(e) => setAnalyticsFormData({ ...analyticsFormData, conversion_id: e.target.value })}
-                      className="w-full px-4 py-2 bg-background border border-gray-700 rounded-lg text-text focus:outline-none focus:border-primary"
+                      className="w-full px-4 py-2 bg-surface-alt border border-border-default rounded-lg text-text-brand focus:outline-none focus:border-brand"
                       placeholder="e.g., AW-17303658824/KrXGCNHaoZQcEMjCg7tA"
                     />
                     <p className="text-xs text-text-secondary mt-1">
@@ -507,7 +507,7 @@ export default function DashboardPage() {
                   
                   <button
                     type="submit"
-                    className="px-6 py-2 bg-hero-gradient text-white font-semibold rounded-lg hover:opacity-90 transition-opacity"
+                    className="px-6 py-2 bg-brand text-white font-semibold rounded-lg hover:opacity-90 transition-opacity"
                   >
                     {editingAnalyticsId ? 'Update' : 'Create'}
                   </button>
@@ -515,30 +515,30 @@ export default function DashboardPage() {
               </div>
             )}
 
-            <div className="bg-surface border border-gray-700 rounded-lg overflow-hidden">
+            <div className="bg-white border border-border-default rounded-lg overflow-hidden">
               <table className="w-full">
-                <thead className="bg-background">
+                <thead className="bg-surface-alt">
                   <tr>
-                    <th className="px-4 py-3 text-left text-sm font-semibold text-text">Ads Tracking ID</th>
-                    <th className="px-4 py-3 text-left text-sm font-semibold text-text">GA4 Property ID</th>
-                    <th className="px-4 py-3 text-left text-sm font-semibold text-text">Conversion ID</th>
-                    <th className="px-4 py-3 text-center text-sm font-semibold text-text">状态</th>
-                    <th className="px-4 py-3 text-center text-sm font-semibold text-text">操作</th>
+                    <th className="px-4 py-3 text-left text-sm font-semibold text-text-brand">Ads Tracking ID</th>
+                    <th className="px-4 py-3 text-left text-sm font-semibold text-text-brand">GA4 Property ID</th>
+                    <th className="px-4 py-3 text-left text-sm font-semibold text-text-brand">Conversion ID</th>
+                    <th className="px-4 py-3 text-center text-sm font-semibold text-text-brand">状态</th>
+                    <th className="px-4 py-3 text-center text-sm font-semibold text-text-brand">操作</th>
                   </tr>
                 </thead>
                 <tbody>
                   {analyticsConfigs.map((config) => (
-                    <tr key={config.id} className="border-t border-gray-700">
-                      <td className="px-4 py-3 text-text font-mono">{config.ads_tracking_id || '-'}</td>
-                      <td className="px-4 py-3 text-text font-mono">{config.ga4_property_id || '-'}</td>
+                    <tr key={config.id} className="border-t border-border-default">
+                      <td className="px-4 py-3 text-text-brand font-mono">{config.ads_tracking_id || '-'}</td>
+                      <td className="px-4 py-3 text-text-brand font-mono">{config.ga4_property_id || '-'}</td>
                       <td className="px-4 py-3 text-text-secondary font-mono">
                         {config.conversion_id || '-'}
                       </td>
                       <td className="px-4 py-3 text-center">
                         <span className={`px-2 py-1 rounded text-xs ${
                           config.is_enabled 
-                            ? 'bg-profit/20 text-profit' 
-                            : 'bg-loss/20 text-loss'
+                            ? 'bg-success/10 text-success' 
+                            : 'bg-error/20 text-error'
                         }`}>
                           {config.is_enabled ? '启用' : 'Disabled'}
                         </span>
@@ -546,13 +546,13 @@ export default function DashboardPage() {
                       <td className="px-4 py-3 text-center">
                         <button
                           onClick={() => handle编辑Analytics(config)}
-                          className="px-3 py-1 text-sm text-primary hover:underline mr-2"
+                          className="px-3 py-1 text-sm text-brand hover:underline mr-2"
                         >
                           编辑
                         </button>
                         <button
                           onClick={() => handle删除Analytics(config.id)}
-                          className="px-3 py-1 text-sm text-loss hover:underline"
+                          className="px-3 py-1 text-sm text-error hover:underline"
                         >
                           删除
                         </button>

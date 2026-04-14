@@ -6,97 +6,46 @@ const config: Config = {
     './src/components/**/*.{js,ts,jsx,tsx,mdx}',
     './src/app/**/*.{js,ts,jsx,tsx,mdx}',
   ],
-  darkMode: 'class',
   theme: {
     extend: {
       fontFamily: {
-        // ClickHouse Type System - Inter with full weight spectrum
         sans: ['Inter', 'Helvetica', 'Arial', 'sans-serif'],
         display: ['Inter', 'Helvetica', 'Arial', 'sans-serif'],
-        mono: ['Inconsolata', 'Fira Mono', 'monospace'],
       },
       colors: {
-        // ClickHouse Design System - Pure Black Canvas
-        background: '#000000',
-        surface: '#141414',
-        'surface-elevated': '#1a1a1a',
-        
-        // Neon Volt - Primary Accent
-        'neon-volt': '#faff69',
-        'neon-volt-hover': '#f4f692',
-        
-        // Forest Green - Secondary CTA
-        'forest-green': '#166534',
-        'dark-forest': '#14572f',
-        
-        // Text Scale
-        'text-primary': '#ffffff',
-        'text-secondary': '#a0a0a0',
-        'text-muted': '#585858',
-        'text-disabled': 'rgba(255, 255, 255, 0.28)',
-        
-        // Charcoal Borders
-        'charcoal': 'rgba(65, 65, 65, 0.8)',
-        'deep-charcoal': '#343434',
-        'hover-gray': '#3a3a3a',
-        
-        // Semantic
-        'positive-green': '#008a05',
-        'danger-red': '#c13515',
-        
-        // Borders - ClickHouse charcoal
-        'border-default': 'rgba(65, 65, 65, 0.8)',
-        'border-light': 'rgba(65, 65, 65, 0.5)',
-        
-        // Legacy compatibility
-        primary: '#faff69',
-        secondary: '#a0a0a0',
-        accent: '#faff69',
-        text: '#ffffff',
-        'text-body': '#a0a0a0',
-        profit: '#008a05',
-        loss: '#c13515',
-      },
-      fontSize: {
-        // ClickHouse Typography System - Weight IS hierarchy
-        'display-mega': ['6rem', { lineHeight: '1.00', letterSpacing: '0', fontWeight: '900' }], // 96px
-        'display-hero': ['4.5rem', { lineHeight: '1.00', letterSpacing: '0', fontWeight: '700' }], // 72px
-        'feature-heading': ['2.25rem', { lineHeight: '1.30', letterSpacing: '0', fontWeight: '600' }], // 36px
-        'sub-heading': ['1.5rem', { lineHeight: '1.17', letterSpacing: '0', fontWeight: '600' }], // 24px
-        'feature-title': ['1.25rem', { lineHeight: '1.40', letterSpacing: '0', fontWeight: '600' }], // 20px
-        'body-large': ['1.13rem', { lineHeight: '1.56', letterSpacing: '0', fontWeight: '400' }], // 18px
-        'body': ['1rem', { lineHeight: '1.50', letterSpacing: '0', fontWeight: '400' }], // 16px
-        'caption': ['0.875rem', { lineHeight: '1.43', letterSpacing: '0', fontWeight: '400' }], // 14px
-        'uppercase-label': ['0.875rem', { lineHeight: '1.43', letterSpacing: '0.0875rem', fontWeight: '600' }], // 14px, 1.4px tracking
-        'code': ['1rem', { lineHeight: '1.50', letterSpacing: '0', fontWeight: '600' }], // 16px
-        'small': ['0.75rem', { lineHeight: '1.33', letterSpacing: '0', fontWeight: '500' }], // 12px
-        'micro': ['0.7rem', { lineHeight: '1.79', letterSpacing: '0', fontWeight: '500' }], // 11.2px
+        brand: '#137fec',
+        'brand-dark': '#0d5fb8',
+        'brand-light': '#e8f2fd',
+        surface: '#ffffff',
+        'surface-alt': '#f7f9fc',
+        'surface-muted': '#eef2f7',
+        'text-primary': '#1a1d23',
+        'text-secondary': '#5f6b7a',
+        'text-muted': '#8c96a6',
+        'border-default': '#e2e8f0',
+        'border-light': '#f0f3f7',
+        success: '#10b981',
+        error: '#ef4444',
+        warning: '#f59e0b',
+        'card-blue': '#e8f2fd',
+        'card-green': '#ecfdf5',
+        'card-purple': '#f3e8ff',
+        'card-amber': '#fffbeb',
       },
       borderRadius: {
-        // ClickHouse - Sharp geometry (4px/8px)
-        'none': '0px',
-        'sharp': '4px',
-        'comfortable': '8px',
-        'pill': '9999px',
-        'circle': '50%',
+        lg: '8px',
+        xl: '12px',
+        '2xl': '16px',
+        '3xl': '24px',
       },
       boxShadow: {
-        // ClickHouse - Subtle shadows on black
-        'subtle': '0px 1px 3px rgba(0,0,0,0.1), 0px 1px 2px -1px rgba(0,0,0,0.1)',
-        'elevated': '0px 10px 15px -3px rgba(0,0,0,0.1), 0px 4px 6px -4px rgba(0,0,0,0.1)',
-        'inset': 'rgba(0,0,0,0.06) 0px 4px 4px, rgba(0,0,0,0.14) 0px 4px 25px inset',
-        'focus-ring': '0 0 0 2px #faff69',
-      },
-      backgroundImage: {
-        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+        card: '0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)',
+        'card-hover': '0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04)',
+        nav: '0 1px 3px rgba(0,0,0,0.05)',
       },
       animation: {
-        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-        'fade-in': 'fadeIn 0.5s ease-in-out',
-        'slide-up': 'slideUp 0.3s ease-out',
-        'float': 'float 6s ease-in-out infinite',
-        'ticker': 'ticker 30s linear infinite',
-        'data-refresh': 'dataRefresh 5s ease-in-out infinite',
+        'fade-in': 'fadeIn 0.6s ease-out',
+        'slide-up': 'slideUp 0.6s ease-out',
       },
       keyframes: {
         fadeIn: {
@@ -104,27 +53,9 @@ const config: Config = {
           '100%': { opacity: '1' },
         },
         slideUp: {
-          '0%': { opacity: '0', transform: 'translateY(10px)' },
+          '0%': { opacity: '0', transform: 'translateY(20px)' },
           '100%': { opacity: '1', transform: 'translateY(0)' },
         },
-        float: {
-          '0%, 100%': { transform: 'translateY(0)' },
-          '50%': { transform: 'translateY(-10px)' },
-        },
-        ticker: {
-          '0%': { transform: 'translateX(0)' },
-          '100%': { transform: 'translateX(-50%)' },
-        },
-        dataRefresh: {
-          '0%, 100%': { opacity: '1' },
-          '50%': { opacity: '0.7' },
-        },
-      },
-      spacing: {
-        // ClickHouse 8px base unit system
-        '11': '2.75rem',
-        '15': '3.75rem',
-        '22': '5.5rem',
       },
     },
   },

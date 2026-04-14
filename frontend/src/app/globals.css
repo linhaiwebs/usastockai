@@ -3,217 +3,43 @@
 @tailwind utilities;
 
 :root {
-  /* ClickHouse Design System Variables */
-  --site-context-theme-color: #ffffff;
-  --site-context-highlight-color: #faff69;
-  --site-context-focus-color: #f4f692;
-  --site-context-metainfo-color: #a0a0a0;
-  
-  /* ClickHouse Color Palette - Pure Black Canvas */
-  --bg-primary: #000000;
-  --bg-secondary: #141414;
-  --bg-elevated: #1a1a1a;
-  --text-primary: #ffffff;
-  --text-secondary: #a0a0a0;
-  --text-muted: #585858;
-  
-  /* Neon Volt - Primary Accent */
-  --neon-volt: #faff69;
-  --neon-volt-hover: #f4f692;
-  
-  /* Forest Green - Secondary CTA */
-  --forest-green: #166534;
-  --dark-forest: #14572f;
-  
-  /* Charcoal Borders */
-  --charcoal-border: rgba(65, 65, 65, 0.8);
-  --deep-charcoal: #343434;
-  --hover-gray: #3a3a3a;
-  
-  /* Fonts - Inter Weight Spectrum */
-  --font-primary: 'Inter', 'Helvetica', 'Arial', sans-serif;
-  --font-display: 'Inter', 'Helvetica', 'Arial', sans-serif;
-  --font-mono: 'Inconsolata', 'Fira Mono', monospace;
-  
-  /* Background */
-  --background-rgb: 0, 0, 0;
-  --foreground-rgb: 255, 255, 255;
+  --brand: #137fec;
+  --brand-dark: #0d5fb8;
+  --brand-light: #e8f2fd;
+  --surface: #ffffff;
+  --surface-alt: #f7f9fc;
+  --surface-muted: #eef2f7;
+  --text-primary: #1a1d23;
+  --text-secondary: #5f6b7a;
+  --text-muted: #8c96a6;
+  --border-default: #e2e8f0;
 }
 
 body {
-  color: rgb(var(--foreground-rgb));
-  background: rgb(var(--background-rgb));
-  font-family: var(--font-primary);
-  font-weight: 400;
+  color: var(--text-primary);
+  background: var(--surface);
+  font-family: 'Inter', 'Helvetica', 'Arial', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
-}
-
-/* Custom scrollbar - ClickHouse style (dark theme) */
+/* Scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
 }
-
 ::-webkit-scrollbar-track {
-  background: #141414;
+  background: var(--surface-alt);
 }
-
 ::-webkit-scrollbar-thumb {
-  background: #343434;
-  border-radius: 4px;
+  background: var(--border-default);
+  border-radius: 3px;
 }
-
 ::-webkit-scrollbar-thumb:hover {
-  background: #414141;
+  background: var(--text-muted);
 }
 
-/* Typography - ClickHouse heavy weights, uppercase labels */
-h1, h2, h3, h4, h5, h6 {
-  font-weight: 700;
-  color: #ffffff;
-  line-height: 1.0;
-}
-
-/* ClickHouse-style card - Charcoal borders, dark surface */
-.ch-card {
-  border-radius: 8px;
-  background: transparent;
-  border: 1px solid rgba(65, 65, 65, 0.8);
-  transition: border-color 0.2s ease-in-out;
-}
-
-.ch-card:hover {
-  border-color: rgba(65, 65, 65, 1);
-}
-
-.ch-card-highlighted {
-  border-color: #faff69;
-}
-
-/* ClickHouse primary button - Neon Volt with dark text */
-.ch-primary-btn {
-  background-color: #faff69;
-  color: #151515;
-  border-radius: 4px;
-  padding: 0px 16px;
-  font-weight: 700;
-  font-size: 16px;
-  line-height: 1.50;
-  border: 1px solid #faff69;
-  transition: all 0.2s ease-in-out;
-}
-
-.ch-primary-btn:hover {
-  background-color: #1d1d1d;
-  color: #faff69;
-}
-
-.ch-primary-btn:active {
-  color: #f4f692;
-}
-
-.ch-primary-btn:focus-visible {
-  outline: 2px solid #faff69;
-  outline-offset: 2px;
-}
-
-/* ClickHouse forest green button - Secondary CTA */
-.ch-green-btn {
-  background-color: #166534;
-  color: #ffffff;
-  border-radius: 4px;
-  padding: 12px 16px;
-  font-weight: 600;
-  font-size: 16px;
-  line-height: 1.50;
-  border: 1px solid #141414;
-  transition: all 0.2s ease-in-out;
-}
-
-.ch-green-btn:hover {
-  background-color: #3a3a3a;
-}
-
-.ch-green-btn:active {
-  color: #f4f692;
-}
-
-.ch-green-btn:focus-visible {
-  outline: 2px solid #166534;
-  outline-offset: 2px;
-}
-
-/* ClickHouse ghost button - Olive border */
-.ch-ghost-btn {
-  background-color: transparent;
-  color: #ffffff;
-  border-radius: 4px;
-  padding: 0px 32px;
-  font-weight: 500;
-  font-size: 16px;
-  line-height: 1.50;
-  border: 1px solid #4f5100;
-  transition: all 0.2s ease-in-out;
-}
-
-.ch-ghost-btn:hover {
-  background-color: #3a3a3a;
-}
-
-.ch-ghost-btn:active {
-  color: #f4f692;
-}
-
-.ch-ghost-btn:focus-visible {
-  outline: 2px solid #faff69;
-  outline-offset: 2px;
-}
-
-/* Focus ring for accessibility - Neon Volt */
+/* Focus */
 *:focus-visible {
-  outline: 2px solid #faff69;
+  outline: 2px solid var(--brand);
   outline-offset: 2px;
 }
-
-/* Inset shadow for pressed states */
-.inset-shadow {
-  box-shadow: rgba(0, 0, 0, 0.06) 0px 4px 4px, rgba(0, 0, 0, 0.14) 0px 4px 25px inset;
-}
-
-/* ClickHouse input style - Dark surface, neon accent */
-.ch-input {
-  border-radius: 4px;
-  border: 1px solid rgba(65, 65, 65, 0.8);
-  padding: 12px 16px;
-  font-size: 16px;
-  line-height: 1.50;
-  background: #141414;
-  color: #ffffff;
-  transition: border-color 0.2s ease-in-out;
-}
-
-.ch-input:focus {
-  border-color: #faff69;
-  outline: none;
-}
-
-.ch-input::placeholder {
-  color: #a0a0a0;
-}
-
-/* Uppercase label styling */
-.uppercase-label {
-  font-size: 14px;
-  font-weight: 600;
-  letter-spacing: 1.4px;
-  text-transform: uppercase;
-  color: #a0a0a0;
-}
-

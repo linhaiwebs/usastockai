@@ -16,8 +16,8 @@ export default function AdminRootPage() {
   }, [router])
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
-      <div className="text-text">Redirecting...</div>
+    <div className="min-h-screen flex items-center justify-center bg-surface-alt">
+      <div className="text-text-primary">Redirecting...</div>
     </div>
   )
 }
