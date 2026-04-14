@@ -386,32 +386,12 @@ function HomeContent() {
                   {/* Stock Details Grid */}
                   <div className="grid grid-cols-2 gap-3">
                     <div className="bg-surface-container-lowest/60 rounded-xl p-3">
-                      <p className="text-[9px] text-on-surface-variant uppercase tracking-widest mb-1">Symbol</p>
-                      <p className="text-sm font-headline font-bold text-on-surface">{stockData.symbol}</p>
-                    </div>
-                    <div className="bg-surface-container-lowest/60 rounded-xl p-3">
-                      <p className="text-[9px] text-on-surface-variant uppercase tracking-widest mb-1">Volume</p>
-                      <p className="text-sm font-headline font-bold text-on-surface">{formatNumber(stockData.volume)}</p>
-                    </div>
-                    <div className="bg-surface-container-lowest/60 rounded-xl p-3">
                       <p className="text-[9px] text-on-surface-variant uppercase tracking-widest mb-1">Price</p>
                       <p className="text-sm font-headline font-bold text-on-surface">${formatPrice(stockData.price)}</p>
                     </div>
                     <div className="bg-surface-container-lowest/60 rounded-xl p-3">
-                      <p className="text-[9px] text-on-surface-variant uppercase tracking-widest mb-1">Change</p>
-                      <p className={`text-sm font-headline font-bold ${stockData.change >= 0 ? 'text-primary' : 'text-secondary'}`}>
-                        {stockData.change >= 0 ? '+' : ''}{formatPrice(stockData.change)}
-                      </p>
-                    </div>
-                    <div className="bg-surface-container-lowest/60 rounded-xl p-3">
-                      <p className="text-[9px] text-on-surface-variant uppercase tracking-widest mb-1">Change %</p>
-                      <p className={`text-sm font-headline font-bold ${stockData.change_percent >= 0 ? 'text-primary' : 'text-secondary'}`}>
-                        {stockData.change_percent >= 0 ? '+' : ''}{stockData.change_percent.toFixed(2)}%
-                      </p>
-                    </div>
-                    <div className="bg-surface-container-lowest/60 rounded-xl p-3">
-                      <p className="text-[9px] text-on-surface-variant uppercase tracking-widest mb-1">Name</p>
-                      <p className="text-sm font-headline font-bold text-on-surface truncate" title={stockData.name}>{stockData.name}</p>
+                      <p className="text-[9px] text-on-surface-variant uppercase tracking-widest mb-1">Volume</p>
+                      <p className="text-sm font-headline font-bold text-on-surface">{formatNumber(stockData.volume)}</p>
                     </div>
                   </div>
                 </div>
@@ -506,7 +486,7 @@ function HomeContent() {
               <div className="w-6 h-6 border-2 border-primary/30 border-t-primary rounded-full animate-spin"></div>
             </div>
           ) : hotStocks.length > 0 ? (
-            <div className="hot-stocks-track" id="hot-stocks-track">
+            <div className="hot-stocks-track" id="hot-stocks-track" style={{ maxHeight: 'calc(3 * (110px + 16px))', overflow: 'hidden' }}>
               {/* Duplicate stocks for infinite loop */}
               {[...hotStocks, ...hotStocks].map((stock, i) => (
                 <div key={`${stock.symbol}-${i}`} className="glass-panel rounded-2xl p-4 border border-outline-variant/20 mx-4 mb-4 shrink-0">
