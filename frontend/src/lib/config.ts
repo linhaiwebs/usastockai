@@ -1,37 +1,28 @@
 /**
  * Frontend API Configuration
  * 
- * API Base URL resolution — reads from .env → docker-compose → process.env:
+ * Client-side: ALWAYS uses relative "/api" path.
+ * The routing is handled by the proxy layer:
+ *   - Production: nginx proxies /api/ → backend
+ *   - Docker (no nginx): Next.js rewrites proxy /api/ → backend
+ *   - Dev: Next.js rewrites proxy /api/ → localhost:BACKEND_PORT
  * 
- * Client-side (browser):
- *   1. NEXT_PUBLIC_API_URL set  → use it (e.g. https://api.example.com/api)
- *   2. NEXT_PUBLIC_API_PORT set → http://当前域名:PORT/api
- *   3. Default                  → relative "/api" (nginx proxy)
+ * Server-side (SSR): reads env vars to reach backend directly.
  * 
- * Server-side (SSR / Next.js rewrite):
- *   1. NEXT_PUBLIC_API_URL_INTERNAL set → http://backend:8000/api (Docker)
- *   2. NEXT_PUBLIC_API_PORT set         → http://localhost:PORT/api
- *   3. Default                          → http://localhost:8000/api
- * 
- * Config flow: .env (BACKEND_PORT) → docker-compose → NEXT_PUBLIC_API_PORT
+ * Config flow: .env (BACKEND_PORT) → docker-compose → env vars
+ * - NEXT_PUBLIC_API_URL_INTERNAL → Docker internal URL (http://backend:8000)
+ * - NEXT_PUBLIC_API_PORT         → local dev port (8000)
  */
 
 function getAPIBaseURL(): string {
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL
-  const apiPort = process.env.NEXT_PUBLIC_API_PORT
-  const internalUrl = process.env.NEXT_PUBLIC_API_URL_INTERNAL
-
-  // Client-side (browser)
+  // Client-side: always relative path — proxy handles routing
   if (typeof window !== 'undefined') {
-    // Cross-domain: explicit API URL
-    if (apiUrl) return `${apiUrl}/api`
-    // Same domain, different port
-    if (apiPort) return `${window.location.origin}:${apiPort}/api`
-    // Same domain, nginx proxy (default)
     return '/api'
   }
 
   // Server-side (SSR / Next.js rewrite)
+  const internalUrl = process.env.NEXT_PUBLIC_API_URL_INTERNAL
+  const apiPort = process.env.NEXT_PUBLIC_API_PORT
   if (internalUrl) return `${internalUrl}/api`
   if (apiPort) return `http://localhost:${apiPort}/api`
   return 'http://localhost:8000/api'
