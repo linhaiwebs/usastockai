@@ -1,28 +1,39 @@
 /**
  * Frontend API Configuration
  * 
- * API Base URL resolution strategy:
- * 1. Production (nginx proxy): relative path "/api" — nginx routes to backend
- * 2. Docker (no nginx): NEXT_PUBLIC_API_URL_INTERNAL env var — Next.js rewrite proxies to backend
- * 3. Development: fallback to http://localhost:8000 — Next.js rewrite proxies to local backend
+ * API Base URL resolution — reads from .env → docker-compose → process.env:
  * 
- * The client always uses relative "/api" path.
- * The server-side rewrite in next.config.js handles the actual proxy destination.
+ * Client-side (browser):
+ *   1. NEXT_PUBLIC_API_URL set  → use it (e.g. https://api.example.com/api)
+ *   2. NEXT_PUBLIC_API_PORT set → http://当前域名:PORT/api
+ *   3. Default                  → relative "/api" (nginx proxy)
+ * 
+ * Server-side (SSR / Next.js rewrite):
+ *   1. NEXT_PUBLIC_API_URL_INTERNAL set → http://backend:8000/api (Docker)
+ *   2. NEXT_PUBLIC_API_PORT set         → http://localhost:PORT/api
+ *   3. Default                          → http://localhost:8000/api
+ * 
+ * Config flow: .env (BACKEND_PORT) → docker-compose → NEXT_PUBLIC_API_PORT
  */
 
 function getAPIBaseURL(): string {
-  // Client-side: always use relative path (nginx or Next.js rewrite handles routing)
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL
+  const apiPort = process.env.NEXT_PUBLIC_API_PORT
+  const internalUrl = process.env.NEXT_PUBLIC_API_URL_INTERNAL
+
+  // Client-side (browser)
   if (typeof window !== 'undefined') {
+    // Cross-domain: explicit API URL
+    if (apiUrl) return `${apiUrl}/api`
+    // Same domain, different port
+    if (apiPort) return `${window.location.origin}:${apiPort}/api`
+    // Same domain, nginx proxy (default)
     return '/api'
   }
 
-  // Server-side (SSR): use internal URL if available, otherwise relative
-  const internalUrl = process.env.NEXT_PUBLIC_API_URL_INTERNAL
-  if (internalUrl) {
-    return `${internalUrl}/api`
-  }
-
-  // Fallback for local development
+  // Server-side (SSR / Next.js rewrite)
+  if (internalUrl) return `${internalUrl}/api`
+  if (apiPort) return `http://localhost:${apiPort}/api`
   return 'http://localhost:8000/api'
 }
 
