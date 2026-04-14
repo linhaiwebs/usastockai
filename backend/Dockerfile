@@ -32,6 +32,4 @@ ENV PYTHONUNBUFFERED=1
 # 暴露端口 (默认 8000，可通过 PORT 环境变量覆盖)
 EXPOSE ${PORT:-8000}
 
-# 使用启动脚本支持动态端口
-RUN chmod +x start.sh
-CMD ["./start.sh"]
+CMD ["sh", "-c", "exec uvicorn app.main:app --host ${HOST:-0.0.0.0} --port ${PORT:-8000}"]
