@@ -55,29 +55,9 @@ const nextConfig = {
     ]
   },
   
-  // 重定向和重写规则
-  // API proxy: 仅在开发模式或无nginx代理时使用
-  // 生产环境由 nginx 直接代理 /api/ 到后端
-  // 优先级: NEXT_PUBLIC_API_URL_INTERNAL > NEXT_PUBLIC_API_PORT > localhost:8000
-  async rewrites() {
-    const internalUrl = process.env.NEXT_PUBLIC_API_URL_INTERNAL
-    const apiPort = process.env.NEXT_PUBLIC_API_PORT
-    const destination = internalUrl
-      ? `${internalUrl}/api/:path*`
-      : apiPort
-        ? `http://localhost:${apiPort}/api/:path*`
-        : 'http://localhost:8000/api/:path*'
-    return {
-      beforeFiles: [],
-      afterFiles: [
-        {
-          source: '/api/:path*',
-          destination,
-        },
-      ],
-      fallback: [],
-    }
-  },
+  // API 代理由 Next.js Route Handler (src/app/api/[...path]/route.ts) 处理
+  // 读取 NEXT_PUBLIC_API_URL_INTERNAL / NEXT_PUBLIC_API_PORT 环境变量
+  // 兼容 standalone 模式，无需 rewrite
 }
 
 module.exports = nextConfig

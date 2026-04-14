@@ -23,11 +23,9 @@ export interface GoogleAnalyticsConfig {
 }
 
 async function fetchAPI<T>(endpoint: string, params?: Record<string, string>): Promise<T> {
-  const url = new URL(`${API_BASE}${endpoint}`, typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000')
-  if (params) {
-    Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v))
-  }
-  const res = await fetch(url.toString())
+  const query = params ? '?' + new URLSearchParams(params).toString() : ''
+  const url = `${API_BASE}${endpoint}${query}`
+  const res = await fetch(url)
   if (!res.ok) throw new Error(`API error: ${res.status}`)
   return res.json()
 }
