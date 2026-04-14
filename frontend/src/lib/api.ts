@@ -1,4 +1,4 @@
-const API_BASE = '/api'
+import { API_BASE } from './config'
 
 export interface StockQuote {
   symbol: string
@@ -16,8 +16,14 @@ export interface SearchResult {
   exchange: string
 }
 
+export interface GoogleAnalyticsConfig {
+  ads_tracking_id: string | null
+  ga4_property_id: string | null
+  conversion_id: string | null
+}
+
 async function fetchAPI<T>(endpoint: string, params?: Record<string, string>): Promise<T> {
-  const url = new URL(endpoint, window.location.origin)
+  const url = new URL(`${API_BASE}${endpoint}`, typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000')
   if (params) {
     Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v))
   }
@@ -27,18 +33,22 @@ async function fetchAPI<T>(endpoint: string, params?: Record<string, string>): P
 }
 
 export async function getStockQuote(symbol: string): Promise<StockQuote> {
-  const data = await fetchAPI<{ stocks: StockQuote[] } | StockQuote>(`${API_BASE}/stocks/${encodeURIComponent(symbol)}`)
-  // Handle both direct object and wrapped response
+  const data = await fetchAPI<{ stocks: StockQuote[] } | StockQuote>(`/stocks/${encodeURIComponent(symbol)}`)
   if ('symbol' in data) return data
   throw new Error('Stock not found')
 }
 
 export async function getHotStocks(): Promise<StockQuote[]> {
-  const data = await fetchAPI<{ stocks: StockQuote[] }>(`${API_BASE}/stocks/hot`)
+  const data = await fetchAPI<{ stocks: StockQuote[] }>(`/stocks/hot`)
   return data.stocks || []
 }
 
 export async function searchStocks(query: string): Promise<SearchResult[]> {
-  const data = await fetchAPI<{ results: SearchResult[] }>(`${API_BASE}/search`, { q: query })
+  const data = await fetchAPI<{ results: SearchResult[] }>(`/search`, { q: query })
   return data.results || []
+}
+
+export async function getGoogleAnalyticsConfig(): Promise<GoogleAnalyticsConfig[]> {
+  const data = await fetchAPI<{ analytics: GoogleAnalyticsConfig[] }>(`/admin/public/google-analytics`)
+  return data.analytics || []
 }

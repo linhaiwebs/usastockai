@@ -56,13 +56,16 @@ const nextConfig = {
   },
   
   // 重定向和重写规则
+  // API proxy: 仅在开发模式或无nginx代理时使用
+  // 生产环境由 nginx 直接代理 /api/ 到后端
   async rewrites() {
+    const apiInternalUrl = process.env.NEXT_PUBLIC_API_URL_INTERNAL || 'http://localhost:8000'
     return {
       beforeFiles: [],
       afterFiles: [
         {
           source: '/api/:path*',
-          destination: `${process.env.NEXT_PUBLIC_API_URL_INTERNAL || 'http://localhost:8000'}/api/:path*`,
+          destination: `${apiInternalUrl}/api/:path*`,
         },
       ],
       fallback: [],

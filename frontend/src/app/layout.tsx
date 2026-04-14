@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next'
 import './globals.css'
+import GoogleAnalytics from '../components/GoogleAnalytics'
 
 export const metadata: Metadata = {
   title: 'COSMIC INTEL | The Celestial Oracle',
@@ -27,6 +28,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body className="min-h-screen selection:bg-primary/30 selection:text-primary antialiased">
+        <GoogleAnalytics />
         {children}
       </body>
     </html>
