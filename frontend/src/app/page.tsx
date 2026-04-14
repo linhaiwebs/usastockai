@@ -1,11 +1,65 @@
 'use client'
 
-import { useEffect, useRef, useCallback } from 'react'
+import { useEffect, useRef, useCallback, useState, Suspense } from 'react'
+import { useSearchParams } from 'next/navigation'
+import { getStockQuote, getHotStocks, StockQuote } from '../lib/api'
 
 const SYMBOLS = ['$', '↗', '↘', 'AAPL', 'BTC', 'NVDA', 'ETH', 'TSLA']
 
+function formatNumber(n: number): string {
+  if (n >= 1e9) return (n / 1e9).toFixed(2) + 'B'
+  if (n >= 1e6) return (n / 1e6).toFixed(2) + 'M'
+  if (n >= 1e3) return (n / 1e3).toFixed(1) + 'K'
+  return n.toLocaleString()
+}
+
+function formatPrice(n: number): string {
+  return n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+}
+
 export default function HomePage() {
+  return (
+    <Suspense>
+      <HomeContent />
+    </Suspense>
+  )
+}
+
+function HomeContent() {
   const isAnalyzingRef = useRef(false)
+  const searchParams = useSearchParams()
+  const stockCode = searchParams.get('code') || ''
+
+  const [stockData, setStockData] = useState<StockQuote | null>(null)
+  const [stockLoading, setStockLoading] = useState(false)
+  const [hotStocks, setHotStocks] = useState<StockQuote[]>([])
+  const [hotLoading, setHotLoading] = useState(true)
+
+  // Fetch stock data when code param changes
+  useEffect(() => {
+    if (!stockCode) {
+      setStockData(null)
+      return
+    }
+    let cancelled = false
+    setStockLoading(true)
+    getStockQuote(stockCode)
+      .then(data => { if (!cancelled) setStockData(data) })
+      .catch(() => { if (!cancelled) setStockData(null) })
+      .finally(() => { if (!cancelled) setStockLoading(false) })
+    return () => { cancelled = true }
+  }, [stockCode])
+
+  // Fetch hot stocks on mount
+  useEffect(() => {
+    let cancelled = false
+    setHotLoading(true)
+    getHotStocks()
+      .then(data => { if (!cancelled) setHotStocks(data) })
+      .catch(() => { if (!cancelled) setHotStocks([]) })
+      .finally(() => { if (!cancelled) setHotLoading(false) })
+    return () => { cancelled = true }
+  }, [])
 
   const createFloatingSymbols = useCallback(() => {
     const container = document.getElementById('symbol-container')
@@ -285,6 +339,91 @@ export default function HomePage() {
           </div>
         </section>
 
+        {/* Stock Data Module */}
+        {stockCode && (
+          <section className="mb-10">
+            <div className="glass-panel rounded-3xl border border-primary/20 overflow-hidden">
+              <div className="px-5 py-4 border-b border-outline-variant/20 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+                  <h3 className="text-xs font-headline font-bold tracking-[0.3em] uppercase text-primary">Stock Intelligence</h3>
+                </div>
+                {stockLoading && (
+                  <span className="text-[10px] text-on-surface-variant uppercase tracking-widest animate-pulse">Loading...</span>
+                )}
+              </div>
+              {stockLoading ? (
+                <div className="px-5 py-8 flex items-center justify-center">
+                  <div className="w-6 h-6 border-2 border-primary/30 border-t-primary rounded-full animate-spin"></div>
+                </div>
+              ) : stockData ? (
+                <div className="px-5 py-4">
+                  {/* Stock Header */}
+                  <div className="flex items-start justify-between mb-4">
+                    <div>
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-xl font-headline font-bold text-on-surface">{stockData.symbol}</span>
+                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-primary/10 text-primary font-bold uppercase tracking-wider">Live</span>
+                      </div>
+                      <p className="text-sm text-on-surface-variant">{stockData.name}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-2xl font-headline font-bold text-on-surface">${formatPrice(stockData.price)}</p>
+                      <div className="flex items-center justify-end gap-1 mt-0.5">
+                        <span className={`text-sm font-bold ${stockData.change >= 0 ? 'text-primary' : 'text-secondary'}`}>
+                          {stockData.change >= 0 ? '+' : ''}{formatPrice(stockData.change)}
+                        </span>
+                        <span className={`text-[10px] px-1.5 py-0.5 rounded-md font-bold ${
+                          stockData.change_percent >= 0
+                            ? 'bg-primary/10 text-primary'
+                            : 'bg-secondary/10 text-secondary'
+                        }`}>
+                          {stockData.change_percent >= 0 ? '▲' : '▼'} {Math.abs(stockData.change_percent).toFixed(2)}%
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  {/* Stock Details Grid */}
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="bg-surface-container-lowest/60 rounded-xl p-3">
+                      <p className="text-[9px] text-on-surface-variant uppercase tracking-widest mb-1">Symbol</p>
+                      <p className="text-sm font-headline font-bold text-on-surface">{stockData.symbol}</p>
+                    </div>
+                    <div className="bg-surface-container-lowest/60 rounded-xl p-3">
+                      <p className="text-[9px] text-on-surface-variant uppercase tracking-widest mb-1">Volume</p>
+                      <p className="text-sm font-headline font-bold text-on-surface">{formatNumber(stockData.volume)}</p>
+                    </div>
+                    <div className="bg-surface-container-lowest/60 rounded-xl p-3">
+                      <p className="text-[9px] text-on-surface-variant uppercase tracking-widest mb-1">Price</p>
+                      <p className="text-sm font-headline font-bold text-on-surface">${formatPrice(stockData.price)}</p>
+                    </div>
+                    <div className="bg-surface-container-lowest/60 rounded-xl p-3">
+                      <p className="text-[9px] text-on-surface-variant uppercase tracking-widest mb-1">Change</p>
+                      <p className={`text-sm font-headline font-bold ${stockData.change >= 0 ? 'text-primary' : 'text-secondary'}`}>
+                        {stockData.change >= 0 ? '+' : ''}{formatPrice(stockData.change)}
+                      </p>
+                    </div>
+                    <div className="bg-surface-container-lowest/60 rounded-xl p-3">
+                      <p className="text-[9px] text-on-surface-variant uppercase tracking-widest mb-1">Change %</p>
+                      <p className={`text-sm font-headline font-bold ${stockData.change_percent >= 0 ? 'text-primary' : 'text-secondary'}`}>
+                        {stockData.change_percent >= 0 ? '+' : ''}{stockData.change_percent.toFixed(2)}%
+                      </p>
+                    </div>
+                    <div className="bg-surface-container-lowest/60 rounded-xl p-3">
+                      <p className="text-[9px] text-on-surface-variant uppercase tracking-widest mb-1">Name</p>
+                      <p className="text-sm font-headline font-bold text-on-surface truncate" title={stockData.name}>{stockData.name}</p>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="px-5 py-6 text-center">
+                  <p className="text-sm text-on-surface-variant">Stock data unavailable for <span className="text-primary font-bold">{stockCode}</span></p>
+                </div>
+              )}
+            </div>
+          </section>
+        )}
+
         {/* Prediction CTA */}
         <section className="mb-12">
           <button className="primary-trigger w-full py-5 rounded-full bg-surface-container-lowest border-2 border-primary/50 animate-glow-pulse mb-8 flex items-center justify-center gap-3 group transition-all hover:scale-[1.02] hover:border-primary" id="main-prediction-btn" onClick={handlePrimaryClick}>
@@ -352,65 +491,74 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* Historical Stock Data Carousel */}
-        <section className="w-full relative overflow-hidden h-[400px] border-t border-primary/10 bg-black/20">
-          <div className="absolute inset-0 bg-gradient-to-b from-background via-transparent to-transparent z-10 h-20"></div>
-          <div className="animate-scroll-vertical flex flex-col gap-6 py-8 px-4" id="stock-ticker">
-            <div className="flex flex-col gap-4">
-              <div className="glass-panel rounded-2xl p-4 border border-outline-variant/20 flex justify-between items-center">
-                <div className="flex flex-col">
-                  <span className="text-sm font-bold text-on-surface font-headline">AAPL: Apple Inc.</span>
-                  <span className="text-[10px] text-on-surface-variant font-label tracking-widest uppercase">Historical Session Q3</span>
-                </div>
-                <div className="text-right">
-                  <p className="text-lg font-bold text-primary">$189.22</p>
-                  <p className="text-[10px] font-bold text-primary">+2.4%</p>
-                </div>
-              </div>
-              <div className="glass-panel rounded-2xl p-4 border border-outline-variant/20 flex justify-between items-center">
-                <div className="flex flex-col">
-                  <span className="text-sm font-bold text-on-surface font-headline">TSLA: Tesla Motors</span>
-                  <span className="text-[10px] text-on-surface-variant font-label tracking-widest uppercase">After Hours Delta</span>
-                </div>
-                <div className="text-right">
-                  <p className="text-lg font-bold text-secondary">$238.45</p>
-                  <p className="text-[10px] font-bold text-secondary">-1.2%</p>
-                </div>
-              </div>
-              <div className="glass-panel rounded-2xl p-4 border border-outline-variant/20 flex justify-between items-center">
-                <div className="flex flex-col">
-                  <span className="text-sm font-bold text-on-surface font-headline">BTC: Bitcoin Core</span>
-                  <span className="text-[10px] text-on-surface-variant font-label tracking-widest uppercase">Institutional Ledger</span>
-                </div>
-                <div className="text-right">
-                  <p className="text-lg font-bold text-primary">$64,201.12</p>
-                  <p className="text-[10px] font-bold text-primary">+5.8%</p>
-                </div>
-              </div>
-            </div>
-            <div className="flex flex-col gap-4">
-              <div className="glass-panel rounded-2xl p-4 border border-outline-variant/20 flex justify-between items-center">
-                <div className="flex flex-col">
-                  <span className="text-sm font-bold text-on-surface font-headline">NVDA: NVIDIA Corp</span>
-                  <span className="text-[10px] text-on-surface-variant font-label tracking-widest uppercase">AI Compute Volume</span>
-                </div>
-                <div className="text-right">
-                  <p className="text-lg font-bold text-primary">$892.45</p>
-                  <p className="text-[10px] font-bold text-primary">+12.4%</p>
-                </div>
-              </div>
-              <div className="glass-panel rounded-2xl p-4 border border-outline-variant/20 flex justify-between items-center">
-                <div className="flex flex-col">
-                  <span className="text-sm font-bold text-on-surface font-headline">ETH: Ethereum</span>
-                  <span className="text-[10px] text-on-surface-variant font-label tracking-widest uppercase">Node Verification</span>
-                </div>
-                <div className="text-right">
-                  <p className="text-lg font-bold text-secondary">$3,421.15</p>
-                  <p className="text-[10px] font-bold text-secondary">-0.8%</p>
-                </div>
-              </div>
+        {/* Hot Stocks Carousel */}
+        <section className="w-full relative overflow-hidden border-t border-primary/10 bg-black/20">
+          <div className="absolute inset-0 bg-gradient-to-b from-background via-transparent to-transparent z-10 h-20 pointer-events-none"></div>
+          <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-background via-transparent to-transparent z-10 pointer-events-none"></div>
+          <div className="px-5 pt-6 pb-2 relative z-20">
+            <div className="flex items-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-secondary animate-pulse"></span>
+              <h3 className="text-[10px] font-headline font-bold tracking-[0.3em] uppercase text-on-surface-variant">Hot Stocks Feed</h3>
             </div>
           </div>
+          {hotLoading ? (
+            <div className="flex items-center justify-center py-20">
+              <div className="w-6 h-6 border-2 border-primary/30 border-t-primary rounded-full animate-spin"></div>
+            </div>
+          ) : hotStocks.length > 0 ? (
+            <div className="hot-stocks-track" id="hot-stocks-track">
+              {/* Duplicate stocks for infinite loop */}
+              {[...hotStocks, ...hotStocks].map((stock, i) => (
+                <div key={`${stock.symbol}-${i}`} className="glass-panel rounded-2xl p-4 border border-outline-variant/20 mx-4 mb-4 shrink-0">
+                  <div className="flex justify-between items-center mb-2">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-bold text-on-surface font-headline">{stock.symbol}</span>
+                      <span className={`text-[9px] px-1.5 py-0.5 rounded-md font-bold ${
+                        stock.change_percent >= 0
+                          ? 'bg-primary/10 text-primary'
+                          : 'bg-secondary/10 text-secondary'
+                      }`}>
+                        {stock.change_percent >= 0 ? '▲' : '▼'} {Math.abs(stock.change_percent).toFixed(2)}%
+                      </span>
+                    </div>
+                    <p className={`text-lg font-bold font-headline ${stock.change >= 0 ? 'text-primary' : 'text-secondary'}`}>
+                      ${formatPrice(stock.price)}
+                    </p>
+                  </div>
+                  <p className="text-[10px] text-on-surface-variant font-label tracking-wider uppercase mb-2">{stock.name}</p>
+                  <div className="flex justify-between items-center">
+                    <div className="flex gap-4">
+                      <div>
+                        <p className="text-[8px] text-on-surface-variant uppercase tracking-widest">Change</p>
+                        <p className={`text-[10px] font-bold ${stock.change >= 0 ? 'text-primary' : 'text-secondary'}`}>
+                          {stock.change >= 0 ? '+' : ''}{formatPrice(stock.change)}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-[8px] text-on-surface-variant uppercase tracking-widest">Volume</p>
+                        <p className="text-[10px] font-bold text-on-surface">{formatNumber(stock.volume)}</p>
+                      </div>
+                    </div>
+                    <svg className="w-16 h-6 opacity-50" preserveAspectRatio="none" viewBox="0 0 60 20">
+                      <path
+                        d={stock.change >= 0
+                          ? "M0,15 L10,12 L20,14 L30,8 L40,10 L50,4 L60,6"
+                          : "M0,5 L10,8 L20,6 L30,12 L40,10 L50,16 L60,14"
+                        }
+                        fill="none"
+                        stroke={stock.change >= 0 ? '#99f7ff' : '#d575ff'}
+                        strokeWidth="1.5"
+                      />
+                    </svg>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="flex items-center justify-center py-20">
+              <p className="text-sm text-on-surface-variant">No hot stocks data available</p>
+            </div>
+          )}
         </section>
       </main>
 

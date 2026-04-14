@@ -59,7 +59,12 @@ const nextConfig = {
   async rewrites() {
     return {
       beforeFiles: [],
-      afterFiles: [],
+      afterFiles: [
+        {
+          source: '/api/:path*',
+          destination: `${process.env.NEXT_PUBLIC_API_URL_INTERNAL || 'http://localhost:8000'}/api/:path*`,
+        },
+      ],
       fallback: [],
     }
   },
