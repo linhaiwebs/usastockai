@@ -25,7 +25,15 @@ interface GoogleAnalyticsConfig {
   updated_at: string
 }
 
-type TabType = 'redirects' | 'analytics'
+interface AISettingItem {
+  id: number
+  key: string
+  value: string
+  description: string
+  updated_at: string | null
+}
+
+type TabType = 'redirects' | 'analytics' | 'settings'
 
 export default function DashboardPage() {
   const [activeTab, setActiveTab] = useState<TabType>('redirects')
@@ -47,6 +55,9 @@ export default function DashboardPage() {
     ads_tracking_id: '', ga4_property_id: '', conversion_id: '', is_enabled: true
   })
 
+  const [aiSettings, setAISettings] = useState<AISettingItem[]>([])
+  const [settingsSaving, setSettingsSaving] = useState<string | null>(null)
+
   useEffect(() => {
     if (!isAuthenticated()) {
       router.push('/adsadmin/login')
@@ -57,7 +68,7 @@ export default function DashboardPage() {
 
   const loadData = async () => {
     try {
-      await Promise.all([loadRedirects(), loadAnalytics()])
+      await Promise.all([loadRedirects(), loadAnalytics(), loadAISettings()])
     } finally {
       setLoading(false)
     }
@@ -78,6 +89,30 @@ export default function DashboardPage() {
       setAnalyticsConfigs(data.analytics)
     } catch (err: any) {
       setError(err.message || '加载谷歌统计配置失败')
+    }
+  }
+
+  const loadAISettings = async () => {
+    try {
+      const data = await apiCall('/admin/settings')
+      setAISettings(data.settings)
+    } catch (err: any) {
+      setError(err.message || '加载AI设置失败')
+    }
+  }
+
+  const handleSaveSetting = async (key: string, value: string) => {
+    setSettingsSaving(key)
+    try {
+      await apiCall(`/admin/settings/${key}`, {
+        method: 'PUT',
+        body: JSON.stringify({ value })
+      })
+      setAISettings(prev => prev.map(s => s.key === key ? { ...s, value } : s))
+    } catch (err: any) {
+      setError(err.message || '保存设置失败')
+    } finally {
+      setSettingsSaving(null)
     }
   }
 
@@ -212,6 +247,12 @@ export default function DashboardPage() {
                 activeTab === 'analytics' ? 'text-[#99f7ff] border-b-2 border-[#99f7ff]' : 'text-[#a5aac2] hover:text-[#dfe4fe]'
               }`}>
               Google Analytics
+            </button>
+            <button onClick={() => setActiveTab('settings')}
+              className={`px-6 py-3 font-medium transition-colors ${
+                activeTab === 'settings' ? 'text-[#99f7ff] border-b-2 border-[#99f7ff]' : 'text-[#a5aac2] hover:text-[#dfe4fe]'
+              }`}>
+              Settings
             </button>
           </div>
         </div>
@@ -389,6 +430,50 @@ export default function DashboardPage() {
               </table>
             </div>
           </>
+        )}
+
+        {activeTab === 'settings' && (
+          <div className="space-y-6">
+            <div className="flex items-center gap-3 mb-4">
+              <span className="material-symbols-outlined text-[#99f7ff]">tune</span>
+              <h2 className="text-xl font-semibold text-[#99f7ff]">AI Prompt Settings</h2>
+            </div>
+            <p className="text-[#a5aac2] text-sm">
+              Customize AI analysis prompt templates. Changes take effect immediately (hot reload).
+              Template variables: <code className="text-[#99f7ff] bg-[#0c1326] px-1 rounded">{'{query}'}</code> for streaming, <code className="text-[#99f7ff] bg-[#0c1326] px-1 rounded">{'{symbol}, {price}, {direction}, {change_pct}, {change}, {emoji}'}</code> for stock analysis.
+            </p>
+
+            {aiSettings.map(setting => (
+              <div key={setting.key} className="glass-panel border border-[#41475b] rounded-lg p-5">
+                <div className="flex items-center justify-between mb-2">
+                  <label className="text-sm font-bold text-[#99f7ff] uppercase tracking-wider">{setting.key}</label>
+                  {settingsSaving === setting.key && (
+                    <span className="text-[#a5aac2] text-xs animate-pulse">Saving...</span>
+                  )}
+                </div>
+                <p className="text-[#a5aac2] text-xs mb-3">{setting.description}</p>
+                <textarea
+                  value={setting.value}
+                  onChange={(e) => setAISettings(prev => prev.map(s => s.key === setting.key ? { ...s, value: e.target.value } : s))}
+                  className="w-full px-4 py-3 bg-[#0c1326] border border-[#41475b] rounded-lg text-[#dfe4fe] focus:outline-none focus:border-[#99f7ff] font-mono text-sm min-h-[120px] resize-y"
+                  rows={6}
+                />
+                <div className="flex justify-end mt-3">
+                  <button
+                    onClick={() => handleSaveSetting(setting.key, setting.value)}
+                    disabled={settingsSaving === setting.key}
+                    className="px-5 py-2 bg-[#99f7ff] text-[#070d1f] font-semibold rounded-lg hover:opacity-90 disabled:opacity-50 transition-opacity"
+                  >
+                    Save
+                  </button>
+                </div>
+              </div>
+            ))}
+
+            {aiSettings.length === 0 && (
+              <div className="text-center py-12 text-[#a5aac2]">No AI settings found. Run init.sql to seed defaults.</div>
+            )}
+          </div>
         )}
       </div>
     </div>

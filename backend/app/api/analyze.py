@@ -64,29 +64,3 @@ async def analyze_stock(symbol: str):
             }
     
     return EventSourceResponse(event_generator())
-
-
-@router.get("/analyze-general/{stock_name}")
-async def analyze_general(stock_name: str, price: float = 100.0):
-    """
-    General analysis for non-input box (Meet Your AI Agent Team button)
-    Fixed format output
-    """
-    if not ai_service:
-        raise HTTPException(status_code=503, detail="AI service not configured")
-    
-    async def event_generator():
-        """Generate SSE event stream"""
-        try:
-            async for chunk in ai_service.analyze_general(stock_name, price):
-                yield {
-                    "event": "message",
-                    "data": chunk
-                }
-        except Exception as e:
-            yield {
-                "event": "error",
-                "data": str(e)
-            }
-    
-    return EventSourceResponse(event_generator())

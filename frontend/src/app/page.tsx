@@ -34,6 +34,8 @@ function HomeContent() {
   const [stockLoading, setStockLoading] = useState(false)
   const [hotStocks, setHotStocks] = useState<StockQuote[]>([])
   const [hotLoading, setHotLoading] = useState(true)
+  const [analysisContent, setAnalysisContent] = useState('')
+  const [isStreaming, setIsStreaming] = useState(false)
 
   // Fetch stock data when code param changes
   useEffect(() => {
@@ -88,6 +90,8 @@ function HomeContent() {
     if (!modal) return
 
     modal.classList.add('active')
+    setAnalysisContent('')
+    setIsStreaming(false)
 
     if (submitBtn) {
       submitBtn.classList.add('grayscale', 'opacity-30')
@@ -108,6 +112,32 @@ function HomeContent() {
         }
       }, 1200)
     }, 300)
+
+    // Start SSE stream if we have a stock code
+    if (stockCode) {
+      startAnalysisStream(stockCode)
+    }
+  }, [stockCode])
+
+  const startAnalysisStream = useCallback((symbol: string) => {
+    setIsStreaming(true)
+    setAnalysisContent('')
+    const url = `/api/analyze/${encodeURIComponent(symbol)}`
+    const eventSource = new EventSource(url)
+    let fullText = ''
+
+    eventSource.onmessage = (event) => {
+      fullText += event.data
+      setAnalysisContent(fullText)
+    }
+
+    eventSource.onerror = () => {
+      eventSource.close()
+      setIsStreaming(false)
+      if (!fullText) {
+        setAnalysisContent('❌ AI analysis unavailable. Please try again.')
+      }
+    }
   }, [])
 
   const closeModal = useCallback(() => {
@@ -282,16 +312,25 @@ function HomeContent() {
                 </div>
                 <span className="text-[8px] font-label text-on-surface-variant uppercase tracking-widest font-bold">2026 Stock Reports Ready</span>
               </div>
-              <div className="h-40 overflow-y-auto mb-4 pr-1 bg-black/40 rounded-xl p-3 font-mono text-[10px] leading-snug text-primary/80 border border-primary/10 hide-scroll">
-                <p className="mb-1 text-secondary">&gt; INITIATING AI STOCK DIAGNOSIS...</p>
-                <p className="mb-1 text-primary">SCANNING MARKET DATA [Multi-Source]</p>
-                <p className="mb-1">&gt; Pattern correlation found: 0.984 confidence.</p>
-                <p className="mb-1 text-secondary">&gt; CALCULATING TREND VECTORS...</p>
-                <p className="mb-1">Trend Alpha: +4.2% [Confirmed]</p>
-                <p className="mb-1 text-primary">&gt; VOLUME ANALYSIS HEATMAP GENERATED.</p>
-                <p className="mb-1">Key resistance detected at $235.10.</p>
-                <p className="mb-1 text-on-surface-variant">System note: Volatility levels rising.</p>
-                <p className="text-primary font-bold">DIAGNOSIS SCORE: 94.2% Bullish bias.</p>
+              <div className="h-40 overflow-y-auto mb-4 pr-1 bg-black/40 rounded-xl p-3 font-mono text-[10px] leading-snug text-primary/80 border border-primary/10 hide-scroll whitespace-pre-wrap">
+                {analysisContent ? (
+                  <>
+                    {analysisContent}
+                    {isStreaming && <span className="animate-pulse text-primary">▌</span>}
+                  </>
+                ) : (
+                  <>
+                    <p className="mb-1 text-secondary">&gt; INITIATING AI STOCK DIAGNOSIS...</p>
+                    <p className="mb-1 text-primary">SCANNING MARKET DATA [Multi-Source]</p>
+                    <p className="mb-1">&gt; Pattern correlation found: 0.984 confidence.</p>
+                    <p className="mb-1 text-secondary">&gt; CALCULATING TREND VECTORS...</p>
+                    <p className="mb-1">Trend Alpha: +4.2% [Confirmed]</p>
+                    <p className="mb-1 text-primary">&gt; VOLUME ANALYSIS HEATMAP GENERATED.</p>
+                    <p className="mb-1">Key resistance detected at $235.10.</p>
+                    <p className="mb-1 text-on-surface-variant">System note: Volatility levels rising.</p>
+                    <p className="text-primary font-bold">DIAGNOSIS SCORE: 94.2% Bullish bias.</p>
+                  </>
+                )}
               </div>
               <button className="w-full py-3.5 rounded-full bg-primary/30 text-background/50 font-headline font-black text-[10px] tracking-[0.3em] uppercase border border-primary/20 flex items-center justify-center gap-2 transition-all duration-1000 grayscale opacity-30" id="modal-submit-btn">
                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">

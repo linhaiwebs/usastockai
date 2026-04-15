@@ -10,6 +10,7 @@ import secrets
 import time
 from ..models.redirect import RedirectLink
 from ..models.google_analytics import GoogleAnalytics
+from ..models.ai_setting import AISetting
 from ..core.database import get_db
 from ..core.redis import get_redis
 from sqlalchemy import select
@@ -397,4 +398,101 @@ async def get_public_google_analytics(
             for a in analytics
         ]
     }
+
+# ==========================================
+# AI Settings Management (Prompt Templates)
+# ==========================================
+
+# Redis cache key for AI settings
+AI_SETTINGS_CACHE_KEY = "ai_settings_cache"
+AI_SETTINGS_CACHE_TTL = 3600  # 1 hour
+
+class AISettingUpdate(BaseModel):
+    value: str
+
+@router.get("/settings")
+async def list_ai_settings(
+    db: AsyncSession = Depends(get_db),
+    user: dict = Depends(verify_token)
+):
+    """List all AI settings (prompt templates)"""
+    result = await db.execute(select(AISetting).order_by(AISetting.id))
+    settings = result.scalars().all()
+
+    return {
+        "settings": [
+            {
+                "id": s.id,
+                "key": s.key,
+                "value": s.value or "",
+                "description": s.description or "",
+                "updated_at": s.updated_at.isoformat() if s.updated_at else None
+            }
+            for s in settings
+        ]
+    }
+
+@router.put("/settings/{setting_key}")
+async def update_ai_setting(
+    setting_key: str,
+    data: AISettingUpdate,
+    db: AsyncSession = Depends(get_db),
+    redis_client: redis.Redis = Depends(get_redis),
+    user: dict = Depends(verify_token)
+):
+    """Update an AI setting and invalidate cache for hot reload"""
+    result = await db.execute(
+        select(AISetting).where(AISetting.key == setting_key)
+    )
+    setting = result.scalar_one_or_none()
+
+    if not setting:
+        raise HTTPException(status_code=404, detail=f"Setting '{setting_key}' not found")
+
+    setting.value = data.value
+    await db.commit()
+    await db.refresh(setting)
+
+    # Invalidate Redis cache so next request loads fresh data
+    await redis_client.delete(AI_SETTINGS_CACHE_KEY)
+
+    return {
+        "id": setting.id,
+        "key": setting.key,
+        "value": setting.value,
+        "description": setting.description,
+        "updated_at": setting.updated_at.isoformat() if setting.updated_at else None
+    }
+
+@router.get("/settings/public")
+async def get_public_ai_settings(
+    db: AsyncSession = Depends(get_db),
+    redis_client: redis.Redis = Depends(get_redis)
+):
+    """Get AI settings for frontend (no auth required, cached)"""
+    # Try Redis cache first
+    cached = await redis_client.get(AI_SETTINGS_CACHE_KEY)
+    if cached:
+        import json
+        return json.loads(cached)
+
+    result = await db.execute(select(AISetting).order_by(AISetting.id))
+    settings = result.scalars().all()
+
+    response = {
+        "settings": [
+            {
+                "key": s.key,
+                "value": s.value or "",
+                "description": s.description or ""
+            }
+            for s in settings
+        ]
+    }
+
+    # Cache for 1 hour
+    import json
+    await redis_client.setex(AI_SETTINGS_CACHE_KEY, AI_SETTINGS_CACHE_TTL, json.dumps(response))
+
+    return response
 

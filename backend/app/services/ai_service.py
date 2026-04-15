@@ -1,42 +1,146 @@
 """
 AI Analysis Service - Optimized for Qwen 2.5 (Fast Response)
-Qwen is a non-reasoning model with quick streaming output
+Prompt templates loaded from DB with hot reload support
 """
 import random
-from typing import AsyncGenerator
+from typing import AsyncGenerator, Dict
 from openai import AsyncOpenAI
 from ..core.config import get_settings
+from ..core.database import async_session
+from ..models.ai_setting import AISetting
+from sqlalchemy import select
 
 settings = get_settings()
+
+# In-memory cache for AI settings (hot-reloaded from DB)
+_settings_cache: Dict[str, str] = {}
+_settings_cache_loaded = False
+
+
+async def _load_settings() -> Dict[str, str]:
+    """Load AI settings from DB into memory cache"""
+    global _settings_cache, _settings_cache_loaded
+    try:
+        async with async_session() as session:
+            result = await session.execute(select(AISetting))
+            rows = result.scalars().all()
+            _settings_cache = {r.key: (r.value or "") for r in rows}
+            _settings_cache_loaded = True
+    except Exception as e:
+        print(f"[AI Settings] Failed to load from DB: {e}")
+        if not _settings_cache_loaded:
+            _settings_cache = {}
+    return _settings_cache
+
+
+async def _get_setting(key: str, default: str = "") -> str:
+    """Get a setting value, loading from DB if not cached"""
+    global _settings_cache_loaded
+    if not _settings_cache_loaded:
+        await _load_settings()
+    return _settings_cache.get(key, default)
+
+
+def invalidate_settings_cache():
+    """Invalidate settings cache so next request reloads from DB"""
+    global _settings_cache_loaded
+    _settings_cache_loaded = False
+
+
+# Default prompt fallbacks
+DEFAULT_STREAMING_SYSTEM = (
+    "You are a professional stock analyst AI. Provide concise, actionable analysis.\n\n"
+    "Rules:\n"
+    "1. Start directly with analysis - no introductions\n"
+    "2. Maximum 15 lines total\n"
+    "3. Use bullet points with emojis\n"
+    "4. One sentence per bullet point\n"
+    "5. Include key metrics when possible (P/E, growth %, etc.)\n"
+    "6. End with a clear verdict or action\n"
+    "7. NO disclaimers or headers"
+)
+
+DEFAULT_STREAMING_USER = "Analyze this stock or market topic: {query}"
+
+DEFAULT_STOCK_SYSTEM = (
+    "You are a professional stock analyst. Provide concise, structured analysis.\n\n"
+    "Output format:\n"
+    "- Emoji + Stock symbol + Price (first line)\n"
+    "- AI Score or key metric\n"
+    "- 2-3 strengths with specific data\n"
+    "- 2-3 risks with specific data\n"
+    "- Technical levels or summary\n"
+    "- Maximum 12 lines total\n\n"
+    "Use emojis. Be specific with numbers and percentages.\n"
+    "NO introductions or disclaimers."
+)
+
+DEFAULT_FORMAT_1 = (
+    "Provide a professional analysis for {symbol} stock at ${price} ({direction} {change_pct}%).\n\n"
+    "Output format:\n"
+    "{symbol} at ${price} {direction}\n\n"
+    "AI Score: [X]/100\n\n"
+    "Key Strengths:\n"
+    "- [Specific strength with data/metrics]\n"
+    "- [Another strength]\n\n"
+    "Key Risks:\n"
+    "- [Specific risk with impact]\n"
+    "- [Another risk]\n\n"
+    "Technical Levels:\n"
+    "Support: $[price] | Resistance: $[price]\n\n"
+    "Provide real analysis, not placeholders. Be specific with numbers."
+)
+
+DEFAULT_FORMAT_2 = (
+    "Analyze {symbol} stock currently at ${price} ({direction} {change_pct}%).\n\n"
+    "Output:\n"
+    "{symbol} Analysis\n\n"
+    "Bullish Case:\n"
+    "- [Growth driver with specific numbers]\n"
+    "- [Positive catalyst with timeline]\n\n"
+    "Bearish Case:\n"
+    "- [Risk factor with potential impact]\n"
+    "- [Concern with data]\n\n"
+    "Verdict: [X]/100 - [Buy/Hold/Sell]\n\n"
+    "Be specific with metrics (P/E, growth rates, revenue numbers). No placeholders."
+)
+
+DEFAULT_FORMAT_3 = (
+    "Technical analysis for {symbol} at ${price}.\n\n"
+    "Output:\n"
+    "{symbol} Technical View\n\n"
+    "Price: ${price} {emoji}\n"
+    "Change: {change}\n"
+    "Score: [X]/100\n"
+    "Trend: [Bullish/Bearish/Neutral]\n\n"
+    "Key Technical Points:\n"
+    "- [Support/resistance level with price]\n"
+    "- [Trend indicator with direction]\n"
+    "- [Volume or momentum signal]\n\n"
+    "Action:\n"
+    "Entry: $[price] | Target: $[price] | Stop: $[price]\n\n"
+    "Use actual technical analysis principles. Be specific with levels."
+)
 
 
 class AIService:
     """AI Analysis Service - Qwen 2.5 Optimized"""
-    
+
     def __init__(self):
         self.client = AsyncOpenAI(
             api_key=settings.SILICONFLOW_API_KEY,
             base_url=settings.SILICONFLOW_BASE_URL
         )
         self.model = settings.SILICONFLOW_MODEL
-    
+
     async def analyze_stream(self, query: str) -> AsyncGenerator[str, None]:
         """
         Stream analysis for general queries (non-stock code format)
-        Qwen responds quickly with good streaming
+        Uses DB-stored prompts with hot reload
         """
-        system_prompt = """You are a professional stock analyst AI. Provide concise, actionable analysis.
-
-Rules:
-1. Start directly with analysis - no introductions
-2. Maximum 15 lines total
-3. Use bullet points with emojis (📈📉✅⚠️🎯📊)
-4. One sentence per bullet point
-5. Include key metrics when possible (P/E, growth %, etc.)
-6. End with a clear verdict or action
-7. NO disclaimers or headers"""
-
-        user_prompt = f"Analyze this stock or market topic: {query}"
+        system_prompt = await _get_setting("streaming_system_prompt", DEFAULT_STREAMING_SYSTEM)
+        user_template = await _get_setting("streaming_user_prompt", DEFAULT_STREAMING_USER)
+        user_prompt = user_template.replace("{query}", query)
 
         try:
             stream = await self.client.chat.completions.create(
@@ -52,48 +156,48 @@ Rules:
                 frequency_penalty=0.4,
                 presence_penalty=0.4
             )
-            
+
             async for chunk in stream:
                 if chunk.choices[0].delta.content is not None:
-                    content = chunk.choices[0].delta.content
-                    yield content
-            
+                    yield chunk.choices[0].delta.content
+
         except Exception as e:
             error_msg = f"\n\n❌ AI service temporarily unavailable: {str(e)}"
             yield error_msg
-    
+
     async def analyze_stock(self, symbol: str, quote_data: dict) -> AsyncGenerator[str, None]:
         """
         Analyze specific stock with Qwen
-        Fast streaming response with structured output
+        Uses DB-stored prompt templates with hot reload
         """
         price = quote_data.get('price', 0)
         change = quote_data.get('change', 0)
         change_percent = quote_data.get('change_percent', 0)
-        
-        # 随机选择格式
+
+        # Build template variables
+        direction = "📈" if change_percent > 0 else "📉" if change_percent < 0 else "➡️"
+        emoji = "🟢" if change > 0 else "🔴" if change < 0 else "⚪"
+        template_vars = {
+            "symbol": symbol,
+            "price": f"{price:.2f}",
+            "direction": direction,
+            "change_pct": f"{change_percent:+.2f}",
+            "change": f"{change:+.2f}",
+            "emoji": emoji,
+        }
+
+        # Randomly select a format
         format_choice = random.randint(1, 3)
-        
-        if format_choice == 1:
-            prompt = self._format_scorecard(symbol, price, change_percent)
-        elif format_choice == 2:
-            prompt = self._format_bullets(symbol, price, change_percent)
-        else:
-            prompt = self._format_technical(symbol, price, change)
-        
-        system_prompt = """You are a professional stock analyst. Provide concise, structured analysis.
+        format_key = f"stock_prompt_format_{format_choice}"
+        defaults = {1: DEFAULT_FORMAT_1, 2: DEFAULT_FORMAT_2, 3: DEFAULT_FORMAT_3}
+        prompt_template = await _get_setting(format_key, defaults[format_choice])
 
-Output format:
-- Emoji + Stock symbol + Price (first line)
-- AI Score or key metric
-- 2-3 strengths with specific data
-- 2-3 risks with specific data  
-- Technical levels or summary
-- Maximum 12 lines total
+        # Apply template variables
+        prompt = prompt_template
+        for k, v in template_vars.items():
+            prompt = prompt.replace("{" + k + "}", v)
 
-Use emojis: 📊📈📉✅⚠️🎯📍
-Be specific with numbers and percentages.
-NO introductions or disclaimers."""
+        system_prompt = await _get_setting("stock_system_prompt", DEFAULT_STOCK_SYSTEM)
 
         try:
             stream = await self.client.chat.completions.create(
@@ -109,131 +213,14 @@ NO introductions or disclaimers."""
                 frequency_penalty=0.3,
                 presence_penalty=0.3
             )
-            
+
             async for chunk in stream:
                 if chunk.choices[0].delta.content is not None:
-                    content = chunk.choices[0].delta.content
-                    yield content
-            
+                    yield chunk.choices[0].delta.content
+
         except Exception as e:
             error_msg = f"\n\n❌ AI service unavailable: {str(e)}"
             yield error_msg
-    
-    def _format_scorecard(self, symbol: str, price: float, change_pct: float) -> str:
-        """Format 1: Scorecard with AI rating"""
-        direction = "📈" if change_pct > 0 else "📉" if change_pct < 0 else "➡️"
-        return f"""Provide a professional analysis for {symbol} stock at ${price:.2f} ({direction} {change_pct:+.2f}%).
-
-Output format:
-📊 {symbol} · ${price:.2f} {direction}
-
-🎯 AI Score: [X]/100
-
-✅ Key Strengths:
-• [Specific strength with data/metrics]
-• [Another strength]
-
-⚠️ Key Risks:
-• [Specific risk with impact]
-• [Another risk]
-
-📍 Technical Levels:
-Support: $[price] · Resistance: $[price]
-
-Provide real analysis, not placeholders. Be specific with numbers."""
-
-    def _format_bullets(self, symbol: str, price: float, change_pct: float) -> str:
-        """Format 2: Bullish/Bearish analysis"""
-        direction = "📈" if change_pct > 0 else "📉" if change_pct < 0 else "➡️"
-        return f"""Analyze {symbol} stock currently at ${price:.2f} ({direction} {change_pct:+.2f}%).
-
-Output:
-🔍 {symbol} Analysis
-
-📈 Bullish Case:
-• [Growth driver with specific numbers]
-• [Positive catalyst with timeline]
-
-📉 Bearish Case:
-• [Risk factor with potential impact]
-• [Concern with data]
-
-🎯 Verdict: [X]/100 - [Buy/Hold/Sell]
-
-Be specific with metrics (P/E, growth rates, revenue numbers). No placeholders."""
-
-    def _format_technical(self, symbol: str, price: float, change: float) -> str:
-        """Format 3: Technical analysis focus"""
-        direction = "🟢" if change > 0 else "🔴" if change < 0 else "⚪"
-        return f"""Technical analysis for {symbol} at ${price:.2f}.
-
-Output:
-📊 {symbol} Technical View
-
-┌──────────────────┐
-│ Price: ${price:.2f} {direction}
-│ Change: {change:+.2f}
-│ Score: [X]/100
-│ Trend: [Bullish/Bearish/Neutral]
-└──────────────────┘
-
-Key Technical Points:
-• [Support/resistance level with price]
-• [Trend indicator with direction]
-• [Volume or momentum signal]
-
-📍 Action:
-Entry: $[price] · Target: $[price] · Stop: $[price]
-
-Use actual technical analysis principles. Be specific with levels."""
-    
-    async def analyze_general(self, stock_name: str, price: float) -> AsyncGenerator[str, None]:
-        """
-        General analysis for promotional buttons
-        Fixed template with quick response
-        """
-        prompt = f"""Create a brief analysis teaser for {stock_name} at ${price:.2f}.
-
-Output exactly this format:
-
-🔍 {stock_name} · ${price:.2f}
-
-You see: Stock price movements, news noise.
-
-AI sees: Institutional money flow, chip concentration, key support/resistance levels.
-
-👉 Where's the gap? Click WhatsApp, send the code, get your AI perspective report.
-
-Output ONLY this template. Fill in the stock name and price. No extra text."""
-
-        try:
-            stream = await self.client.chat.completions.create(
-                model=self.model,
-                messages=[
-                    {"role": "system", "content": "You are a stock analyst AI. Output ONLY the exact template provided. NO additional text."},
-                    {"role": "user", "content": prompt}
-                ],
-                stream=True,
-                temperature=0.3,
-                max_tokens=100,
-                top_p=0.9
-            )
-            
-            async for chunk in stream:
-                if chunk.choices[0].delta.content is not None:
-                    content = chunk.choices[0].delta.content
-                    yield content
-            
-        except Exception as e:
-            # Fallback format if AI fails
-            fallback = f"""🔍 {stock_name} · ${price:.2f}
-
-You see: Stock price movements, news noise.
-
-AI sees: Institutional money flow, chip concentration, key support/resistance levels.
-
-👉 Where's the gap? Click WhatsApp, send the code, get your AI perspective report."""
-            yield fallback
 
 
 # Create global instance
