@@ -9,7 +9,8 @@ import { NextRequest, NextResponse } from 'next/server'
  *   - NEXT_PUBLIC_API_PORT (local dev): 8000
  *   - Fallback: http://localhost:8000
  * 
- * This works reliably in ALL deployment modes (standalone, dev, production).
+ * Supports: GET, POST, PUT, DELETE, OPTIONS
+ * Forwards all headers including Authorization for admin API.
  */
 
 function getBackendURL(): string {
@@ -20,22 +21,41 @@ function getBackendURL(): string {
   return 'http://localhost:8000'
 }
 
-export async function GET(
+/** Forward relevant request headers, dropping hop-by-hop headers */
+function getProxyHeaders(request: NextRequest): Record<string, string> {
+  const headers: Record<string, string> = {}
+  const skip = new Set(['host', 'connection', 'keep-alive', 'transfer-encoding', 'upgrade'])
+  request.headers.forEach((value, key) => {
+    if (!skip.has(key.toLowerCase())) {
+      headers[key] = value
+    }
+  })
+  headers['Accept'] = headers['Accept'] || 'application/json'
+  return headers
+}
+
+async function proxyRequest(
+  method: string,
   request: NextRequest,
-  { params }: { params: { path: string[] } }
-) {
+  params: { path: string[] }
+): Promise<NextResponse> {
   const path = params.path.join('/')
   const backendURL = getBackendURL()
   const search = request.nextUrl.search
   const targetURL = `${backendURL}/api/${path}${search}`
 
   try {
-    const res = await fetch(targetURL, {
-      headers: {
-        'Accept': 'application/json',
-        ...Object.fromEntries(request.headers.entries()),
-      },
-    })
+    const fetchOpts: RequestInit = {
+      method,
+      headers: getProxyHeaders(request),
+    }
+
+    // Forward body for methods that have one
+    if (method !== 'GET' && method !== 'HEAD') {
+      fetchOpts.body = await request.text()
+    }
+
+    const res = await fetch(targetURL, fetchOpts)
     const data = await res.text()
     return new NextResponse(data, {
       status: res.status,
@@ -52,39 +72,20 @@ export async function GET(
   }
 }
 
-export async function POST(
-  request: NextRequest,
-  { params }: { params: { path: string[] } }
-) {
-  const path = params.path.join('/')
-  const backendURL = getBackendURL()
-  const search = request.nextUrl.search
-  const targetURL = `${backendURL}/api/${path}${search}`
+export async function GET(request: NextRequest, ctx: { params: { path: string[] } }) {
+  return proxyRequest('GET', request, ctx.params)
+}
 
-  try {
-    const body = await request.text()
-    const res = await fetch(targetURL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': request.headers.get('Content-Type') || 'application/json',
-        'Accept': 'application/json',
-      },
-      body,
-    })
-    const data = await res.text()
-    return new NextResponse(data, {
-      status: res.status,
-      headers: {
-        'Content-Type': res.headers.get('Content-Type') || 'application/json',
-        'Access-Control-Allow-Origin': '*',
-      },
-    })
-  } catch (error) {
-    return NextResponse.json(
-      { error: 'Backend unreachable', detail: String(error) },
-      { status: 502 }
-    )
-  }
+export async function POST(request: NextRequest, ctx: { params: { path: string[] } }) {
+  return proxyRequest('POST', request, ctx.params)
+}
+
+export async function PUT(request: NextRequest, ctx: { params: { path: string[] } }) {
+  return proxyRequest('PUT', request, ctx.params)
+}
+
+export async function DELETE(request: NextRequest, ctx: { params: { path: string[] } }) {
+  return proxyRequest('DELETE', request, ctx.params)
 }
 
 export async function OPTIONS() {
