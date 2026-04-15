@@ -377,7 +377,7 @@ function HomeContent() {
                 </div>
                 <span className="text-[8px] font-label text-on-surface-variant uppercase tracking-widest font-bold">2026 Stock Reports Ready</span>
               </div>
-              <div className="h-40 overflow-y-auto mb-4 pr-1 bg-black/40 rounded-xl p-3 font-mono text-[10px] leading-snug text-primary/80 border border-primary/10 hide-scroll whitespace-pre-wrap">
+              <div className="h-40 overflow-y-auto mb-4 pr-1 bg-black/40 rounded-xl p-3 font-mono text-sm leading-tight text-primary/80 border border-primary/10 hide-scroll whitespace-pre-wrap">
                 {analysisContent ? (
                   <>
                     {analysisContent}
