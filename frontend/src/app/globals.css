@@ -210,3 +210,63 @@ body {
   }
 }
 
+/* ── Modal Conversion Button Effects ── */
+#modal-submit-btn.animate-btn-activate {
+  position: relative;
+  background: #99f7ff !important;
+  color: #070d1f !important;
+  border: none !important;
+  animation: btn-breathe 2.5s ease-in-out infinite, btn-activate 1s cubic-bezier(0.34, 1.56, 0.64, 1) forwards !important;
+  filter: grayscale(0) !important;
+  opacity: 1 !important;
+  overflow: hidden;
+  z-index: 1;
+}
+
+/* Flowing rainbow border using pseudo-element */
+#modal-submit-btn.animate-btn-activate::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: 9999px;
+  background: conic-gradient(
+    from 0deg,
+    #99f7ff,
+    #d575ff,
+    #00f1fe,
+    #ff59e3,
+    #99f7ff
+  );
+  z-index: -2;
+  animation: border-spin 3s linear infinite;
+}
+
+#modal-submit-btn.animate-btn-activate::after {
+  content: '';
+  position: absolute;
+  inset: 2px;
+  border-radius: 9999px;
+  background: #99f7ff;
+  z-index: -1;
+}
+
+@keyframes btn-breathe {
+  0%, 100% {
+    box-shadow: 0 0 15px rgba(153, 247, 255, 0.3), 0 0 30px rgba(153, 247, 255, 0.1);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 25px rgba(153, 247, 255, 0.5), 0 0 50px rgba(153, 247, 255, 0.2), 0 0 80px rgba(213, 117, 255, 0.1);
+    transform: scale(1.02);
+  }
+}
+
+@keyframes border-spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
