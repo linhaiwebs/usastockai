@@ -11,6 +11,10 @@ services:
     ports:
       - "${FRONTEND_PORT:-3000}:3000"
     environment:
+      # Server-only env vars (read at runtime, NOT inlined at build)
+      - API_URL_INTERNAL=http://backend:${BACKEND_PORT:-8000}
+      - API_PORT=${BACKEND_PORT:-8000}
+      # NEXT_PUBLIC_ vars (also set as fallback for local dev)
       - NEXT_PUBLIC_API_URL_INTERNAL=http://backend:${BACKEND_PORT:-8000}
       - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-}
       - NEXT_PUBLIC_API_PORT=${BACKEND_PORT:-8000}

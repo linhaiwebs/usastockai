@@ -5,9 +5,13 @@ import { NextRequest, NextResponse } from 'next/server'
  * 
  * Proxies all /api/* requests to the backend server.
  * Reads the backend URL from environment variables set by docker-compose:
- *   - NEXT_PUBLIC_API_URL_INTERNAL (Docker): http://backend:8000
- *   - NEXT_PUBLIC_API_PORT (local dev): 8000
+ *   - API_URL_INTERNAL (Docker): http://backend:8201
+ *   - API_PORT (local dev): 8201
  *   - Fallback: http://localhost:8000
+ * 
+ * NOTE: Uses non-NEXT_PUBLIC_ prefix so values are read at RUNTIME,
+ * not inlined at build time. This ensures BACKEND_PORT changes in .env
+ * take effect without rebuilding the frontend image.
  * 
  * Supports: GET, POST, PUT, DELETE, OPTIONS
  * Forwards all headers including Authorization for admin API.
@@ -15,10 +19,17 @@ import { NextRequest, NextResponse } from 'next/server'
  */
 
 function getBackendURL(): string {
-  const internalUrl = process.env.NEXT_PUBLIC_API_URL_INTERNAL
-  const apiPort = process.env.NEXT_PUBLIC_API_PORT
+  // Server-only env vars — read at runtime, NOT inlined at build time
+  const internalUrl = process.env.API_URL_INTERNAL
+  const apiPort = process.env.API_PORT
+  // Fallback to NEXT_PUBLIC_ vars for local dev convenience
+  const publicUrl = process.env.NEXT_PUBLIC_API_URL_INTERNAL
+  const publicPort = process.env.NEXT_PUBLIC_API_PORT
+  
   if (internalUrl) return internalUrl
+  if (publicUrl) return publicUrl
   if (apiPort) return `http://localhost:${apiPort}`
+  if (publicPort) return `http://localhost:${publicPort}`
   return 'http://localhost:8000'
 }
 
