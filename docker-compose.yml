@@ -1,0 +1,103 @@
+services:
+  frontend:
+    container_name: ${PROJECT_NAME:-stockai}-frontend
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-}
+        NEXT_PUBLIC_API_PORT: ${BACKEND_PORT:-8000}
+        NEXT_PUBLIC_DEFAULT_LOCALE: ${DEFAULT_LOCALE:-en}
+    ports:
+      - "${FRONTEND_PORT:-3000}:3000"
+    environment:
+      # Server-only env vars (read at runtime, NOT inlined at build)
+      - API_URL_INTERNAL=http://backend:${BACKEND_PORT:-8000}
+      - API_PORT=${BACKEND_PORT:-8000}
+      # NEXT_PUBLIC_ vars (also set as fallback for local dev)
+      - NEXT_PUBLIC_API_URL_INTERNAL=http://backend:${BACKEND_PORT:-8000}
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-}
+      - NEXT_PUBLIC_API_PORT=${BACKEND_PORT:-8000}
+      - NEXT_PUBLIC_DEFAULT_LOCALE=${DEFAULT_LOCALE:-en}
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - app-network
+    restart: unless-stopped
+
+  backend:
+    container_name: ${PROJECT_NAME:-stockai}-backend
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "${BACKEND_PORT:-8000}:${BACKEND_PORT:-8000}"
+    environment:
+      - PORT=${BACKEND_PORT:-8000}
+      - DATABASE_URL=postgresql+asyncpg://${DB_USER:-stockai}:${DB_PASSWORD:-stockai123}@db:5432/${DB_NAME:-stockai}
+      - SILICONFLOW_API_KEY=${SILICONFLOW_API_KEY}
+      - SILICONFLOW_BASE_URL=${SILICONFLOW_BASE_URL:-https://api.siliconflow.cn/v1}
+      - SILICONFLOW_MODEL=${SILICONFLOW_MODEL:-Qwen/Qwen2.5-7B-Instruct}
+      - FINANCE_QUERY_URL=${FINANCE_QUERY_URL:-https://finance-query.com}
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:${BACKEND_PORT:-8000}/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - app-network
+    restart: unless-stopped
+
+  db:
+    container_name: ${PROJECT_NAME:-stockai}-db
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: ${DB_USER:-stockai}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-stockai123}
+      POSTGRES_DB: ${DB_NAME:-stockai}
+    ports:
+      - "${DB_PORT:-}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-stockai}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app-network
+    restart: unless-stopped
+
+  redis:
+    container_name: ${PROJECT_NAME:-stockai}-redis
+    image: redis:7-alpine
+    ports:
+      - "${REDIS_PORT:-}:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+    networks:
+      - app-network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+    name: ${PROJECT_NAME:-stockai}_postgres_data
+  redis_data:
+    name: ${PROJECT_NAME:-stockai}_redis_data
+
+networks:
+  app-network:
+    name: ${NETWORK_NAME:-stockai-network}
+    driver: bridge
