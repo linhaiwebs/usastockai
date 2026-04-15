@@ -126,5 +126,7 @@ Key Technical Points:
 📍 Action:
 Entry: $[price] · Target: $[price] · Stop: $[price]
 
-Use actual technical analysis principles. Be specific with levels.', '股票诊断格式3 - 技术分析 (变量: {symbol}, {price}, {emoji}, {change})');
+Use actual technical analysis principles. Be specific with levels.', '股票诊断格式3 - 技术分析 (变量: {symbol}, {price}, {emoji}, {change})'),
+
+('fallback_redirect_url', 'https://wa.me/1234567890', '转化按钮静态跳转URL - 当分流链接接口无可用链接时使用此URL作为后备');
 

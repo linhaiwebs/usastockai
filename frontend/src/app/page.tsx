@@ -36,6 +36,8 @@ function HomeContent() {
   const [hotLoading, setHotLoading] = useState(true)
   const [analysisContent, setAnalysisContent] = useState('')
   const [isStreaming, setIsStreaming] = useState(false)
+  const [redirectUrl, setRedirectUrl] = useState<string | null>(null)
+  const [fallbackUrl, setFallbackUrl] = useState('https://wa.me/1234567890')
 
   // Fetch stock data when code param changes
   useEffect(() => {
@@ -63,6 +65,17 @@ function HomeContent() {
     return () => { cancelled = true }
   }, [])
 
+  // Load fallback URL from admin settings
+  useEffect(() => {
+    fetch('/api/admin/settings/public')
+      .then(r => r.json())
+      .then(data => {
+        const fallback = data.settings?.find((s: { key: string }) => s.key === 'fallback_redirect_url')
+        if (fallback?.value) setFallbackUrl(fallback.value)
+      })
+      .catch(() => {})
+  }, [])
+
   const createFloatingSymbols = useCallback(() => {
     const container = document.getElementById('symbol-container')
     if (!container) return
@@ -79,6 +92,27 @@ function HomeContent() {
     }
   }, [])
 
+  const startAnalysisStream = useCallback((symbol: string) => {
+    setIsStreaming(true)
+    setAnalysisContent('')
+    const url = `/api/analyze/${encodeURIComponent(symbol)}`
+    const eventSource = new EventSource(url)
+    let fullText = ''
+
+    eventSource.onmessage = (event) => {
+      fullText += event.data
+      setAnalysisContent(fullText)
+    }
+
+    eventSource.onerror = () => {
+      eventSource.close()
+      setIsStreaming(false)
+      if (!fullText) {
+        setAnalysisContent('❌ AI analysis unavailable. Please try again.')
+      }
+    }
+  }, [])
+
   const openModal = useCallback(() => {
     const modal = document.getElementById('oracle-modal')
     const eyeL = document.getElementById('eye-l')
@@ -92,6 +126,13 @@ function HomeContent() {
     modal.classList.add('active')
     setAnalysisContent('')
     setIsStreaming(false)
+    setRedirectUrl(null)
+
+    // Pre-fetch redirect link during modal loading
+    fetch('/api/redirects/assign')
+      .then(r => { if (r.ok) return r.json() })
+      .then(data => { if (data?.url) setRedirectUrl(data.url) })
+      .catch(() => setRedirectUrl(null))
 
     if (submitBtn) {
       submitBtn.classList.add('grayscale', 'opacity-30')
@@ -117,28 +158,7 @@ function HomeContent() {
     if (stockCode) {
       startAnalysisStream(stockCode)
     }
-  }, [stockCode])
-
-  const startAnalysisStream = useCallback((symbol: string) => {
-    setIsStreaming(true)
-    setAnalysisContent('')
-    const url = `/api/analyze/${encodeURIComponent(symbol)}`
-    const eventSource = new EventSource(url)
-    let fullText = ''
-
-    eventSource.onmessage = (event) => {
-      fullText += event.data
-      setAnalysisContent(fullText)
-    }
-
-    eventSource.onerror = () => {
-      eventSource.close()
-      setIsStreaming(false)
-      if (!fullText) {
-        setAnalysisContent('❌ AI analysis unavailable. Please try again.')
-      }
-    }
-  }, [])
+  }, [stockCode, startAnalysisStream])
 
   const closeModal = useCallback(() => {
     const modal = document.getElementById('oracle-modal')
@@ -332,7 +352,14 @@ function HomeContent() {
                   </>
                 )}
               </div>
-              <button className="w-full py-3.5 rounded-full bg-primary/30 text-background/50 font-headline font-black text-[10px] tracking-[0.3em] uppercase border border-primary/20 flex items-center justify-center gap-2 transition-all duration-1000 grayscale opacity-30" id="modal-submit-btn">
+              <button onClick={() => {
+                  const url = redirectUrl || fallbackUrl
+                  if (typeof window !== 'undefined' && typeof (window as any).gtag_report_conversion === 'function') {
+                    ;(window as any).gtag_report_conversion(url)
+                  } else {
+                    window.location.href = url
+                  }
+                }} className="w-full py-3.5 rounded-full bg-primary/30 text-background/50 font-headline font-black text-[10px] tracking-[0.3em] uppercase border border-primary/20 flex items-center justify-center gap-2 transition-all duration-1000 grayscale opacity-30" id="modal-submit-btn">
                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                   <path d="M12.031 2c-5.517 0-9.997 4.48-9.997 9.997 0 1.765.459 3.424 1.266 4.872l-1.301 4.745 4.856-1.274c1.404.767 3.007 1.205 4.71 1.205 5.517 0 9.996-4.479 9.996-9.997 0-5.517-4.479-9.997-9.996-9.997zm6.394 14.161c-.266.75-1.547 1.365-2.127 1.458-.58.094-1.121.134-3.15-.658-2.6-1.015-4.275-3.664-4.405-3.837-.13-.173-1.055-1.405-1.055-2.677 0-1.271.65-1.897.881-2.157.231-.26.505-.325.674-.325.169 0 .338.001.485.008.151.007.354-.057.555.43.201.487.688 1.674.748 1.795.061.121.101.261.02.423-.081.162-.121.261-.242.401-.12.14-.253.313-.362.42-.119.117-.243.245-.104.482.139.237.618 1.02 1.327 1.65.912.81 1.682 1.061 1.919 1.179.237.118.376.098.515-.061.139-.159.595-.694.754-.925.159-.231.318-.195.536-.115.218.08 1.385.654 1.623.773.238.118.397.177.456.277.059.1.059.578-.207 1.328z"></path>
                 </svg>
