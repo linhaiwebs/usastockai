@@ -202,14 +202,10 @@ function HomeContent() {
     }
     window.addEventListener('scroll', handleScroll)
 
-    const mask = document.getElementById('global-mask')
-    if (mask) mask.addEventListener('click', closeModal)
-
     return () => {
       window.removeEventListener('scroll', handleScroll)
-      if (mask) mask.removeEventListener('click', closeModal)
     }
-  }, [closeModal])
+  }, [])
 
   return (
     <>
@@ -247,7 +243,7 @@ function HomeContent() {
       <div className="modal-container" id="oracle-modal">
         <div className="relative pt-24">
           {/* Robot Overlay */}
-          <div className="absolute -top-16 left-1/2 -translate-x-1/2 w-64 z-20 pointer-events-none">
+          <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-64 z-20 pointer-events-none">
             <div className="robot-body-wrapper relative flex flex-col items-center">
               <div className="w-32 h-32 bg-surface-container-highest rounded-full border-2 border-primary/40 relative overflow-hidden z-10 flex items-center justify-center">
                 <div className="absolute inset-x-0 top-0 h-8 bg-primary/10"></div>
@@ -486,7 +482,8 @@ function HomeContent() {
               <div className="w-6 h-6 border-2 border-primary/30 border-t-primary rounded-full animate-spin"></div>
             </div>
           ) : hotStocks.length > 0 ? (
-            <div className="hot-stocks-track" id="hot-stocks-track" style={{ maxHeight: 'calc(3 * (110px + 16px))', overflow: 'hidden' }}>
+            <div className="hot-stocks-viewport">
+              <div className="hot-stocks-track" id="hot-stocks-track">
               {/* Duplicate stocks for infinite loop */}
               {[...hotStocks, ...hotStocks].map((stock, i) => (
                 <div key={`${stock.symbol}-${i}`} className="glass-panel rounded-2xl p-4 border border-outline-variant/20 mx-4 mb-4 shrink-0">
@@ -533,6 +530,7 @@ function HomeContent() {
                   </div>
                 </div>
               ))}
+            </div>
             </div>
           ) : (
             <div className="flex items-center justify-center py-20">

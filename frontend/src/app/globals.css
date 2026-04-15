@@ -57,11 +57,16 @@ body {
   position: fixed !important;
   top: 50% !important;
   left: 50% !important;
-  transform: translate(-50%, -50%) scale(1.1);
-  z-index: 100;
-  width: 80% !important;
+  transform: translate(-50%, -50%) scale(1.1) !important;
+  z-index: 100 !important;
+  width: min(80%, 500px) !important;
+  max-width: 500px !important;
   margin: 0 !important;
-  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  padding: 1.25rem 1.5rem !important;
+  right: auto !important;
+  bottom: auto !important;
+  animation: none !important;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1) !important;
 }
 
 /* ── Ripple Effect ── */
@@ -93,6 +98,7 @@ body {
 .screen-mask.active {
   opacity: 1;
   pointer-events: auto;
+  cursor: default;
 }
 
 /* ── Modal ── */
@@ -181,6 +187,10 @@ body {
 }
 
 /* ── Hot Stocks Infinite Carousel ── */
+.hot-stocks-viewport {
+  max-height: 370px;
+  overflow: hidden;
+}
 .hot-stocks-track {
   display: flex;
   flex-direction: column;
