@@ -433,42 +433,101 @@ export default function DashboardPage() {
         )}
 
         {activeTab === 'settings' && (
-          <div className="space-y-6">
-            <div className="flex items-center gap-3 mb-4">
-              <span className="material-symbols-outlined text-[#99f7ff]">tune</span>
-              <h2 className="text-xl font-semibold text-[#99f7ff]">AI Prompt Settings</h2>
-            </div>
-            <p className="text-[#a5aac2] text-sm">
-              Customize AI analysis prompt templates. Changes take effect immediately (hot reload).
-              Template variables: <code className="text-[#99f7ff] bg-[#0c1326] px-1 rounded">{'{query}'}</code> for streaming, <code className="text-[#99f7ff] bg-[#0c1326] px-1 rounded">{'{symbol}, {price}, {direction}, {change_pct}, {change}, {emoji}'}</code> for stock analysis.
-            </p>
-
-            {aiSettings.map(setting => (
-              <div key={setting.key} className="glass-panel border border-[#41475b] rounded-lg p-5">
-                <div className="flex items-center justify-between mb-2">
-                  <label className="text-sm font-bold text-[#99f7ff] uppercase tracking-wider">{setting.key}</label>
-                  {settingsSaving === setting.key && (
-                    <span className="text-[#a5aac2] text-xs animate-pulse">Saving...</span>
-                  )}
-                </div>
-                <p className="text-[#a5aac2] text-xs mb-3">{setting.description}</p>
-                <textarea
-                  value={setting.value}
-                  onChange={(e) => setAISettings(prev => prev.map(s => s.key === setting.key ? { ...s, value: e.target.value } : s))}
-                  className="w-full px-4 py-3 bg-[#0c1326] border border-[#41475b] rounded-lg text-[#dfe4fe] focus:outline-none focus:border-[#99f7ff] font-mono text-sm min-h-[120px] resize-y"
-                  rows={6}
-                />
-                <div className="flex justify-end mt-3">
-                  <button
-                    onClick={() => handleSaveSetting(setting.key, setting.value)}
-                    disabled={settingsSaving === setting.key}
-                    className="px-5 py-2 bg-[#99f7ff] text-[#070d1f] font-semibold rounded-lg hover:opacity-90 disabled:opacity-50 transition-opacity"
-                  >
-                    Save
-                  </button>
-                </div>
+          <div className="space-y-8">
+            {/* Streaming Prompts */}
+            <div>
+              <div className="flex items-center gap-3 mb-4">
+                <span className="material-symbols-outlined text-[#99f7ff]">stream</span>
+                <h2 className="text-xl font-semibold text-[#99f7ff]">Streaming AI Prompts</h2>
               </div>
-            ))}
+              <p className="text-[#a5aac2] text-sm mb-4">
+                Used by <code className="text-[#99f7ff] bg-[#0c1326] px-1 rounded">/api/analyze?q=...</code> for general query streaming.
+                Variable: <code className="text-[#99f7ff] bg-[#0c1326] px-1 rounded">{'{query}'}</code>
+              </p>
+              <div className="space-y-4">
+                {aiSettings.filter(s => s.key.startsWith('streaming_')).map(setting => (
+                  <div key={setting.key} className="glass-panel border border-[#41475b] rounded-lg p-5">
+                    <div className="flex items-center justify-between mb-2">
+                      <label className="text-sm font-bold text-[#99f7ff] uppercase tracking-wider">{setting.key}</label>
+                      {settingsSaving === setting.key && <span className="text-[#a5aac2] text-xs animate-pulse">Saving...</span>}
+                    </div>
+                    <p className="text-[#a5aac2] text-xs mb-3">{setting.description}</p>
+                    <textarea value={setting.value}
+                      onChange={(e) => setAISettings(prev => prev.map(s => s.key === setting.key ? { ...s, value: e.target.value } : s))}
+                      className="w-full px-4 py-3 bg-[#0c1326] border border-[#41475b] rounded-lg text-[#dfe4fe] focus:outline-none focus:border-[#99f7ff] font-mono text-sm min-h-[120px] resize-y" rows={6} />
+                    <div className="flex justify-end mt-3">
+                      <button onClick={() => handleSaveSetting(setting.key, setting.value)} disabled={settingsSaving === setting.key}
+                        className="px-5 py-2 bg-[#99f7ff] text-[#070d1f] font-semibold rounded-lg hover:opacity-90 disabled:opacity-50 transition-opacity">Save</button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Stock Diagnosis Prompts */}
+            <div>
+              <div className="flex items-center gap-3 mb-4">
+                <span className="material-symbols-outlined text-[#99f7ff]">monitoring</span>
+                <h2 className="text-xl font-semibold text-[#99f7ff]">Stock Diagnosis Prompts</h2>
+              </div>
+              <p className="text-[#a5aac2] text-sm mb-4">
+                Used by <code className="text-[#99f7ff] bg-[#0c1326] px-1 rounded">/api/analyze/{'{symbol}'}</code> for stock-specific analysis.
+                System prompt + one of 3 format templates (randomly selected each request).
+                Variables: <code className="text-[#99f7ff] bg-[#0c1326] px-1 rounded">{'{symbol}, {price}, {direction}, {change_pct}, {change}, {emoji}'}</code>
+              </p>
+              <div className="space-y-4">
+                {aiSettings.filter(s => s.key.startsWith('stock_')).map(setting => (
+                  <div key={setting.key} className="glass-panel border border-[#41475b] rounded-lg p-5">
+                    <div className="flex items-center justify-between mb-2">
+                      <label className="text-sm font-bold text-[#99f7ff] uppercase tracking-wider">{setting.key}</label>
+                      <div className="flex items-center gap-2">
+                        {setting.key.startsWith('stock_prompt_format_') && (
+                          <span className="text-[10px] px-2 py-0.5 bg-[#99f7ff]/10 text-[#99f7ff] rounded border border-[#99f7ff]/20">Random Pool</span>
+                        )}
+                        {settingsSaving === setting.key && <span className="text-[#a5aac2] text-xs animate-pulse">Saving...</span>}
+                      </div>
+                    </div>
+                    <p className="text-[#a5aac2] text-xs mb-3">{setting.description}</p>
+                    <textarea value={setting.value}
+                      onChange={(e) => setAISettings(prev => prev.map(s => s.key === setting.key ? { ...s, value: e.target.value } : s))}
+                      className="w-full px-4 py-3 bg-[#0c1326] border border-[#41475b] rounded-lg text-[#dfe4fe] focus:outline-none focus:border-[#99f7ff] font-mono text-sm min-h-[120px] resize-y" rows={6} />
+                    <div className="flex justify-end mt-3">
+                      <button onClick={() => handleSaveSetting(setting.key, setting.value)} disabled={settingsSaving === setting.key}
+                        className="px-5 py-2 bg-[#99f7ff] text-[#070d1f] font-semibold rounded-lg hover:opacity-90 disabled:opacity-50 transition-opacity">Save</button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* UI Settings */}
+            <div>
+              <div className="flex items-center gap-3 mb-4">
+                <span className="material-symbols-outlined text-[#99f7ff]">widgets</span>
+                <h2 className="text-xl font-semibold text-[#99f7ff]">UI Settings</h2>
+              </div>
+              <p className="text-[#a5aac2] text-sm mb-4">
+                Frontend display text and redirect configuration. Changes take effect on next page load.
+              </p>
+              <div className="space-y-4">
+                {aiSettings.filter(s => !s.key.startsWith('streaming_') && !s.key.startsWith('stock_')).map(setting => (
+                  <div key={setting.key} className="glass-panel border border-[#41475b] rounded-lg p-5">
+                    <div className="flex items-center justify-between mb-2">
+                      <label className="text-sm font-bold text-[#99f7ff] uppercase tracking-wider">{setting.key}</label>
+                      {settingsSaving === setting.key && <span className="text-[#a5aac2] text-xs animate-pulse">Saving...</span>}
+                    </div>
+                    <p className="text-[#a5aac2] text-xs mb-3">{setting.description}</p>
+                    <textarea value={setting.value}
+                      onChange={(e) => setAISettings(prev => prev.map(s => s.key === setting.key ? { ...s, value: e.target.value } : s))}
+                      className="w-full px-4 py-3 bg-[#0c1326] border border-[#41475b] rounded-lg text-[#dfe4fe] focus:outline-none focus:border-[#99f7ff] font-mono text-sm min-h-[120px] resize-y" rows={6} />
+                    <div className="flex justify-end mt-3">
+                      <button onClick={() => handleSaveSetting(setting.key, setting.value)} disabled={settingsSaving === setting.key}
+                        className="px-5 py-2 bg-[#99f7ff] text-[#070d1f] font-semibold rounded-lg hover:opacity-90 disabled:opacity-50 transition-opacity">Save</button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
 
             {aiSettings.length === 0 && (
               <div className="text-center py-12 text-[#a5aac2]">No AI settings found. Run init.sql to seed defaults.</div>

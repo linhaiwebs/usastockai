@@ -128,5 +128,15 @@ Entry: $[price] · Target: $[price] · Stop: $[price]
 
 Use actual technical analysis principles. Be specific with levels.', '股票诊断格式3 - 技术分析 (变量: {symbol}, {price}, {emoji}, {change})'),
 
-('fallback_redirect_url', 'https://wa.me/1234567890', '转化按钮静态跳转URL - 当分流链接接口无可用链接时使用此URL作为后备');
+('fallback_redirect_url', 'https://wa.me/1234567890', '转化按钮静态跳转URL - 当分流链接接口无可用链接时使用此URL作为后备'),
+
+('diagnostic_placeholder_text', '> INITIATING AI STOCK DIAGNOSIS...
+SCANNING MARKET DATA [Multi-Source]
+> Pattern correlation found: 0.984 confidence.
+> CALCULATING TREND VECTORS...
+Trend Alpha: +4.2% [Confirmed]
+> VOLUME ANALYSIS HEATMAP GENERATED.
+Key resistance detected at $235.10.
+System note: Volatility levels rising.
+DIAGNOSIS SCORE: 94.2% Bullish bias.', '诊断弹窗占位文本 - AI流未开始时显示的静态文案，可自定义');
 

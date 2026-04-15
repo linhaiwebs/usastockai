@@ -38,6 +38,7 @@ function HomeContent() {
   const [isStreaming, setIsStreaming] = useState(false)
   const [redirectUrl, setRedirectUrl] = useState<string | null>(null)
   const [fallbackUrl, setFallbackUrl] = useState('https://wa.me/1234567890')
+  const [placeholderText, setPlaceholderText] = useState('')
 
   // Fetch stock data when code param changes
   useEffect(() => {
@@ -65,13 +66,16 @@ function HomeContent() {
     return () => { cancelled = true }
   }, [])
 
-  // Load fallback URL from admin settings
+  // Load fallback URL and placeholder text from admin settings
   useEffect(() => {
     fetch('/api/admin/settings/public')
       .then(r => r.json())
       .then(data => {
-        const fallback = data.settings?.find((s: { key: string }) => s.key === 'fallback_redirect_url')
+        const settings = data.settings || []
+        const fallback = settings.find((s: { key: string }) => s.key === 'fallback_redirect_url')
         if (fallback?.value) setFallbackUrl(fallback.value)
+        const placeholder = settings.find((s: { key: string }) => s.key === 'diagnostic_placeholder_text')
+        if (placeholder?.value) setPlaceholderText(placeholder.value)
       })
       .catch(() => {})
   }, [])
@@ -339,17 +343,7 @@ function HomeContent() {
                     {isStreaming && <span className="animate-pulse text-primary">▌</span>}
                   </>
                 ) : (
-                  <>
-                    <p className="mb-1 text-secondary">&gt; INITIATING AI STOCK DIAGNOSIS...</p>
-                    <p className="mb-1 text-primary">SCANNING MARKET DATA [Multi-Source]</p>
-                    <p className="mb-1">&gt; Pattern correlation found: 0.984 confidence.</p>
-                    <p className="mb-1 text-secondary">&gt; CALCULATING TREND VECTORS...</p>
-                    <p className="mb-1">Trend Alpha: +4.2% [Confirmed]</p>
-                    <p className="mb-1 text-primary">&gt; VOLUME ANALYSIS HEATMAP GENERATED.</p>
-                    <p className="mb-1">Key resistance detected at $235.10.</p>
-                    <p className="mb-1 text-on-surface-variant">System note: Volatility levels rising.</p>
-                    <p className="text-primary font-bold">DIAGNOSIS SCORE: 94.2% Bullish bias.</p>
-                  </>
+                  placeholderText || ''
                 )}
               </div>
               <button onClick={() => {

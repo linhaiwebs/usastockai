@@ -122,6 +122,20 @@ DEFAULT_FORMAT_3 = (
     "Use actual technical analysis principles. Be specific with levels."
 )
 
+DEFAULT_DIAGNOSTIC_PLACEHOLDER = (
+    "> INITIATING AI STOCK DIAGNOSIS...\n"
+    "SCANNING MARKET DATA [Multi-Source]\n"
+    "> Pattern correlation found: 0.984 confidence.\n"
+    "> CALCULATING TREND VECTORS...\n"
+    "Trend Alpha: +4.2% [Confirmed]\n"
+    "> VOLUME ANALYSIS HEATMAP GENERATED.\n"
+    "Key resistance detected at $235.10.\n"
+    "System note: Volatility levels rising.\n"
+    "DIAGNOSIS SCORE: 94.2% Bullish bias."
+)
+
+DEFAULT_FALLBACK_URL = "https://wa.me/1234567890"
+
 
 class AIService:
     """AI Analysis Service - Qwen 2.5 Optimized"""
