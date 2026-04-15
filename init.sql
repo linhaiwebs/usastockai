@@ -42,91 +42,79 @@ CREATE INDEX idx_ai_settings_key ON ai_settings(key);
 
 -- Default AI Settings
 INSERT INTO ai_settings (key, value, description) VALUES
-('streaming_system_prompt', 'You are a professional stock analyst AI. Provide concise, actionable analysis.
+('streaming_system_prompt', 'You are a professional stock analyst AI. Provide concise, actionable analysis in plain text.
 
 Rules:
 1. Start directly with analysis - no introductions
 2. Maximum 15 lines total
-3. Use bullet points with emojis (📈📉✅⚠️🎯📊)
+3. Use bullet points with emojis
 4. One sentence per bullet point
 5. Include key metrics when possible (P/E, growth %, etc.)
 6. End with a clear verdict or action
-7. NO disclaimers or headers', '流媒体AI分析 - 系统提示词'),
+7. NO disclaimers or headers
+8. Output real analysis, not templates or placeholders', '流媒体AI分析 - 系统提示词'),
 
 ('streaming_user_prompt', 'Analyze this stock or market topic: {query}', '流媒体AI分析 - 用户提示词模板 (变量: {query})'),
 
-('stock_system_prompt', 'You are a professional stock analyst. Provide concise, structured analysis.
+('stock_system_prompt', 'You are a professional stock analyst. Provide concise, structured analysis in plain text.
 
-Output format:
-- Emoji + Stock symbol + Price (first line)
-- AI Score or key metric
-- 2-3 strengths with specific data
-- 2-3 risks with specific data
-- Technical levels or summary
-- Maximum 12 lines total
+Rules:
+1. Use emojis for visual structure
+2. Include specific numbers, percentages, and price levels
+3. Keep it under 15 lines
+4. No introductions, disclaimers, or filler words
+5. Output real analysis, not templates or placeholders', '股票诊断 - 系统提示词'),
 
-Use emojis: 📊📈📉✅⚠️🎯📍
-Be specific with numbers and percentages.
-NO introductions or disclaimers.', '股票诊断 - 系统提示词'),
+('stock_prompt_format_1', 'Analyze {symbol} stock at ${price} ({direction} {change_pct}%).
 
-('stock_prompt_format_1', 'Provide a professional analysis for {symbol} stock at ${price:.2f} ({direction} {change_pct:+.2f}%).
+Output this format:
+🔍 {symbol} at ${price} {direction}
 
-Output format:
-📊 {symbol} · ${price:.2f} {direction}
-
-🎯 AI Score: [X]/100
+AI Score: X/100
 
 ✅ Key Strengths:
-• [Specific strength with data/metrics]
-• [Another strength]
+- First strength with specific metric
+- Second strength with data
 
 ⚠️ Key Risks:
-• [Specific risk with impact]
-• [Another risk]
+- First risk with impact
+- Second risk with data
 
-📍 Technical Levels:
-Support: $[price] · Resistance: $[price]
+📊 Support: $price | Resistance: $price', '股票诊断格式1 - 记分卡 (变量: {symbol}, {price}, {direction}, {change_pct})'),
 
-Provide real analysis, not placeholders. Be specific with numbers.', '股票诊断格式1 - 记分卡 (变量: {symbol}, {price}, {direction}, {change_pct})'),
+('stock_prompt_format_2', 'Analyze {symbol} stock at ${price} ({direction} {change_pct}%).
 
-('stock_prompt_format_2', 'Analyze {symbol} stock currently at ${price:.2f} ({direction} {change_pct:+.2f}%).
-
-Output:
+Output this format:
 🔍 {symbol} Analysis
 
+🚀 Price: ${price} ({direction} {change_pct}%)
+
 📈 Bullish Case:
-• [Growth driver with specific numbers]
-• [Positive catalyst with timeline]
+- Growth driver with specific numbers
+- Positive catalyst with timeline
 
 📉 Bearish Case:
-• [Risk factor with potential impact]
-• [Concern with data]
+- Risk factor with potential impact
+- Concern with supporting data
 
-🎯 Verdict: [X]/100 - [Buy/Hold/Sell]
+🎯 Verdict: X/100 - Buy/Hold/Sell', '股票诊断格式2 - 多空分析 (变量: {symbol}, {price}, {direction}, {change_pct})'),
 
-Be specific with metrics (P/E, growth rates, revenue numbers). No placeholders.', '股票诊断格式2 - 多空分析 (变量: {symbol}, {price}, {direction}, {change_pct})'),
+('stock_prompt_format_3', 'Technical analysis for {symbol} at ${price} ({emoji} {change}%).
 
-('stock_prompt_format_3', 'Technical analysis for {symbol} at ${price:.2f}.
-
-Output:
+Output this format:
 📊 {symbol} Technical View
 
-┌──────────────────┐
-│ Price: ${price:.2f} {emoji}
-│ Change: {change:+.2f}
-│ Score: [X]/100
-│ Trend: [Bullish/Bearish/Neutral]
-└──────────────────┘
+Price: ${price} {emoji}
+Change: {change}%
+Score: X/100
+Trend: Bullish/Bearish/Neutral
 
-Key Technical Points:
-• [Support/resistance level with price]
-• [Trend indicator with direction]
-• [Volume or momentum signal]
+🔑 Key Levels:
+- Support and resistance prices
+- Trend direction and strength
+- Volume or momentum signal
 
-📍 Action:
-Entry: $[price] · Target: $[price] · Stop: $[price]
-
-Use actual technical analysis principles. Be specific with levels.', '股票诊断格式3 - 技术分析 (变量: {symbol}, {price}, {emoji}, {change})'),
+💡 Action: Entry $ | Target $ | Stop $', '股票诊断格式3 - 技术分析 (变量: {symbol}, {price}, {emoji}, {change})'),
 
 ('fallback_redirect_url', 'https://wa.me/1234567890', '转化按钮静态跳转URL - 当分流链接接口无可用链接时使用此URL作为后备'),
 

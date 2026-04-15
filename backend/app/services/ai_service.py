@@ -63,63 +63,56 @@ DEFAULT_STREAMING_SYSTEM = (
 DEFAULT_STREAMING_USER = "Analyze this stock or market topic: {query}"
 
 DEFAULT_STOCK_SYSTEM = (
-    "You are a professional stock analyst. Provide concise, structured analysis.\n\n"
-    "Output format:\n"
-    "- Emoji + Stock symbol + Price (first line)\n"
-    "- AI Score or key metric\n"
-    "- 2-3 strengths with specific data\n"
-    "- 2-3 risks with specific data\n"
-    "- Technical levels or summary\n"
-    "- Maximum 12 lines total\n\n"
-    "Use emojis. Be specific with numbers and percentages.\n"
-    "NO introductions or disclaimers."
+    "You are a professional stock analyst. Provide concise, structured analysis in plain text.\n\n"
+    "Rules:\n"
+    "1. Use emojis for visual structure\n"
+    "2. Include specific numbers, percentages, and price levels\n"
+    "3. Keep it under 15 lines\n"
+    "4. No introductions, disclaimers, or filler words\n"
+    "5. Output real analysis, not templates or placeholders"
 )
 
 DEFAULT_FORMAT_1 = (
-    "Provide a professional analysis for {symbol} stock at ${price} ({direction} {change_pct}%).\n\n"
-    "Output format:\n"
-    "{symbol} at ${price} {direction}\n\n"
-    "AI Score: [X]/100\n\n"
-    "Key Strengths:\n"
-    "- [Specific strength with data/metrics]\n"
-    "- [Another strength]\n\n"
-    "Key Risks:\n"
-    "- [Specific risk with impact]\n"
-    "- [Another risk]\n\n"
-    "Technical Levels:\n"
-    "Support: $[price] | Resistance: $[price]\n\n"
-    "Provide real analysis, not placeholders. Be specific with numbers."
+    "Analyze {symbol} stock at ${price} ({direction} {change_pct}%).\n\n"
+    "Output this format:\n"
+    "🔍 {symbol} at ${price} {direction}\n\n"
+    "AI Score: X/100\n\n"
+    "✅ Key Strengths:\n"
+    "- First strength with specific metric\n"
+    "- Second strength with data\n\n"
+    "⚠️ Key Risks:\n"
+    "- First risk with impact\n"
+    "- Second risk with data\n\n"
+    "📊 Support: $price | Resistance: $price\n"
 )
 
 DEFAULT_FORMAT_2 = (
-    "Analyze {symbol} stock currently at ${price} ({direction} {change_pct}%).\n\n"
-    "Output:\n"
-    "{symbol} Analysis\n\n"
-    "Bullish Case:\n"
-    "- [Growth driver with specific numbers]\n"
-    "- [Positive catalyst with timeline]\n\n"
-    "Bearish Case:\n"
-    "- [Risk factor with potential impact]\n"
-    "- [Concern with data]\n\n"
-    "Verdict: [X]/100 - [Buy/Hold/Sell]\n\n"
-    "Be specific with metrics (P/E, growth rates, revenue numbers). No placeholders."
+    "Analyze {symbol} stock at ${price} ({direction} {change_pct}%).\n\n"
+    "Output this format:\n"
+    "🔍 {symbol} Analysis\n\n"
+    "🚀 Price: ${price} ({direction} {change_pct}%)\n\n"
+    "📈 Bullish Case:\n"
+    "- Growth driver with specific numbers\n"
+    "- Positive catalyst with timeline\n\n"
+    "📉 Bearish Case:\n"
+    "- Risk factor with potential impact\n"
+    "- Concern with supporting data\n\n"
+    "🎯 Verdict: X/100 - Buy/Hold/Sell\n"
 )
 
 DEFAULT_FORMAT_3 = (
-    "Technical analysis for {symbol} at ${price}.\n\n"
-    "Output:\n"
-    "{symbol} Technical View\n\n"
+    "Technical analysis for {symbol} at ${price} ({emoji} {change}%).\n\n"
+    "Output this format:\n"
+    "📊 {symbol} Technical View\n\n"
     "Price: ${price} {emoji}\n"
-    "Change: {change}\n"
-    "Score: [X]/100\n"
-    "Trend: [Bullish/Bearish/Neutral]\n\n"
-    "Key Technical Points:\n"
-    "- [Support/resistance level with price]\n"
-    "- [Trend indicator with direction]\n"
-    "- [Volume or momentum signal]\n\n"
-    "Action:\n"
-    "Entry: $[price] | Target: $[price] | Stop: $[price]\n\n"
-    "Use actual technical analysis principles. Be specific with levels."
+    "Change: {change}%\n"
+    "Score: X/100\n"
+    "Trend: Bullish/Bearish/Neutral\n\n"
+    "🔑 Key Levels:\n"
+    "- Support and resistance prices\n"
+    "- Trend direction and strength\n"
+    "- Volume or momentum signal\n\n"
+    "💡 Action: Entry $ | Target $ | Stop $\n"
 )
 
 DEFAULT_DIAGNOSTIC_PLACEHOLDER = (
@@ -165,10 +158,10 @@ class AIService:
                 ],
                 stream=True,
                 temperature=0.7,
-                max_tokens=400,
+                max_tokens=600,
                 top_p=0.9,
-                frequency_penalty=0.4,
-                presence_penalty=0.4
+                frequency_penalty=0.0,
+                presence_penalty=0.0
             )
 
             async for chunk in stream:
@@ -222,10 +215,10 @@ class AIService:
                 ],
                 stream=True,
                 temperature=0.7,
-                max_tokens=300,
+                max_tokens=600,
                 top_p=0.9,
-                frequency_penalty=0.3,
-                presence_penalty=0.3
+                frequency_penalty=0.0,
+                presence_penalty=0.0
             )
 
             async for chunk in stream:

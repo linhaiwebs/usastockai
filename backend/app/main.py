@@ -61,6 +61,44 @@ async def startup_event():
         logger.error(f"❌ Database initialization failed: {e}")
         raise
 
+    # Migrate old broken prompt templates (had Python format syntax like {price:.2f})
+    try:
+        from .core.database import async_session
+        from .models.ai_setting import AISetting
+        from sqlalchemy import select, update
+
+        # Detect old format by checking if any prompt contains ":.2f" or ":+.2f"
+        async with async_session() as session:
+            result = await session.execute(
+                select(AISetting).where(AISetting.key.like("stock_prompt_format_%"))
+            )
+            rows = result.scalars().all()
+            needs_migration = any(":.2f" in (r.value or "") or ":+.2f" in (r.value or "") for r in rows)
+
+        if needs_migration:
+            from .services.ai_service import (
+                DEFAULT_FORMAT_1, DEFAULT_FORMAT_2, DEFAULT_FORMAT_3,
+                DEFAULT_STOCK_SYSTEM, DEFAULT_STREAMING_SYSTEM
+            )
+            async with async_session() as session:
+                migrations = {
+                    "stock_system_prompt": DEFAULT_STOCK_SYSTEM,
+                    "streaming_system_prompt": DEFAULT_STREAMING_SYSTEM,
+                    "stock_prompt_format_1": DEFAULT_FORMAT_1,
+                    "stock_prompt_format_2": DEFAULT_FORMAT_2,
+                    "stock_prompt_format_3": DEFAULT_FORMAT_3,
+                }
+                for key, value in migrations.items():
+                    await session.execute(
+                        update(AISetting).where(AISetting.key == key).values(value=value)
+                    )
+                await session.commit()
+            from .services.ai_service import invalidate_settings_cache
+            invalidate_settings_cache()
+            logger.info("✅ Migrated prompt templates (fixed format syntax)")
+    except Exception as e:
+        logger.warning(f"⚠️ Prompt migration skipped: {e}")
+
 
 @app.get("/")
 async def root():
