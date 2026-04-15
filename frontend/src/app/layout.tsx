@@ -3,15 +3,15 @@ import './globals.css'
 import GoogleAnalytics from '../components/GoogleAnalytics'
 
 export const metadata: Metadata = {
-  title: 'AI Stock Reverse Analysis | Deep Insights · Different from Traditional Diagnosis',
-  description: 'AI-powered stock reverse analysis platform — Discover hidden patterns, contrarian signals, and deep insights beyond traditional diagnosis. Multi-dimensional scoring, real-time streaming analysis, and actionable verdicts for US stocks.',
+  title: 'InsightLedger — Human-Centric Market Analysis',
+  description: 'AI-powered market intelligence platform — Smarter insights powered by intuitive data analysis for the modern investor. Real-time streaming analysis and actionable verdicts for US stocks.',
 }
 
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
   maximumScale: 1,
-  themeColor: '#070d1f',
+  themeColor: '#0f172a',
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -19,7 +19,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className="dark">
       <head>
         <link
-          href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Manrope:wght@300;400;500;600;700;800&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap"
           rel="stylesheet"
         />
         <link

@@ -3,37 +3,38 @@
 @tailwind utilities;
 
 body {
-  background-color: #070d1f;
-  color: #dfe4fe;
-  font-family: 'Manrope', sans-serif;
+  background-color: #0f172a;
+  color: #f1f5f9;
+  font-family: 'Inter', sans-serif;
   overflow-x: hidden;
 }
 
 ::selection {
-  background-color: rgba(153, 247, 255, 0.3);
-  color: #99f7ff;
+  background-color: rgba(56, 189, 248, 0.3);
+  color: #38bdf8;
 }
 
 /* ── Glass & Surface Effects ── */
 .glass-panel {
-  background: rgba(28, 37, 62, 0.4);
+  background: rgba(30, 41, 59, 0.6);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
 }
 
+.glass-nav {
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
 .cosmic-gradient {
   background:
-    radial-gradient(circle at top right, rgba(153, 247, 255, 0.05), transparent),
-    radial-gradient(circle at bottom left, rgba(213, 117, 255, 0.05), transparent);
+    radial-gradient(circle at top right, rgba(56, 189, 248, 0.06), transparent),
+    radial-gradient(circle at bottom left, rgba(129, 140, 248, 0.06), transparent);
 }
 
 .edge-light {
-  border-top: 1px solid rgba(153, 247, 255, 0.2);
-}
-
-.neon-border {
-  box-shadow: 0 0 10px rgba(153, 247, 255, 0.3);
-  border: 1px solid rgba(153, 247, 255, 0.5);
+  border-top: 1px solid rgba(56, 189, 248, 0.15);
 }
 
 /* ── Scrollbar ── */
@@ -41,7 +42,7 @@ body {
 .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
 ::-webkit-scrollbar { width: 0px; background: transparent; }
 
-/* ── Sticky CTA ── */
+/* ── Sticky CTA / Scroll Trigger Button ── */
 #sticky-cta {
   transform: translateY(100%);
   opacity: 0;
@@ -76,7 +77,7 @@ body {
   left: 50%;
   width: 100%;
   height: 100%;
-  border: 2px solid #99f7ff;
+  border: 2px solid #38bdf8;
   border-radius: 9999px;
   transform: translate(-50%, -50%);
   pointer-events: none;
@@ -87,7 +88,7 @@ body {
 .screen-mask {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.9);
+  background: rgba(15, 23, 42, 0.95);
   backdrop-filter: blur(8px);
   z-index: 90;
   opacity: 0;
@@ -109,7 +110,7 @@ body {
   transform: translate(-50%, -45%) scale(0.9);
   z-index: 110;
   width: 90%;
-  max-width: 400px;
+  max-width: 480px;
   opacity: 0;
   pointer-events: none;
   transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -120,38 +121,8 @@ body {
   pointer-events: auto;
 }
 
-.robot-body-wrapper {
-  filter: drop-shadow(0 0 15px rgba(153, 247, 255, 0.4));
-}
-
-.eye-glow-active {
-  background: #99f7ff !important;
-  animation: eye-glow 1.5s ease-in-out forwards;
-}
-
 .bloom-effect {
-  box-shadow: 0 10px 40px -5px rgba(153, 247, 255, 0.5);
-}
-
-.robot-hands-grip {
-  position: absolute;
-  bottom: -8px;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  justify-content: space-between;
-  width: 90%;
-  z-index: 30;
-}
-
-.hand {
-  width: 38px;
-  height: 16px;
-  background: #222b47;
-  border: 2px solid rgba(153, 247, 255, 0.4);
-  border-bottom: none;
-  border-radius: 8px 8px 0 0;
-  box-shadow: inset 0 2px 5px rgba(153, 247, 255, 0.2);
+  box-shadow: 0 10px 40px -5px rgba(56, 189, 248, 0.35);
 }
 
 /* ── Diagnostic Overlay ── */
@@ -167,18 +138,18 @@ body {
 
 .progress-bar-container {
   width: 100%;
-  height: 4px;
-  background: rgba(153, 247, 255, 0.1);
-  border-radius: 2px;
+  height: 6px;
+  background: rgba(56, 189, 248, 0.1);
+  border-radius: 3px;
   margin-bottom: 12px;
   overflow: hidden;
 }
 
 .progress-bar-fill {
   height: 100%;
-  background: #99f7ff;
+  background: #38bdf8;
   width: 0%;
-  box-shadow: 0 0 10px #99f7ff;
+  box-shadow: 0 0 10px #38bdf8;
 }
 
 /* ── Material Symbols ── */
@@ -201,29 +172,32 @@ body {
   animation-play-state: paused;
 }
 
-@keyframes hot-stocks-scroll {
-  0% {
-    transform: translateY(0);
-  }
-  100% {
-    transform: translateY(-33.33%);
-  }
+/* ── Marquee Ticker ── */
+.animate-marquee {
+  display: flex;
+  width: fit-content;
+  animation: marquee 40s linear infinite;
+}
+
+/* ── Loading Bar Animation ── */
+.loading-bar-anim {
+  animation: loadingProgress 1.5s ease-in-out forwards;
 }
 
 /* ── Modal Conversion Button Effects ── */
 #modal-submit-btn.animate-btn-activate {
   position: relative;
-  background: #99f7ff !important;
-  color: #070d1f !important;
+  background: #38bdf8 !important;
+  color: #0f172a !important;
   border: none !important;
-  animation: btn-breathe 2.5s ease-in-out infinite, btn-activate 1s cubic-bezier(0.34, 1.56, 0.64, 1) forwards !important;
+  animation: btn-breathe 2.5s ease-in-out infinite, btn-activate 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards !important;
   filter: grayscale(0) !important;
   opacity: 1 !important;
   overflow: hidden;
   z-index: 1;
 }
 
-/* Flowing rainbow border using pseudo-element */
+/* Gradient border effect */
 #modal-submit-btn.animate-btn-activate::before {
   content: '';
   position: absolute;
@@ -231,11 +205,11 @@ body {
   border-radius: 9999px;
   background: conic-gradient(
     from 0deg,
-    #99f7ff,
-    #d575ff,
-    #00f1fe,
-    #ff59e3,
-    #99f7ff
+    #38bdf8,
+    #818cf8,
+    #c084fc,
+    #38bdf8,
+    #38bdf8
   );
   z-index: -2;
   animation: border-spin 3s linear infinite;
@@ -246,27 +220,27 @@ body {
   position: absolute;
   inset: 2px;
   border-radius: 9999px;
-  background: #99f7ff;
+  background: #38bdf8;
   z-index: -1;
 }
 
 @keyframes btn-breathe {
   0%, 100% {
-    box-shadow: 0 0 15px rgba(153, 247, 255, 0.3), 0 0 30px rgba(153, 247, 255, 0.1);
+    box-shadow: 0 0 15px rgba(56, 189, 248, 0.3), 0 0 30px rgba(56, 189, 248, 0.1);
     transform: scale(1);
   }
   50% {
-    box-shadow: 0 0 25px rgba(153, 247, 255, 0.5), 0 0 50px rgba(153, 247, 255, 0.2), 0 0 80px rgba(213, 117, 255, 0.1);
+    box-shadow: 0 0 25px rgba(56, 189, 248, 0.5), 0 0 50px rgba(56, 189, 248, 0.2), 0 0 80px rgba(129, 140, 248, 0.1);
     transform: scale(1.02);
   }
 }
 
 @keyframes border-spin {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
+@keyframes loadingProgress {
+  0% { width: 0%; }
+  100% { width: 100%; }
+}

@@ -1,18 +1,21 @@
 # Planet Discovery — USA Stock AI Diagnostic System
 
 ## Project Overview
-AI-powered US stock sentiment analysis platform. Frontend redesigned with Stitch "Planet Discovery Home" project theme.
+AI-powered US stock sentiment analysis platform. Frontend redesigned with Stitch "InsightLedger" project theme (Neon Cyber-Editorial design system).
 
 ## Architecture
 - **Frontend**: Next.js 14 (App Router) + TailwindCSS + TypeScript
 - **Backend**: FastAPI (Python) + SQLAlchemy + MySQL
 - **AI Model**: Qwen2.5-7B-Instruct (via vLLM)
-- **Design System**: Planet Discovery Light Theme (#137fec brand, Inter font, 8px border-radius)
+- **Design System**: InsightLedger Dark Theme (#38bdf8 sky-blue primary, #818cf8 indigo secondary, #c084fc violet tertiary, #0f172a background)
 
 ## Frontend Design
-- Light mode with `#137fec` brand blue accent
-- Sections: Navbar → Hero → FeatureGrid → HowItWorks → SearchBox → CTASection → Footer
-- AnalysisModal opens as overlay when user clicks "Scan Now"
+- Dark mode with `#38bdf8` sky-blue accent, `#818cf8` indigo, `#c084fc` violet
+- Fonts: Space Grotesk (headlines), Inter (body), Material Symbols Outlined (icons)
+- Sections: TickerBar → Navbar → Hero (search + CTA) → StockData → Features → Stats → SectorIntelligence → Capabilities → CTA → Footer
+- Diagnostic modal opens as overlay when user clicks "Get Smart Analysis"
+- Marquee ticker bar with real-time stock data
+- Scroll-triggered FAB (fixed bottom CTA appears after 70% scroll)
 - Google Analytics integration via backend API
 - Redirect system `/r/[id]` for WhatsApp CTA
 
