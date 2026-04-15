@@ -3,8 +3,8 @@ import './globals.css'
 import GoogleAnalytics from '../components/GoogleAnalytics'
 
 export const metadata: Metadata = {
-  title: 'COSMIC INTEL | The Celestial Oracle',
-  description: 'AI Stock Diagnostic Framework — Stellar Intelligence for the Digital Ether',
+  title: 'AI Stock Reverse Analysis | Deep Insights · Different from Traditional Diagnosis',
+  description: 'AI-powered stock reverse analysis platform — Discover hidden patterns, contrarian signals, and deep insights beyond traditional diagnosis. Multi-dimensional scoring, real-time streaming analysis, and actionable verdicts for US stocks.',
 }
 
 export const viewport: Viewport = {
