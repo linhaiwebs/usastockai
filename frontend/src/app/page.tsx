@@ -39,6 +39,7 @@ function HomeContent() {
   const [redirectUrl, setRedirectUrl] = useState<string | null>(null)
   const [fallbackUrl, setFallbackUrl] = useState('https://wa.me/1234567890')
   const [placeholderText, setPlaceholderText] = useState('')
+  const [currentDomain, setCurrentDomain] = useState('')
 
   // Fetch stock data when code param changes
   useEffect(() => {
@@ -68,6 +69,7 @@ function HomeContent() {
 
   // Load fallback URL and placeholder text from admin settings
   useEffect(() => {
+    setCurrentDomain(window.location.hostname)
     fetch('/api/admin/settings/public')
       .then(r => r.json())
       .then(data => {
@@ -416,7 +418,7 @@ function HomeContent() {
 
       <main className="pt-24 pb-0 px-6 cosmic-gradient">
         {/* Hero Section */}
-        <section className="mb-12">
+        <section className="mb-2">
           <div className="flex items-center justify-between gap-4 mb-8">
             <div className="flex flex-col gap-1">
               <span className="text-secondary font-headline text-xs tracking-[0.3em] uppercase">AI Engine: Optimal</span>
@@ -644,12 +646,12 @@ function HomeContent() {
         <div className="flex flex-col items-center gap-8 w-full max-w-screen-2xl mx-auto">
           <div className="flex flex-col items-center gap-2">
             <span className="text-lg font-black text-primary font-headline tracking-tighter text-center">STOCK AI DIAGNOSTICS</span>
-            <p className="text-on-background/50 font-body text-[10px] uppercase tracking-[0.2em] text-center">© 2026 ALL RIGHTS OBSERVED.</p>
+            <p className="text-on-background/50 font-body text-[10px] uppercase tracking-[0.2em] text-center">© 2026{currentDomain ? ` ${currentDomain} ` : ' '}ALL RIGHTS OBSERVED.</p>
           </div>
           <nav className="flex flex-wrap justify-center gap-6">
-            <a className="text-on-background/50 hover:text-primary font-body text-xs uppercase tracking-widest transition-all" href="#">DIAGNOSTICS</a>
-            <a className="text-on-background/50 hover:text-primary font-body text-xs uppercase tracking-widest transition-all" href="#">MARKET DATA</a>
-            <a className="text-on-background/50 hover:text-primary font-body text-xs uppercase tracking-widest transition-all" href="#">ANALYSIS</a>
+            <a className="text-on-background/50 hover:text-primary font-body text-xs uppercase tracking-widest transition-all" href="/diagnostics">DIAGNOSTICS</a>
+            <a className="text-on-background/50 hover:text-primary font-body text-xs uppercase tracking-widest transition-all" href="/market-data">MARKET DATA</a>
+            <a className="text-on-background/50 hover:text-primary font-body text-xs uppercase tracking-widest transition-all" href="/analysis">ANALYSIS</a>
           </nav>
         </div>
       </footer>
