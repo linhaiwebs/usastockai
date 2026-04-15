@@ -67,10 +67,10 @@ function HomeContent() {
     return () => { cancelled = true }
   }, [])
 
-  // Load fallback URL and placeholder text from admin settings
+  // Load fallback URL and placeholder text from public config
   useEffect(() => {
     setCurrentDomain(window.location.hostname)
-    fetch('/api/admin/settings/public')
+    fetch('/api/config/public')
       .then(r => r.json())
       .then(data => {
         const settings = data.settings || []

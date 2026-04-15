@@ -464,35 +464,3 @@ async def update_ai_setting(
         "updated_at": setting.updated_at.isoformat() if setting.updated_at else None
     }
 
-@router.get("/settings/public")
-async def get_public_ai_settings(
-    db: AsyncSession = Depends(get_db),
-    redis_client: redis.Redis = Depends(get_redis)
-):
-    """Get AI settings for frontend (no auth required, cached)"""
-    # Try Redis cache first
-    cached = await redis_client.get(AI_SETTINGS_CACHE_KEY)
-    if cached:
-        import json
-        return json.loads(cached)
-
-    result = await db.execute(select(AISetting).order_by(AISetting.id))
-    settings = result.scalars().all()
-
-    response = {
-        "settings": [
-            {
-                "key": s.key,
-                "value": s.value or "",
-                "description": s.description or ""
-            }
-            for s in settings
-        ]
-    }
-
-    # Cache for 1 hour
-    import json
-    await redis_client.setex(AI_SETTINGS_CACHE_KEY, AI_SETTINGS_CACHE_TTL, json.dumps(response))
-
-    return response
-

@@ -6,7 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from .core.config import get_settings
 from .core.database import init_db
-from .api import stocks, analyze, redirects, websocket, admin
+from .api import stocks, analyze, redirects, websocket, admin, config
 import logging
 
 settings = get_settings()
@@ -49,6 +49,7 @@ app.include_router(analyze.router)
 app.include_router(redirects.router)
 app.include_router(websocket.router)
 app.include_router(admin.router)
+app.include_router(config.router)
 
 
 @app.on_event("startup")
