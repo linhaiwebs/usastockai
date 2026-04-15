@@ -2,12 +2,16 @@
 股票数据服务 - 基于 finance-query 自部署或托管服务
 """
 import asyncio
+import json
+import logging
 from typing import List, Dict, Optional
 import httpx
 from datetime import datetime, timedelta
 from ..core.config import get_settings
+from ..core.redis import redis_manager
 
 settings = get_settings()
+logger = logging.getLogger(__name__)
 
 
 class StockService:
@@ -18,13 +22,15 @@ class StockService:
         self.base_url = settings.FINANCE_QUERY_URL
         
         # 缓存配置
-        self.cache: Dict[str, Dict] = {}
-        self.cache_ttl = 300  # 5分钟缓存
+        self._memory_cache: Dict[str, Dict] = {}
+        self._cache_ttl = 120   # 内存缓存 2 分钟
+        self._hot_cache_ttl = 300  # 热门股票缓存 5 分钟
         
-        # 速率限制
-        self.last_request_time = 0
-        self.min_request_interval = 0.1  # 100ms
-        self.request_semaphore = asyncio.Semaphore(10)
+        # 持久化 httpx 客户端（连接复用，避免每次重建 TCP+TLS）
+        self._http_client: Optional[httpx.AsyncClient] = None
+        
+        # 并发控制
+        self._request_semaphore = asyncio.Semaphore(10)
         
         # 请求头
         self.headers = {
@@ -32,127 +38,150 @@ class StockService:
             'Accept': 'application/json',
         }
     
-    def _is_cache_valid(self, cache_key: str) -> bool:
-        """检查缓存是否有效"""
-        if cache_key not in self.cache:
+    async def _get_http_client(self) -> httpx.AsyncClient:
+        """获取或创建持久化 httpx 客户端"""
+        if self._http_client is None or self._http_client.is_closed:
+            self._http_client = httpx.AsyncClient(
+                headers=self.headers,
+                timeout=httpx.Timeout(8.0, connect=3.0),
+                limits=httpx.Limits(max_connections=20, max_keepalive_connections=10),
+            )
+        return self._http_client
+    
+    # ── 缓存层 ──────────────────────────────────────────────
+    
+    def _is_cache_valid(self, cache_key: str, ttl: int = None) -> bool:
+        """检查内存缓存是否有效"""
+        if cache_key not in self._memory_cache:
             return False
-        
-        cached = self.cache[cache_key]
-        return datetime.now() - cached['timestamp'] < timedelta(seconds=self.cache_ttl)
+        effective_ttl = ttl or self._cache_ttl
+        cached = self._memory_cache[cache_key]
+        return datetime.now() - cached['timestamp'] < timedelta(seconds=effective_ttl)
     
     def _get_from_cache(self, cache_key: str) -> Optional[any]:
-        """从缓存获取数据"""
+        """从内存缓存获取数据"""
         if self._is_cache_valid(cache_key):
-            return self.cache[cache_key]['data']
+            return self._memory_cache[cache_key]['data']
         return None
     
-    def _save_to_cache(self, cache_key: str, data: any):
-        """保存数据到缓存"""
-        self.cache[cache_key] = {
+    def _save_to_cache(self, cache_key: str, data: any, ttl: int = None):
+        """保存数据到内存缓存"""
+        self._memory_cache[cache_key] = {
             'data': data,
             'timestamp': datetime.now()
         }
     
-    async def _rate_limit(self):
-        """速率限制"""
-        async with self.request_semaphore:
-            current_time = asyncio.get_event_loop().time()
-            time_since_last = current_time - self.last_request_time
-            
-            if time_since_last < self.min_request_interval:
-                await asyncio.sleep(self.min_request_interval - time_since_last)
-            
-            self.last_request_time = asyncio.get_event_loop().time()
+    async def _get_from_redis(self, key: str) -> Optional[any]:
+        """从 Redis 获取缓存"""
+        try:
+            if redis_manager._client is None:
+                return None
+            data = await redis_manager._client.get(key)
+            if data:
+                return json.loads(data)
+        except Exception as e:
+            logger.debug(f"Redis read miss for {key}: {e}")
+        return None
+    
+    async def _save_to_redis(self, key: str, data: any, ttl: int = 300):
+        """保存到 Redis 缓存"""
+        try:
+            if redis_manager._client is None:
+                return
+            await redis_manager._client.setex(key, ttl, json.dumps(data, default=str))
+        except Exception as e:
+            logger.debug(f"Redis write miss for {key}: {e}")
+    
+    # ── HTTP 请求 ────────────────────────────────────────────
     
     async def _make_request(self, endpoint: str, params: dict = None) -> Optional[dict]:
-        """发送HTTP请求（带缓存和速率限制）"""
-        # 生成缓存键
+        """发送HTTP请求（带多层缓存）"""
         cache_key = f"{endpoint}?{sorted(params.items()) if params else ''}"
         
-        # 检查缓存
+        # 1. 内存缓存（最快）
         cached_data = self._get_from_cache(cache_key)
         if cached_data is not None:
             return cached_data
         
-        # 速率限制
-        await self._rate_limit()
+        # 2. Redis 缓存（次快，跨进程/重启共享）
+        redis_key = f"stock:{cache_key}"
+        redis_data = await self._get_from_redis(redis_key)
+        if redis_data is not None:
+            self._save_to_cache(cache_key, redis_data)
+            return redis_data
         
-        url = f"{self.base_url}{endpoint}"
-        
-        async with httpx.AsyncClient(headers=self.headers, timeout=10.0) as client:
+        # 3. HTTP 请求
+        async with self._request_semaphore:
+            client = await self._get_http_client()
+            url = f"{self.base_url}{endpoint}"
+            
             try:
                 response = await client.get(url, params=params)
                 
                 if response.status_code == 429:
-                    print(f"Rate limited, waiting before retry...")
+                    logger.warning(f"Rate limited on {endpoint}")
                     await asyncio.sleep(1)
                     return None
                 
                 response.raise_for_status()
                 data = response.json()
                 
-                # 保存到缓存
+                # 写入双层缓存
                 self._save_to_cache(cache_key, data)
+                await self._save_to_redis(redis_key, data, self._cache_ttl)
                 
                 return data
-            except Exception as e:
-                print(f"Request error: {e}")
+            except httpx.TimeoutException:
+                logger.warning(f"Timeout on {endpoint}")
                 return None
+            except Exception as e:
+                logger.error(f"Request error on {endpoint}: {e}")
+                return None
+    
+    # ── 业务接口 ─────────────────────────────────────────────
     
     async def search_stocks(self, query: str) -> List[Dict]:
         """搜索股票自动补全"""
         if not query or len(query) < 1:
             return []
         
-        # 使用 finance-query 的 search 端点
         data = await self._make_request("/v2/search", {"q": query})
-        
         if not data:
             return []
         
         results = []
-        
-        # finance-query 返回格式
-        quotes = data.get("quotes", [])
-        for item in quotes[:10]:  # 限制返回10个结果
+        for item in data.get("quotes", [])[:10]:
             results.append({
                 "symbol": item.get("symbol", ""),
                 "name": item.get("shortname", item.get("longname", "")),
                 "type": item.get("quoteType", "EQUITY"),
                 "exchange": item.get("exchange", "")
             })
-        
         return results
     
     def _parse_price_field(self, field) -> Optional[float]:
         """解析价格字段（可能是数值或字典）"""
         if field is None:
             return None
-        
         if isinstance(field, dict):
             return field.get("raw")
-        else:
-            try:
-                return float(field)
-            except (ValueError, TypeError):
-                return None
+        try:
+            return float(field)
+        except (ValueError, TypeError):
+            return None
     
     async def get_quote(self, symbol: str) -> Optional[Dict]:
         """获取股票实时报价"""
-        # 使用 finance-query 的 quote 端点
         data = await self._make_request(f"/v2/quote/{symbol.upper()}")
-        
         if not data:
             return None
         
         try:
-            # 解析价格字段（支持多种格式）
             price = self._parse_price_field(data.get("regularMarketPrice"))
             change = self._parse_price_field(data.get("regularMarketChange"))
             change_percent = self._parse_price_field(data.get("regularMarketChangePercent"))
             volume = self._parse_price_field(data.get("regularMarketVolume"))
             
-            # 验证：价格必须有效且大于0
             if price is None or price <= 0:
                 return None
 
@@ -165,87 +194,75 @@ class StockService:
                 "volume": int(volume) if volume else 0
             }
         except Exception as e:
-            print(f"Parse quote error for {symbol}: {e}")
+            logger.error(f"Parse quote error for {symbol}: {e}")
             return None
     
-    def _get_mock_quote(self, symbol: str) -> Dict:
-        """返回模拟报价数据（当API不可用时）"""
-        import random
-        
-        # 模拟价格数据
-        mock_prices = {
-            'SPY': 675.0,
-            'QQQ': 450.0,
-            'AAPL': 200.0,
-            'MSFT': 420.0,
-            'TSLA': 250.0,
-            'NVDA': 880.0,
-            'AMZN': 185.0,
-            'GOOGL': 175.0,
-            'META': 500.0,
-            'AMD': 165.0
-        }
-        
-        base_price = mock_prices.get(symbol.upper(), random.uniform(50, 200))
-        change = random.uniform(-5, 5)
-        change_percent = (change / base_price) * 100
-        
-        return {
-            "symbol": symbol.upper(),
-            "name": f"{symbol.upper()} Inc.",
-            "price": round(base_price, 2),
-            "change": round(change, 2),
-            "change_percent": round(change_percent, 2),
-            "volume": random.randint(1000000, 50000000)
-        }
-    
     async def get_hot_stocks(self) -> List[Dict]:
-        """获取热门股票列表"""
-        # 热门美股列表
+        """获取热门股票列表（Redis 长缓存 + 并行获取后备）"""
         hot_symbols = ["SPY", "QQQ", "AAPL", "MSFT", "TSLA", "NVDA", "AMZN", "GOOGL", "META", "AMD"]
         
-        # 使用 finance-query 的批量 quotes 端点
+        # 1. 检查 Redis 热门股票专用缓存（5 分钟）
+        redis_key = "stock:hot_stocks"
+        redis_data = await self._get_from_redis(redis_key)
+        if redis_data:
+            return redis_data
+        
+        # 2. 内存缓存
+        mem_data = self._get_from_cache("hot_stocks")
+        if mem_data:
+            return mem_data
+        
+        # 3. 批量获取
         symbols_str = ",".join(hot_symbols)
         data = await self._make_request("/v2/quotes", {"symbols": symbols_str})
         
-        if not data:
-            # 逐个获取作为后备
-            quotes = []
-            for symbol in hot_symbols:
-                quote = await self.get_quote(symbol)
-                if quote:
-                    quotes.append(quote)
-            return quotes
+        if data:
+            try:
+                quotes = []
+                quotes_data = data.get("quotes", {})
+                
+                for symbol in hot_symbols:
+                    if symbol in quotes_data:
+                        qd = quotes_data[symbol]
+                        price = self._parse_price_field(qd.get("regularMarketPrice"))
+                        change = self._parse_price_field(qd.get("regularMarketChange"))
+                        change_pct = self._parse_price_field(qd.get("regularMarketChangePercent"))
+                        volume = self._parse_price_field(qd.get("regularMarketVolume"))
+                        
+                        if price is not None and price > 0:
+                            quotes.append({
+                                "symbol": symbol,
+                                "name": qd.get("shortName", qd.get("longName", "")),
+                                "price": price,
+                                "change": change or 0,
+                                "change_percent": change_pct or 0,
+                                "volume": int(volume) if volume else 0
+                            })
+                
+                if quotes:
+                    # 双层缓存
+                    self._save_to_cache("hot_stocks", quotes, self._hot_cache_ttl)
+                    await self._save_to_redis(redis_key, quotes, self._hot_cache_ttl)
+                    return quotes
+            except Exception as e:
+                logger.error(f"Parse hot stocks error: {e}")
         
-        try:
-            # finance-query 批量返回格式
-            quotes = []
-            quotes_data = data.get("quotes", {})
-            
-            for symbol in hot_symbols:
-                if symbol in quotes_data:
-                    quote_data = quotes_data[symbol]
-                    
-                    price = self._parse_price_field(quote_data.get("regularMarketPrice"))
-                    change = self._parse_price_field(quote_data.get("regularMarketChange"))
-                    change_percent = self._parse_price_field(quote_data.get("regularMarketChangePercent"))
-                    volume = self._parse_price_field(quote_data.get("regularMarketVolume"))
-                    
-                    # 验证价格有效性
-                    if price is not None and price > 0:
-                        quotes.append({
-                            "symbol": symbol,
-                            "name": quote_data.get("shortName", quote_data.get("longName", "")),
-                            "price": price,
-                            "change": change or 0,
-                            "change_percent": change_percent or 0,
-                            "volume": int(volume) if volume else 0
-                        })
-            
-            return quotes
-        except Exception as e:
-            print(f"Parse hot stocks error: {e}")
-            return []
+        # 4. 并行逐个获取作为后备
+        tasks = [self.get_quote(s) for s in hot_symbols]
+        results = await asyncio.gather(*tasks, return_exceptions=True)
+        quotes = [r for r in results if isinstance(r, dict)]
+        
+        if quotes:
+            self._save_to_cache("hot_stocks", quotes, self._hot_cache_ttl)
+            await self._save_to_redis(redis_key, quotes, self._hot_cache_ttl)
+        
+        return quotes
+    
+    async def close(self):
+        """关闭持久化 HTTP 客户端"""
+        if self._http_client and not self._http_client.is_closed:
+            await self._http_client.aclose()
+            self._http_client = None
 
 
 # 创建全局实例

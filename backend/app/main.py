@@ -61,6 +61,14 @@ async def startup_event():
         logger.error(f"❌ Database initialization failed: {e}")
         raise
 
+    # Connect Redis for stock data caching
+    try:
+        from .core.redis import redis_manager
+        await redis_manager.connect()
+        logger.info("✅ Redis connected for stock data caching")
+    except Exception as e:
+        logger.warning(f"⚠️ Redis connection failed (will use memory cache only): {e}")
+
     # Migrate old broken prompt templates (had Python format syntax like {price:.2f})
     try:
         from .core.database import async_session
@@ -98,6 +106,24 @@ async def startup_event():
             logger.info("✅ Migrated prompt templates (fixed format syntax)")
     except Exception as e:
         logger.warning(f"⚠️ Prompt migration skipped: {e}")
+
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    """应用关闭时清理资源"""
+    try:
+        from .core.redis import redis_manager
+        await redis_manager.disconnect()
+        logger.info("✅ Redis disconnected")
+    except Exception:
+        pass
+
+    try:
+        from .services.stock_service import stock_service
+        await stock_service.close()
+        logger.info("✅ HTTP client closed")
+    except Exception:
+        pass
 
 
 @app.get("/")
