@@ -96,25 +96,59 @@ function HomeContent() {
     }
   }, [])
 
+  // Ref to track active stream for abort
+  const streamControllerRef = useRef<AbortController | null>(null)
+
   const startAnalysisStream = useCallback((symbol: string) => {
+    // Abort previous stream if any
+    if (streamControllerRef.current) {
+      streamControllerRef.current.abort()
+    }
+    const controller = new AbortController()
+    streamControllerRef.current = controller
+
     setIsStreaming(true)
     setAnalysisContent('')
+
     const url = `/api/analyze/${encodeURIComponent(symbol)}`
-    const eventSource = new EventSource(url)
-    let fullText = ''
 
-    eventSource.onmessage = (event) => {
-      fullText += event.data
-      setAnalysisContent(fullText)
-    }
+    fetch(url, { signal: controller.signal })
+      .then(async (response) => {
+        if (!response.ok) {
+          setAnalysisContent('❌ Stock not found or AI service unavailable.')
+          setIsStreaming(false)
+          return
+        }
+        const reader = response.body?.getReader()
+        if (!reader) {
+          setAnalysisContent('❌ Stream read error.')
+          setIsStreaming(false)
+          return
+        }
+        const decoder = new TextDecoder()
+        let fullText = ''
 
-    eventSource.onerror = () => {
-      eventSource.close()
-      setIsStreaming(false)
-      if (!fullText) {
-        setAnalysisContent('❌ AI analysis unavailable. Please try again.')
-      }
-    }
+        while (true) {
+          const { done, value } = await reader.read()
+          if (done) break
+          const chunk = decoder.decode(value, { stream: true })
+          // Parse SSE format: "data: xxx\n\n"
+          const lines = chunk.split('\n')
+          for (const line of lines) {
+            if (line.startsWith('data: ')) {
+              fullText += line.slice(6)
+              setAnalysisContent(fullText)
+            }
+          }
+        }
+        setIsStreaming(false)
+      })
+      .catch((err) => {
+        if (err.name !== 'AbortError') {
+          setAnalysisContent('❌ AI analysis unavailable. Please try again.')
+        }
+        setIsStreaming(false)
+      })
   }, [])
 
   const openModal = useCallback(() => {
@@ -128,8 +162,6 @@ function HomeContent() {
     if (!modal) return
 
     modal.classList.add('active')
-    setAnalysisContent('')
-    setIsStreaming(false)
     setRedirectUrl(null)
 
     // Pre-fetch redirect link during modal loading
@@ -157,14 +189,16 @@ function HomeContent() {
         }
       }, 1200)
     }, 300)
-
-    // Start SSE stream if we have a stock code
-    if (stockCode) {
-      startAnalysisStream(stockCode)
-    }
-  }, [stockCode, startAnalysisStream])
+  }, [])
 
   const closeModal = useCallback(() => {
+    // Abort any active stream
+    if (streamControllerRef.current) {
+      streamControllerRef.current.abort()
+      streamControllerRef.current = null
+    }
+    setIsStreaming(false)
+
     const modal = document.getElementById('oracle-modal')
     const mask = document.getElementById('global-mask')
     const halo = document.getElementById('modal-halo')
@@ -176,7 +210,7 @@ function HomeContent() {
   }, [])
 
   const animateBars = useCallback((btn: HTMLElement, originalText: string, icon: HTMLElement | null) => {
-    const duration = 2500
+    const duration = 1500
     const start = Date.now()
 
     function update() {
@@ -223,6 +257,11 @@ function HomeContent() {
     if (isAnalyzingRef.current) return
     isAnalyzingRef.current = true
 
+    // Start AI stream immediately on click (not after animation)
+    if (stockCode && stockData) {
+      startAnalysisStream(stockCode)
+    }
+
     const btn = e.currentTarget
     const mask = document.getElementById('global-mask')
     const diagnosticOverlay = document.getElementById('diagnostic-overlay')
@@ -241,7 +280,7 @@ function HomeContent() {
       if (diagnosticOverlay) diagnosticOverlay.style.display = 'flex'
       animateBars(btn, originalText, icon)
     }, 100)
-  }, [createFloatingSymbols, animateBars])
+  }, [createFloatingSymbols, animateBars, stockCode, stockData, startAnalysisStream])
 
   useEffect(() => {
     const handleScroll = () => {

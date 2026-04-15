@@ -11,6 +11,7 @@ import { NextRequest, NextResponse } from 'next/server'
  * 
  * Supports: GET, POST, PUT, DELETE, OPTIONS
  * Forwards all headers including Authorization for admin API.
+ * SSE streaming supported for /api/analyze/* endpoints.
  */
 
 function getBackendURL(): string {
@@ -32,6 +33,11 @@ function getProxyHeaders(request: NextRequest): Record<string, string> {
   })
   headers['Accept'] = headers['Accept'] || 'application/json'
   return headers
+}
+
+/** Check if path is an SSE streaming endpoint */
+function isSSEPath(path: string[]): boolean {
+  return path.length >= 1 && path[0] === 'analyze'
 }
 
 async function proxyRequest(
@@ -56,6 +62,43 @@ async function proxyRequest(
     }
 
     const res = await fetch(targetURL, fetchOpts)
+
+    // SSE streaming: pipe chunks directly without buffering
+    if (isSSEPath(params.path)) {
+      const stream = new ReadableStream({
+        async start(controller) {
+          const reader = res.body?.getReader()
+          if (!reader) {
+            controller.close()
+            return
+          }
+          const decoder = new TextDecoder()
+          try {
+            while (true) {
+              const { done, value } = await reader.read()
+              if (done) break
+              controller.enqueue(value)
+            }
+          } catch {
+            // Client disconnected
+          } finally {
+            controller.close()
+          }
+        },
+      })
+
+      return new NextResponse(stream, {
+        status: res.status,
+        headers: {
+          'Content-Type': 'text/event-stream',
+          'Cache-Control': 'no-cache',
+          'Connection': 'keep-alive',
+          'Access-Control-Allow-Origin': '*',
+        },
+      })
+    }
+
+    // Non-streaming: buffer full response
     const data = await res.text()
     return new NextResponse(data, {
       status: res.status,
