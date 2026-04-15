@@ -171,19 +171,20 @@ class StockService:
             return None
     
     async def get_quote(self, symbol: str) -> Optional[Dict]:
-        """获取股票实时报价"""
+        """获取股票实时报价（含扩展数据）"""
         data = await self._make_request(f"/v2/quote/{symbol.upper()}")
         if not data:
             return None
         
         try:
             price = self._parse_price_field(data.get("regularMarketPrice"))
+            if price is None or price <= 0:
+                return None
+
             change = self._parse_price_field(data.get("regularMarketChange"))
             change_percent = self._parse_price_field(data.get("regularMarketChangePercent"))
             volume = self._parse_price_field(data.get("regularMarketVolume"))
-            
-            if price is None or price <= 0:
-                return None
+            market_cap = self._parse_price_field(data.get("marketCap"))
 
             return {
                 "symbol": symbol.upper(),
@@ -191,7 +192,25 @@ class StockService:
                 "price": price,
                 "change": change or 0,
                 "change_percent": change_percent or 0,
-                "volume": int(volume) if volume else 0
+                "volume": int(volume) if volume else 0,
+                # 扩展字段
+                "market_cap": int(market_cap) if market_cap else 0,
+                "pe_ratio": self._parse_price_field(data.get("trailingPE")) or self._parse_price_field(data.get("forwardPE")),
+                "dividend_yield": self._parse_price_field(data.get("dividendYield")),
+                "fifty_two_week_high": self._parse_price_field(data.get("fiftyTwoWeekHigh")),
+                "fifty_two_week_low": self._parse_price_field(data.get("fiftyTwoWeekLow")),
+                "beta": self._parse_price_field(data.get("beta")),
+                "sector": data.get("sector", ""),
+                "industry": data.get("industry", ""),
+                "day_high": self._parse_price_field(data.get("regularMarketDayHigh")) or self._parse_price_field(data.get("dayHigh")),
+                "day_low": self._parse_price_field(data.get("regularMarketDayLow")) or self._parse_price_field(data.get("dayLow")),
+                "open": self._parse_price_field(data.get("regularMarketOpen")),
+                "prev_close": self._parse_price_field(data.get("regularMarketPreviousClose")),
+                "avg_volume": self._parse_price_field(data.get("averageDailyVolume3Month")) or self._parse_price_field(data.get("averageVolume")),
+                "eps": self._parse_price_field(data.get("trailingEps")) or self._parse_price_field(data.get("forwardEps")),
+                "target_mean_price": self._parse_price_field(data.get("targetMeanPrice")),
+                "currency": data.get("currency", "USD"),
+                "exchange": data.get("exchangeName", data.get("exchange", "")),
             }
         except Exception as e:
             logger.error(f"Parse quote error for {symbol}: {e}")
@@ -228,6 +247,7 @@ class StockService:
                         change = self._parse_price_field(qd.get("regularMarketChange"))
                         change_pct = self._parse_price_field(qd.get("regularMarketChangePercent"))
                         volume = self._parse_price_field(qd.get("regularMarketVolume"))
+                        market_cap = self._parse_price_field(qd.get("marketCap"))
                         
                         if price is not None and price > 0:
                             quotes.append({
@@ -236,7 +256,14 @@ class StockService:
                                 "price": price,
                                 "change": change or 0,
                                 "change_percent": change_pct or 0,
-                                "volume": int(volume) if volume else 0
+                                "volume": int(volume) if volume else 0,
+                                "market_cap": int(market_cap) if market_cap else 0,
+                                "pe_ratio": self._parse_price_field(qd.get("trailingPE")) or self._parse_price_field(qd.get("forwardPE")),
+                                "dividend_yield": self._parse_price_field(qd.get("dividendYield")),
+                                "fifty_two_week_high": self._parse_price_field(qd.get("fiftyTwoWeekHigh")),
+                                "fifty_two_week_low": self._parse_price_field(qd.get("fiftyTwoWeekLow")),
+                                "sector": qd.get("sector", ""),
+                                "exchange": qd.get("exchangeName", qd.get("exchange", "")),
                             })
                 
                 if quotes:

@@ -188,14 +188,14 @@ body {
 
 /* ── Hot Stocks Infinite Carousel ── */
 .hot-stocks-viewport {
-  max-height: 370px;
+  max-height: 420px;
   overflow: hidden;
 }
 .hot-stocks-track {
   display: flex;
   flex-direction: column;
   padding-bottom: 20px;
-  animation: hot-stocks-scroll 40s linear infinite;
+  animation: hot-stocks-scroll 60s linear infinite;
 }
 .hot-stocks-track:hover {
   animation-play-state: paused;
@@ -206,7 +206,7 @@ body {
     transform: translateY(0);
   }
   100% {
-    transform: translateY(-50%);
+    transform: translateY(-33.33%);
   }
 }
 

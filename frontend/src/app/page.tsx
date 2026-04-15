@@ -17,6 +17,15 @@ function formatPrice(n: number): string {
   return n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 }
 
+function DataCell({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="bg-surface-container-lowest/60 rounded-xl p-2.5">
+      <p className="text-[8px] text-on-surface-variant uppercase tracking-widest mb-0.5">{label}</p>
+      <p className="text-[11px] font-headline font-bold text-on-surface leading-tight">{value}</p>
+    </div>
+  )
+}
+
 export default function HomePage() {
   return (
     <Suspense>
@@ -436,35 +445,42 @@ function HomeContent() {
           </div>
         </section>
 
-        {/* Stock Data Module */}
+        {/* Stock Data Module — shows when ?code= parameter present */}
         {stockCode && (
           <section className="mb-10">
             <div className="glass-panel rounded-3xl border border-primary/20 overflow-hidden">
+              {/* Header bar */}
               <div className="px-5 py-4 border-b border-outline-variant/20 flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <span className="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
-                  <h3 className="text-xs font-headline font-bold tracking-[0.3em] uppercase text-primary">Stock Diagnosis</h3>
+                  <h3 className="text-xs font-headline font-bold tracking-[0.3em] uppercase text-primary">Stock Data</h3>
                 </div>
-                {stockLoading && (
+                {stockLoading ? (
                   <span className="text-[10px] text-on-surface-variant uppercase tracking-widest animate-pulse">Loading...</span>
-                )}
+                ) : stockData ? (
+                  <span className="text-[10px] text-on-surface-variant uppercase tracking-widest">{stockData.exchange || stockData.currency || 'USD'}</span>
+                ) : null}
               </div>
+
               {stockLoading ? (
                 <div className="px-5 py-8 flex items-center justify-center">
                   <div className="w-6 h-6 border-2 border-primary/30 border-t-primary rounded-full animate-spin"></div>
                 </div>
               ) : stockData ? (
                 <div className="px-5 py-4">
-                  {/* Stock Header */}
+                  {/* Row 1: Symbol + Name + Price + Change */}
                   <div className="flex items-start justify-between mb-4">
-                    <div>
+                    <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
                         <span className="text-xl font-headline font-bold text-on-surface">{stockData.symbol}</span>
                         <span className="text-[10px] px-2 py-0.5 rounded-full bg-primary/10 text-primary font-bold uppercase tracking-wider">Live</span>
+                        {stockData.sector && (
+                          <span className="text-[9px] px-2 py-0.5 rounded-full bg-surface-container-highest text-on-surface-variant font-bold uppercase tracking-wider truncate">{stockData.sector}</span>
+                        )}
                       </div>
-                      <p className="text-sm text-on-surface-variant">{stockData.name}</p>
+                      <p className="text-sm text-on-surface-variant truncate">{stockData.name}{stockData.industry ? ` · ${stockData.industry}` : ''}</p>
                     </div>
-                    <div className="text-right">
+                    <div className="text-right shrink-0 ml-4">
                       <p className="text-2xl font-headline font-bold text-on-surface">${formatPrice(stockData.price)}</p>
                       <div className="flex items-center justify-end gap-1 mt-0.5">
                         <span className={`text-sm font-bold ${stockData.change >= 0 ? 'text-primary' : 'text-secondary'}`}>
@@ -480,16 +496,21 @@ function HomeContent() {
                       </div>
                     </div>
                   </div>
-                  {/* Stock Details Grid */}
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="bg-surface-container-lowest/60 rounded-xl p-3">
-                      <p className="text-[9px] text-on-surface-variant uppercase tracking-widest mb-1">Price</p>
-                      <p className="text-sm font-headline font-bold text-on-surface">${formatPrice(stockData.price)}</p>
-                    </div>
-                    <div className="bg-surface-container-lowest/60 rounded-xl p-3">
-                      <p className="text-[9px] text-on-surface-variant uppercase tracking-widest mb-1">Volume</p>
-                      <p className="text-sm font-headline font-bold text-on-surface">{formatNumber(stockData.volume)}</p>
-                    </div>
+
+                  {/* Row 2: Key metrics grid */}
+                  <div className="grid grid-cols-3 gap-2 mb-3">
+                    <DataCell label="Open" value={stockData.open != null ? `$${formatPrice(stockData.open)}` : '—'} />
+                    <DataCell label="Prev Close" value={stockData.prev_close != null ? `$${formatPrice(stockData.prev_close)}` : '—'} />
+                    <DataCell label="Day Range" value={stockData.day_low != null && stockData.day_high != null ? `${formatPrice(stockData.day_low)}–${formatPrice(stockData.day_high)}` : '—'} />
+                    <DataCell label="52W Range" value={stockData.fifty_two_week_low != null && stockData.fifty_two_week_high != null ? `${formatPrice(stockData.fifty_two_week_low)}–${formatPrice(stockData.fifty_two_week_high)}` : '—'} />
+                    <DataCell label="Volume" value={formatNumber(stockData.volume)} />
+                    <DataCell label="Avg Volume" value={stockData.avg_volume ? formatNumber(stockData.avg_volume) : '—'} />
+                    <DataCell label="Market Cap" value={stockData.market_cap ? formatNumber(stockData.market_cap) : '—'} />
+                    <DataCell label="P/E Ratio" value={stockData.pe_ratio != null ? stockData.pe_ratio.toFixed(2) : '—'} />
+                    <DataCell label="EPS" value={stockData.eps != null ? `$${stockData.eps.toFixed(2)}` : '—'} />
+                    <DataCell label="Div Yield" value={stockData.dividend_yield != null ? `${(stockData.dividend_yield * 100).toFixed(2)}%` : '—'} />
+                    <DataCell label="Beta" value={stockData.beta != null ? stockData.beta.toFixed(2) : '—'} />
+                    <DataCell label="Target Price" value={stockData.target_mean_price != null ? `$${formatPrice(stockData.target_mean_price)}` : '—'} />
                   </div>
                 </div>
               ) : (
@@ -570,12 +591,17 @@ function HomeContent() {
 
         {/* Hot Stocks Carousel */}
         <section className="w-full relative overflow-hidden border-t border-primary/10 bg-black/20">
-          <div className="absolute inset-0 bg-gradient-to-b from-background via-transparent to-transparent z-10 h-20 pointer-events-none"></div>
-          <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-background via-transparent to-transparent z-10 pointer-events-none"></div>
+          <div className="absolute inset-0 bg-gradient-to-b from-background via-transparent to-transparent z-10 h-16 pointer-events-none"></div>
+          <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-background via-transparent to-transparent z-10 pointer-events-none"></div>
           <div className="px-5 pt-6 pb-2 relative z-20">
-            <div className="flex items-center gap-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-secondary animate-pulse"></span>
-              <h3 className="text-[10px] font-headline font-bold tracking-[0.3em] uppercase text-on-surface-variant">Hot Stocks</h3>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-secondary animate-pulse"></span>
+                <h3 className="text-[10px] font-headline font-bold tracking-[0.3em] uppercase text-on-surface-variant">Hot Stocks</h3>
+              </div>
+              {!hotLoading && hotStocks.length > 0 && (
+                <span className="text-[9px] text-on-surface-variant/50 uppercase tracking-widest">{hotStocks.length} Active</span>
+              )}
             </div>
           </div>
           {hotLoading ? (
@@ -584,12 +610,13 @@ function HomeContent() {
             </div>
           ) : hotStocks.length > 0 ? (
             <div className="hot-stocks-viewport">
-              <div className="hot-stocks-track" id="hot-stocks-track">
-              {/* Duplicate stocks for infinite loop */}
-              {[...hotStocks, ...hotStocks].map((stock, i) => (
-                <div key={`${stock.symbol}-${i}`} className="glass-panel rounded-2xl p-4 border border-outline-variant/20 mx-4 mb-4 shrink-0">
+              <div className="hot-stocks-track">
+              {/* Triple for smooth infinite loop */}
+              {[...hotStocks, ...hotStocks, ...hotStocks].map((stock, i) => (
+                <div key={`hot-${stock.symbol}-${i}`} className="glass-panel rounded-2xl p-4 border border-outline-variant/20 mx-4 mb-3 shrink-0">
+                  {/* Row 1: Symbol + Price */}
                   <div className="flex justify-between items-center mb-2">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 min-w-0">
                       <span className="text-sm font-bold text-on-surface font-headline">{stock.symbol}</span>
                       <span className={`text-[9px] px-1.5 py-0.5 rounded-md font-bold ${
                         stock.change_percent >= 0
@@ -598,37 +625,52 @@ function HomeContent() {
                       }`}>
                         {stock.change_percent >= 0 ? '▲' : '▼'} {Math.abs(stock.change_percent).toFixed(2)}%
                       </span>
+                      {stock.sector && (
+                        <span className="text-[8px] text-on-surface-variant/50 uppercase tracking-wider truncate hidden sm:inline">{stock.sector}</span>
+                      )}
                     </div>
                     <p className={`text-lg font-bold font-headline ${stock.change >= 0 ? 'text-primary' : 'text-secondary'}`}>
                       ${formatPrice(stock.price)}
                     </p>
                   </div>
-                  <p className="text-[10px] text-on-surface-variant font-label tracking-wider uppercase mb-2">{stock.name}</p>
-                  <div className="flex justify-between items-center">
-                    <div className="flex gap-4">
-                      <div>
-                        <p className="text-[8px] text-on-surface-variant uppercase tracking-widest">Change</p>
-                        <p className={`text-[10px] font-bold ${stock.change >= 0 ? 'text-primary' : 'text-secondary'}`}>
-                          {stock.change >= 0 ? '+' : ''}{formatPrice(stock.change)}
-                        </p>
+                  {/* Row 2: Name */}
+                  <p className="text-[10px] text-on-surface-variant font-label tracking-wider uppercase mb-2 truncate">{stock.name}</p>
+                  {/* Row 3: Data grid */}
+                  <div className="grid grid-cols-4 gap-2 mb-2">
+                    <div>
+                      <p className="text-[7px] text-on-surface-variant uppercase tracking-widest">Change</p>
+                      <p className={`text-[10px] font-bold ${stock.change >= 0 ? 'text-primary' : 'text-secondary'}`}>
+                        {stock.change >= 0 ? '+' : ''}{formatPrice(stock.change)}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-[7px] text-on-surface-variant uppercase tracking-widest">Volume</p>
+                      <p className="text-[10px] font-bold text-on-surface">{formatNumber(stock.volume)}</p>
+                    </div>
+                    <div>
+                      <p className="text-[7px] text-on-surface-variant uppercase tracking-widest">Mkt Cap</p>
+                      <p className="text-[10px] font-bold text-on-surface">{stock.market_cap ? formatNumber(stock.market_cap) : '—'}</p>
+                    </div>
+                    <div>
+                      <p className="text-[7px] text-on-surface-variant uppercase tracking-widest">P/E</p>
+                      <p className="text-[10px] font-bold text-on-surface">{stock.pe_ratio != null ? stock.pe_ratio.toFixed(1) : '—'}</p>
+                    </div>
+                  </div>
+                  {/* Row 4: 52W Range bar */}
+                  {stock.fifty_two_week_low != null && stock.fifty_two_week_high != null && (
+                    <div>
+                      <div className="flex justify-between mb-0.5">
+                        <span className="text-[7px] text-on-surface-variant">52W Low ${formatPrice(stock.fifty_two_week_low)}</span>
+                        <span className="text-[7px] text-on-surface-variant">52W High ${formatPrice(stock.fifty_two_week_high)}</span>
                       </div>
-                      <div>
-                        <p className="text-[8px] text-on-surface-variant uppercase tracking-widest">Volume</p>
-                        <p className="text-[10px] font-bold text-on-surface">{formatNumber(stock.volume)}</p>
+                      <div className="h-1 bg-surface-container-highest rounded-full overflow-hidden">
+                        <div
+                          className={`h-full rounded-full ${stock.change >= 0 ? 'bg-primary/60' : 'bg-secondary/60'}`}
+                          style={{ width: `${Math.min(100, Math.max(0, ((stock.price - stock.fifty_two_week_low) / (stock.fifty_two_week_high - stock.fifty_two_week_low)) * 100))}%` }}
+                        />
                       </div>
                     </div>
-                    <svg className="w-16 h-6 opacity-50" preserveAspectRatio="none" viewBox="0 0 60 20">
-                      <path
-                        d={stock.change >= 0
-                          ? "M0,15 L10,12 L20,14 L30,8 L40,10 L50,4 L60,6"
-                          : "M0,5 L10,8 L20,6 L30,12 L40,10 L50,16 L60,14"
-                        }
-                        fill="none"
-                        stroke={stock.change >= 0 ? '#99f7ff' : '#d575ff'}
-                        strokeWidth="1.5"
-                      />
-                    </svg>
-                  </div>
+                  )}
                 </div>
               ))}
             </div>

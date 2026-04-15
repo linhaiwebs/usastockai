@@ -7,6 +7,24 @@ export interface StockQuote {
   change: number
   change_percent: number
   volume: number
+  // 扩展字段
+  market_cap?: number
+  pe_ratio?: number | null
+  dividend_yield?: number | null
+  fifty_two_week_high?: number | null
+  fifty_two_week_low?: number | null
+  beta?: number | null
+  sector?: string
+  industry?: string
+  day_high?: number | null
+  day_low?: number | null
+  open?: number | null
+  prev_close?: number | null
+  avg_volume?: number | null
+  eps?: number | null
+  target_mean_price?: number | null
+  currency?: string
+  exchange?: string
 }
 
 export interface SearchResult {
