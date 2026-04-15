@@ -34,6 +34,13 @@ export interface SearchResult {
   exchange: string
 }
 
+export interface SearchResponse {
+  results: SearchResult[]
+  total: number
+  page: number
+  limit: number
+}
+
 export interface GoogleAnalyticsConfig {
   ads_tracking_id: string | null
   ga4_property_id: string | null
@@ -59,9 +66,9 @@ export async function getHotStocks(): Promise<StockQuote[]> {
   return data.stocks || []
 }
 
-export async function searchStocks(query: string): Promise<SearchResult[]> {
-  const data = await fetchAPI<{ results: SearchResult[] }>(`/search`, { q: query })
-  return data.results || []
+export async function searchStocks(query: string, page: number = 1, limit: number = 5): Promise<SearchResponse> {
+  const data = await fetchAPI<SearchResponse>(`/search`, { q: query, page: String(page), limit: String(limit) })
+  return data
 }
 
 export async function getGoogleAnalyticsConfig(): Promise<GoogleAnalyticsConfig[]> {

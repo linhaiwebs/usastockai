@@ -8,13 +8,13 @@ router = APIRouter(prefix="/api", tags=["stocks"])
 
 
 @router.get("/search")
-async def search_stocks(q: str):
-    """Search stocks with autocomplete"""
+async def search_stocks(q: str, page: int = 1, limit: int = 5):
+    """Search stocks with autocomplete, paginated"""
     if not q or len(q) < 1:
-        return {"results": []}
+        return {"results": [], "total": 0, "page": page, "limit": limit}
     
-    results = await stock_service.search_stocks(q)
-    return {"results": results}
+    results = await stock_service.search_stocks(q, page=page, limit=limit)
+    return results
 
 
 @router.get("/stocks/hot")

@@ -140,24 +140,36 @@ class StockService:
     
     # ── 业务接口 ─────────────────────────────────────────────
     
-    async def search_stocks(self, query: str) -> List[Dict]:
-        """搜索股票自动补全"""
+    async def search_stocks(self, query: str, page: int = 1, limit: int = 5) -> Dict:
+        """搜索股票自动补全（支持分页）"""
         if not query or len(query) < 1:
-            return []
-        
+            return {"results": [], "total": 0, "page": page, "limit": limit}
+
         data = await self._make_request("/v2/search", {"q": query})
         if not data:
-            return []
-        
+            return {"results": [], "total": 0, "page": page, "limit": limit}
+
+        all_items = data.get("quotes", [])
         results = []
-        for item in data.get("quotes", [])[:10]:
+        for item in all_items:
             results.append({
                 "symbol": item.get("symbol", ""),
                 "name": item.get("shortname", item.get("longname", "")),
                 "type": item.get("quoteType", "EQUITY"),
                 "exchange": item.get("exchange", "")
             })
-        return results
+
+        total = len(results)
+        start = (page - 1) * limit
+        end = start + limit
+        paginated = results[start:end]
+
+        return {
+            "results": paginated,
+            "total": total,
+            "page": page,
+            "limit": limit
+        }
     
     def _parse_price_field(self, field) -> Optional[float]:
         """解析价格字段（可能是数值或字典）"""

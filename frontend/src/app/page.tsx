@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useCallback, useState, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
-import { getStockQuote, getHotStocks, StockQuote } from '../lib/api'
+import { getStockQuote, getHotStocks, searchStocks, StockQuote, SearchResult, SearchResponse } from '../lib/api'
 
 function formatNumber(n: number): string {
   if (n >= 1e9) return (n / 1e9).toFixed(2) + 'B'
@@ -48,6 +48,15 @@ function HomeContent() {
   const [placeholderText, setPlaceholderText] = useState('')
   const [currentDomain, setCurrentDomain] = useState('')
   const [searchInput, setSearchInput] = useState('')
+  const [searchResults, setSearchResults] = useState<SearchResult[]>([])
+  const [searchTotal, setSearchTotal] = useState(0)
+  const [searchPage, setSearchPage] = useState(1)
+  const [searchLoading, setSearchLoading] = useState(false)
+  const [showDropdown, setShowDropdown] = useState(false)
+
+  // Debounce + AbortController for search
+  const searchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const searchAbortRef = useRef<AbortController | null>(null)
 
   // Fetch stock data when code param changes
   useEffect(() => {
@@ -92,6 +101,75 @@ function HomeContent() {
 
   // Ref to track active stream for abort
   const streamControllerRef = useRef<AbortController | null>(null)
+
+  // ── Search: debounce + AbortController ──
+  const doSearch = useCallback((query: string, page: number = 1) => {
+    // Cancel pending debounce timer
+    if (searchTimerRef.current) {
+      clearTimeout(searchTimerRef.current)
+      searchTimerRef.current = null
+    }
+    // Cancel in-flight request
+    if (searchAbortRef.current) {
+      searchAbortRef.current.abort()
+      searchAbortRef.current = null
+    }
+
+    if (!query.trim()) {
+      setSearchResults([])
+      setSearchTotal(0)
+      setShowDropdown(false)
+      return
+    }
+
+    // Debounce: wait 300ms after user stops typing
+    searchTimerRef.current = setTimeout(() => {
+      const controller = new AbortController()
+      searchAbortRef.current = controller
+      setSearchLoading(true)
+      setSearchPage(page)
+
+      searchStocks(query, page, 5)
+        .then((data: SearchResponse) => {
+          if (controller.signal.aborted) return
+          setSearchResults(data.results || [])
+          setSearchTotal(data.total || 0)
+          setShowDropdown(true)
+        })
+        .catch((err) => {
+          if (err.name !== 'AbortError') {
+            setSearchResults([])
+            setSearchTotal(0)
+          }
+        })
+        .finally(() => {
+          if (!controller.signal.aborted) setSearchLoading(false)
+        })
+    }, 300)
+  }, [])
+
+  // Handle search input change
+  const handleSearchChange = useCallback((value: string) => {
+    setSearchInput(value)
+    doSearch(value, 1)
+  }, [doSearch])
+
+  // Handle pagination
+  const handleSearchPage = useCallback((newPage: number) => {
+    doSearch(searchInput, newPage)
+  }, [doSearch, searchInput])
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      const target = e.target as HTMLElement
+      if (!target.closest('.search-container')) {
+        setShowDropdown(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
 
   const startAnalysisStream = useCallback((symbol: string) => {
     if (streamControllerRef.current) {
@@ -312,16 +390,88 @@ function HomeContent() {
           Smarter market insights powered by intuitive data analysis for the modern investor.
         </p>
         <div className="w-full max-w-sm space-y-4">
-          <div className="relative">
+          <div className="relative search-container">
             <input
               className="w-full bg-surface border border-white/10 rounded-2xl px-6 py-4 text-on-surface font-body focus:ring-2 focus:ring-primary/20 focus:outline-none transition-all text-sm placeholder:text-on-surface-variant/50 shadow-inner"
               placeholder="Search market symbols..."
               type="text"
               value={searchInput}
-              onChange={(e) => setSearchInput(e.target.value)}
-              onKeyDown={(e) => { if (e.key === 'Enter') handlePrimaryClick() }}
+              onChange={(e) => handleSearchChange(e.target.value)}
+              onFocus={() => { if (searchResults.length > 0) setShowDropdown(true) }}
+              onKeyDown={(e) => { if (e.key === 'Enter' && searchInput.trim()) handlePrimaryClick() }}
             />
-            <span className="absolute right-6 top-1/2 -translate-y-1/2 material-symbols-outlined text-on-surface-variant">search</span>
+            <span className="absolute right-6 top-1/2 -translate-y-1/2 material-symbols-outlined text-on-surface-variant">
+              {searchLoading ? 'hourglass_top' : 'search'}
+            </span>
+
+            {/* Search Results Dropdown */}
+            {showDropdown && searchInput.trim() && (
+              <div className="absolute top-full left-0 right-0 mt-2 bg-surface rounded-2xl border border-white/10 shadow-2xl shadow-black/40 overflow-hidden z-50">
+                {searchResults.length > 0 ? (
+                  <>
+                    {searchResults.map((item) => (
+                      <button
+                        key={item.symbol}
+                        className="w-full px-5 py-3.5 flex items-center gap-3 hover:bg-white/5 transition-colors text-left border-b border-white/5 last:border-b-0"
+                        onClick={() => {
+                          setSearchInput(item.symbol)
+                          setShowDropdown(false)
+                          startAnalysisStream(item.symbol)
+                          openModal()
+                        }}
+                      >
+                        <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                          <span className="font-headline text-xs font-bold text-primary">{item.symbol.slice(0, 2)}</span>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <span className="font-headline font-semibold text-on-surface text-sm">{item.symbol}</span>
+                            <span className="text-[9px] px-1.5 py-0.5 rounded-md bg-surface-container text-on-surface-variant font-medium uppercase">{item.type}</span>
+                          </div>
+                          <p className="text-xs text-on-surface-variant truncate mt-0.5">{item.name}</p>
+                        </div>
+                        <span className="text-[9px] text-on-surface-variant/70 uppercase tracking-wider shrink-0">{item.exchange}</span>
+                      </button>
+                    ))}
+
+                    {/* Pagination */}
+                    {searchTotal > 5 && (
+                      <div className="flex items-center justify-between px-5 py-3 border-t border-white/5 bg-slate-900/40">
+                        <span className="text-[10px] text-on-surface-variant">
+                          {(searchPage - 1) * 5 + 1}–{Math.min(searchPage * 5, searchTotal)} of {searchTotal}
+                        </span>
+                        <div className="flex gap-2">
+                          <button
+                            className="px-3 py-1 rounded-lg text-[10px] font-medium bg-surface-container text-on-surface-variant hover:bg-primary/10 hover:text-primary transition-all disabled:opacity-30 disabled:pointer-events-none"
+                            disabled={searchPage <= 1}
+                            onClick={() => handleSearchPage(searchPage - 1)}
+                          >
+                            ← Prev
+                          </button>
+                          <button
+                            className="px-3 py-1 rounded-lg text-[10px] font-medium bg-surface-container text-on-surface-variant hover:bg-primary/10 hover:text-primary transition-all disabled:opacity-30 disabled:pointer-events-none"
+                            disabled={searchPage * 5 >= searchTotal}
+                            onClick={() => handleSearchPage(searchPage + 1)}
+                          >
+                            Next →
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </>
+                ) : searchLoading ? (
+                  <div className="px-5 py-6 flex items-center justify-center gap-2">
+                    <div className="w-4 h-4 border-2 border-primary/30 border-t-primary rounded-full animate-spin"></div>
+                    <span className="text-xs text-on-surface-variant">Searching...</span>
+                  </div>
+                ) : (
+                  <div className="px-5 py-6 text-center">
+                    <span className="material-symbols-outlined text-on-surface-variant/40 text-2xl block mb-1">search_off</span>
+                    <p className="text-xs text-on-surface-variant">No results for &quot;{searchInput}&quot;</p>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
           <button className="w-full bg-primary hover:bg-primary-dim text-background font-headline font-semibold py-4 rounded-2xl tracking-wide shadow-xl shadow-primary/10 transition-all active:scale-[0.98]" onClick={handlePrimaryClick}>
             Get Smart Analysis
