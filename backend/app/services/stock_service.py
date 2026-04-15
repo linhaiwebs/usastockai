@@ -143,7 +143,7 @@ class StockService:
         data = await self._make_request(f"/v2/quote/{symbol.upper()}")
         
         if not data:
-            return self._get_mock_quote(symbol)
+            return None
         
         try:
             # 解析价格字段（支持多种格式）
@@ -152,17 +152,21 @@ class StockService:
             change_percent = self._parse_price_field(data.get("regularMarketChangePercent"))
             volume = self._parse_price_field(data.get("regularMarketVolume"))
             
+            # 验证：价格必须有效且大于0
+            if price is None or price <= 0:
+                return None
+
             return {
                 "symbol": symbol.upper(),
                 "name": data.get("shortName", data.get("longName", "")),
-                "price": price or 0,
+                "price": price,
                 "change": change or 0,
                 "change_percent": change_percent or 0,
                 "volume": int(volume) if volume else 0
             }
         except Exception as e:
             print(f"Parse quote error for {symbol}: {e}")
-            return self._get_mock_quote(symbol)
+            return None
     
     def _get_mock_quote(self, symbol: str) -> Dict:
         """返回模拟报价数据（当API不可用时）"""
@@ -227,20 +231,21 @@ class StockService:
                     change_percent = self._parse_price_field(quote_data.get("regularMarketChangePercent"))
                     volume = self._parse_price_field(quote_data.get("regularMarketVolume"))
                     
-                    quotes.append({
-                        "symbol": symbol,
-                        "name": quote_data.get("shortName", quote_data.get("longName", "")),
-                        "price": price or 0,
-                        "change": change or 0,
-                        "change_percent": change_percent or 0,
-                        "volume": int(volume) if volume else 0
-                    })
+                    # 验证价格有效性
+                    if price is not None and price > 0:
+                        quotes.append({
+                            "symbol": symbol,
+                            "name": quote_data.get("shortName", quote_data.get("longName", "")),
+                            "price": price,
+                            "change": change or 0,
+                            "change_percent": change_percent or 0,
+                            "volume": int(volume) if volume else 0
+                        })
             
             return quotes
         except Exception as e:
             print(f"Parse hot stocks error: {e}")
-            # 返回模拟数据
-            return [self._get_mock_quote(symbol) for symbol in hot_symbols]
+            return []
 
 
 # 创建全局实例
