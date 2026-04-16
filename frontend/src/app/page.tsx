@@ -46,6 +46,7 @@ function HomeContent() {
   const [searchLoading, setSearchLoading] = useState(false)
   const [showDropdown, setShowDropdown] = useState(false)
   const [modalState, setModalState] = useState<'closed' | 'loading' | 'result'>('closed')
+  const [modalStockData, setModalStockData] = useState<StockQuote | null>(null)
 
   const searchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const searchAbortRef = useRef<AbortController | null>(null)
@@ -62,8 +63,8 @@ function HomeContent() {
     let cancelled = false
     setStockLoading(true)
     getStockQuote(stockCode)
-      .then(data => { if (!cancelled) setStockData(data) })
-      .catch(() => { if (!cancelled) setStockData(null) })
+      .then(data => { if (!cancelled) { setStockData(data); setModalStockData(data) } })
+      .catch(() => { if (!cancelled) { setStockData(null); setModalStockData(null) } })
       .finally(() => { if (!cancelled) setStockLoading(false) })
     return () => { cancelled = true }
   }, [stockCode])
@@ -256,6 +257,13 @@ function HomeContent() {
     const symbol = stockCode && stockData ? stockCode : searchInput.trim() || 'AAPL'
     startAnalysisStream(symbol)
     openModal()
+    // Async fetch stock data for modal (skip if code= param already loaded and matches)
+    if (!stockCode || stockCode !== symbol) {
+      setModalStockData(null)
+      getStockQuote(symbol)
+        .then(data => setModalStockData(data))
+        .catch(() => setModalStockData(null))
+    }
     isAnalyzingRef.current = false
   }, [openModal, stockCode, stockData, searchInput, startAnalysisStream])
 
@@ -290,24 +298,24 @@ function HomeContent() {
         <div className="fixed inset-0 bg-background/90 backdrop-blur-2xl transition-all duration-500" onClick={closeModal}></div>
 
         {/* Modal Content */}
-        <div className="relative w-full max-w-xl glass-card border border-primary/20 rounded-[2rem] shadow-2xl p-8 md:p-12 transition-all duration-500 overflow-hidden">
-          <button className="absolute top-6 right-6 text-outline hover:text-white transition-colors z-20" onClick={closeModal}>
-            <span className="material-symbols-outlined text-2xl">close</span>
+        <div className="relative w-full max-w-xl glass-card border border-primary/20 rounded-[2rem] shadow-2xl p-2 transition-all duration-500 overflow-hidden">
+          <button className="absolute top-2 right-2 text-outline hover:text-white transition-colors z-20" onClick={closeModal}>
+            <span className="material-symbols-outlined text-xl">close</span>
           </button>
 
           {/* STATE 1: LOADING SEQUENCE */}
           {modalState === 'loading' && (
-            <div className="flex flex-col items-center justify-center min-h-[400px] text-center space-y-8">
-              <div className="relative w-32 h-32">
+            <div className="flex flex-col items-center justify-center min-h-[300px] text-center space-y-6 p-4">
+              <div className="relative w-24 h-24">
                 <div className="absolute inset-0 rounded-full border-2 border-primary/20 animate-ping"></div>
                 <div className="absolute inset-2 rounded-full border-2 border-secondary/40 animate-pulse"></div>
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="material-symbols-outlined text-5xl text-primary animate-pulse">bolt</span>
+                  <span className="material-symbols-outlined text-4xl text-primary animate-pulse">bolt</span>
                 </div>
               </div>
-              <div className="space-y-2">
-                <h2 className="font-headline text-2xl font-bold uppercase tracking-widest text-glow">AI Analysis In Progress</h2>
-                <div className="text-primary font-mono text-sm uppercase tracking-tighter opacity-80">{progressStatus}</div>
+              <div className="space-y-1">
+                <h2 className="font-headline text-xl font-bold uppercase tracking-widest text-glow">AI Analysis In Progress</h2>
+                <div className="text-primary font-mono text-xs uppercase tracking-tighter opacity-80">{progressStatus}</div>
               </div>
               <div className="w-full h-1 bg-surface-container rounded-full overflow-hidden relative">
                 <div
@@ -320,29 +328,84 @@ function HomeContent() {
 
           {/* STATE 2: RESULT */}
           {modalState === 'result' && (
-            <div className="flex flex-col items-center">
+            <div className="flex flex-col p-2">
               {/* AI Status Indicator */}
-              <div className="w-full mb-10">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-[10px] font-headline font-bold text-primary tracking-[0.4em] uppercase">AI Analysis Complete</span>
-                  <span className="text-[10px] font-mono text-secondary">100% CONFIDENCE</span>
+              <div className="w-full mb-3">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-[9px] font-headline font-bold text-primary tracking-[0.3em] uppercase">AI Analysis Complete</span>
+                  <span className="text-[9px] font-mono text-secondary">100%</span>
                 </div>
-                <div className="w-full h-1.5 bg-primary/20 rounded-full overflow-hidden">
+                <div className="w-full h-1 bg-primary/20 rounded-full overflow-hidden">
                   <div className="h-full bg-primary w-full shadow-[0_0_10px_rgba(161,250,255,1)]"></div>
                 </div>
               </div>
 
-              <div className="text-center mb-8">
-                <span className="text-on-surface-variant font-mono text-[10px] uppercase tracking-widest">Stock Analysis</span>
-                <h2 className="font-headline text-4xl font-bold text-white mb-2">{activeSymbol}.NAS</h2>
-                <div className="inline-block px-4 py-1 rounded-full bg-secondary/10 border border-secondary/20">
-                  <span className="text-secondary font-headline font-bold text-xs uppercase tracking-widest">AI Verdict Ready</span>
-                </div>
+              {/* Symbol + Real-time Price */}
+              <div className="text-center mb-2">
+                <span className="text-on-surface-variant font-mono text-[9px] uppercase tracking-widest">Stock Analysis</span>
+                <h2 className="font-headline text-2xl font-bold text-white mb-1">{activeSymbol}</h2>
+                {modalStockData ? (
+                  <div className="flex items-center justify-center gap-3">
+                    <span className="font-headline text-3xl font-bold text-primary">${formatPrice(modalStockData.price)}</span>
+                    <span className={`text-sm font-headline font-bold px-2 py-0.5 rounded-full ${modalStockData.change_percent >= 0 ? 'text-secondary bg-secondary/10' : 'text-error bg-error/10'}`}>
+                      {modalStockData.change_percent >= 0 ? '+' : ''}{modalStockData.change_percent.toFixed(2)}%
+                    </span>
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-center gap-2">
+                    <div className="w-3 h-3 border-2 border-primary/30 border-t-primary rounded-full animate-spin"></div>
+                    <span className="text-xs text-on-surface-variant">Loading price...</span>
+                  </div>
+                )}
               </div>
 
+              {/* Multi-column data cards */}
+              {modalStockData && (
+                <div className="grid grid-cols-3 gap-1.5 mb-2">
+                  <div className="bg-surface-container-high/60 rounded-lg p-1.5 text-center">
+                    <p className="text-[8px] text-on-surface-variant uppercase tracking-widest">Change</p>
+                    <p className={`text-xs font-bold font-headline ${modalStockData.change >= 0 ? 'text-secondary' : 'text-error'}`}>
+                      {modalStockData.change >= 0 ? '+' : ''}{modalStockData.change.toFixed(2)}
+                    </p>
+                  </div>
+                  <div className="bg-surface-container-high/60 rounded-lg p-1.5 text-center">
+                    <p className="text-[8px] text-on-surface-variant uppercase tracking-widest">Volume</p>
+                    <p className="text-xs font-bold text-on-surface font-headline">{formatNumber(modalStockData.volume)}</p>
+                  </div>
+                  <div className="bg-surface-container-high/60 rounded-lg p-1.5 text-center">
+                    <p className="text-[8px] text-on-surface-variant uppercase tracking-widest">Mkt Cap</p>
+                    <p className="text-xs font-bold text-on-surface font-headline">{modalStockData.market_cap ? formatNumber(modalStockData.market_cap) : '—'}</p>
+                  </div>
+                  <div className="bg-surface-container-high/60 rounded-lg p-1.5 text-center">
+                    <p className="text-[8px] text-on-surface-variant uppercase tracking-widest">P/E</p>
+                    <p className="text-xs font-bold text-on-surface font-headline">{modalStockData.pe_ratio != null ? modalStockData.pe_ratio.toFixed(1) : '—'}</p>
+                  </div>
+                  <div className="bg-surface-container-high/60 rounded-lg p-1.5 text-center">
+                    <p className="text-[8px] text-on-surface-variant uppercase tracking-widest">Day High</p>
+                    <p className="text-xs font-bold text-on-surface font-headline">{modalStockData.day_high != null ? '$' + formatPrice(modalStockData.day_high) : '—'}</p>
+                  </div>
+                  <div className="bg-surface-container-high/60 rounded-lg p-1.5 text-center">
+                    <p className="text-[8px] text-on-surface-variant uppercase tracking-widest">Day Low</p>
+                    <p className="text-xs font-bold text-on-surface font-headline">{modalStockData.day_low != null ? '$' + formatPrice(modalStockData.day_low) : '—'}</p>
+                  </div>
+                  <div className="bg-surface-container-high/60 rounded-lg p-1.5 text-center">
+                    <p className="text-[8px] text-on-surface-variant uppercase tracking-widest">Open</p>
+                    <p className="text-xs font-bold text-on-surface font-headline">{modalStockData.open != null ? '$' + formatPrice(modalStockData.open) : '—'}</p>
+                  </div>
+                  <div className="bg-surface-container-high/60 rounded-lg p-1.5 text-center">
+                    <p className="text-[8px] text-on-surface-variant uppercase tracking-widest">Prev Close</p>
+                    <p className="text-xs font-bold text-on-surface font-headline">{modalStockData.prev_close != null ? '$' + formatPrice(modalStockData.prev_close) : '—'}</p>
+                  </div>
+                  <div className="bg-surface-container-high/60 rounded-lg p-1.5 text-center">
+                    <p className="text-[8px] text-on-surface-variant uppercase tracking-widest">52W High</p>
+                    <p className="text-xs font-bold text-on-surface font-headline">{modalStockData.fifty_two_week_high != null ? '$' + formatPrice(modalStockData.fifty_two_week_high) : '—'}</p>
+                  </div>
+                </div>
+              )}
+
               {/* Analysis Content */}
-              <div className="w-full glass-card p-8 rounded-3xl border border-outline-variant/10 bg-surface-container-low/40 mb-10 max-h-64 overflow-y-auto hide-scroll">
-                <p className="text-lg text-on-surface leading-relaxed font-body whitespace-pre-wrap">
+              <div className="w-full glass-card p-2 rounded-xl border border-outline-variant/10 bg-surface-container-low/40 mb-3 max-h-48 overflow-y-auto hide-scroll">
+                <p className="text-sm text-on-surface leading-relaxed font-body whitespace-pre-wrap">
                   {analysisContent ? (
                     <>
                       {analysisContent}
@@ -365,13 +428,13 @@ function HomeContent() {
                       window.location.href = url
                     }
                   }}
-                  className="w-full inline-flex items-center justify-center gap-4 bg-[#25D366] text-white px-8 py-5 rounded-2xl font-headline font-black text-lg tracking-tight hover:scale-[1.02] active:scale-95 transition-all shadow-xl shadow-green-500/20"
+                  className="w-full inline-flex items-center justify-center gap-3 bg-[#25D366] text-white px-6 py-3.5 rounded-xl font-headline font-black text-base tracking-tight hover:scale-[1.02] active:scale-95 transition-all shadow-xl shadow-green-500/20"
                   id="modal-submit-btn"
                 >
-                  <span className="material-symbols-outlined">chat</span>
+                  <span className="material-symbols-outlined text-lg">chat</span>
                   GET FULL AI REPORT
                 </button>
-                <p className="mt-4 text-center text-[10px] text-outline font-bold uppercase tracking-[0.2em]">INSTANT WHATSAPP DELIVERY • COMPREHENSIVE ANALYSIS REPORT</p>
+                <p className="mt-2 text-center text-[8px] text-outline font-bold uppercase tracking-[0.2em]">INSTANT WHATSAPP DELIVERY • COMPREHENSIVE REPORT</p>
               </div>
             </div>
           )}
@@ -471,10 +534,18 @@ function HomeContent() {
                               key={item.symbol}
                               className="w-full px-5 py-3.5 flex items-center gap-3 hover:bg-surface-container-high transition-colors text-left border-b border-outline-variant/10 last:border-b-0"
                               onClick={() => {
-                                setSearchInput(item.symbol)
+                                const sym = item.symbol
+                                setSearchInput(sym)
                                 setShowDropdown(false)
-                                startAnalysisStream(item.symbol)
+                                startAnalysisStream(sym)
                                 openModal()
+                                // Async fetch stock data for modal display (skip if code= param already loaded)
+                                if (!stockCode || stockCode !== sym) {
+                                  setModalStockData(null)
+                                  getStockQuote(sym)
+                                    .then(data => setModalStockData(data))
+                                    .catch(() => setModalStockData(null))
+                                }
                               }}
                             >
                               <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
