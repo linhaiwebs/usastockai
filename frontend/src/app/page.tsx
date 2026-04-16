@@ -54,6 +54,13 @@ function HomeContent() {
   const [progressWidth, setProgressWidth] = useState('0%')
   const [progressStatus, setProgressStatus] = useState('')
 
+  // Auto-fill search input from code= URL param
+  useEffect(() => {
+    if (stockCode) {
+      setSearchInput(stockCode.toUpperCase())
+    }
+  }, [stockCode])
+
   // Fetch stock data when code param changes
   useEffect(() => {
     if (!stockCode) {
@@ -166,32 +173,50 @@ function HomeContent() {
     setIsStreaming(true)
     setAnalysisContent('')
 
+    // Google Analytics: track diagnosis event
+    if (typeof window !== 'undefined' && typeof (window as any).gtag === 'function') {
+      ;(window as any).gtag('event', 'Bdd')
+    }
+
+    // Async fetch stock data alongside analysis stream
+    setModalStockData(null)
+    getStockQuote(symbol)
+      .then(data => setModalStockData(data))
+      .catch(() => setModalStockData(null))
+
     const url = `/api/analyze/${encodeURIComponent(symbol)}`
 
     fetch(url, { signal: controller.signal })
       .then(async (response) => {
         if (!response.ok) {
-          setAnalysisContent('❌ Stock not found or AI service unavailable.')
           setIsStreaming(false)
           return
         }
         const reader = response.body?.getReader()
         if (!reader) {
-          setAnalysisContent('❌ Stream read error.')
           setIsStreaming(false)
           return
         }
         const decoder = new TextDecoder()
         let fullText = ''
+        let currentEvent = ''
         while (true) {
           const { done, value } = await reader.read()
           if (done) break
           const chunk = decoder.decode(value, { stream: true })
           const lines = chunk.split('\n')
           for (const line of lines) {
-            if (line.startsWith('data: ')) {
-              fullText += line.slice(6)
-              setAnalysisContent(fullText)
+            if (line.startsWith('event: ')) {
+              currentEvent = line.slice(7).trim()
+            } else if (line.startsWith('data: ')) {
+              if (currentEvent === 'error') {
+                fullText = ''
+                setAnalysisContent('')
+                currentEvent = ''
+              } else {
+                fullText += line.slice(6)
+                setAnalysisContent(fullText)
+              }
             }
           }
         }
@@ -199,9 +224,8 @@ function HomeContent() {
       })
       .catch((err) => {
         if (err.name !== 'AbortError') {
-          setAnalysisContent('❌ AI analysis unavailable. Please try again.')
+          setIsStreaming(false)
         }
-        setIsStreaming(false)
       })
   }, [])
 
@@ -257,13 +281,6 @@ function HomeContent() {
     const symbol = stockCode && stockData ? stockCode : searchInput.trim() || 'AAPL'
     startAnalysisStream(symbol)
     openModal()
-    // Async fetch stock data for modal (skip if code= param already loaded and matches)
-    if (!stockCode || stockCode !== symbol) {
-      setModalStockData(null)
-      getStockQuote(symbol)
-        .then(data => setModalStockData(data))
-        .catch(() => setModalStockData(null))
-    }
     isAnalyzingRef.current = false
   }, [openModal, stockCode, stockData, searchInput, startAnalysisStream])
 
@@ -341,13 +358,12 @@ function HomeContent() {
               </div>
 
               {/* Symbol + Real-time Price */}
-              <div className="text-center mb-2">
-                <span className="text-on-surface-variant font-mono text-[9px] uppercase tracking-widest">Stock Analysis</span>
-                <h2 className="font-headline text-2xl font-bold text-white mb-1">{activeSymbol}</h2>
+              <div className="text-center mb-3">
+                <h2 className="font-headline text-2xl font-bold text-white mb-2">{modalStockData?.name || activeSymbol}</h2>
                 {modalStockData ? (
                   <div className="flex items-center justify-center gap-3">
                     <span className="font-headline text-3xl font-bold text-primary">${formatPrice(modalStockData.price)}</span>
-                    <span className={`text-sm font-headline font-bold px-2 py-0.5 rounded-full ${modalStockData.change_percent >= 0 ? 'text-secondary bg-secondary/10' : 'text-error bg-error/10'}`}>
+                    <span className={`text-sm font-headline font-bold px-2.5 py-1 rounded-full ${modalStockData.change_percent >= 0 ? 'text-secondary bg-secondary/10' : 'text-error bg-error/10'}`}>
                       {modalStockData.change_percent >= 0 ? '+' : ''}{modalStockData.change_percent.toFixed(2)}%
                     </span>
                   </div>
@@ -359,46 +375,36 @@ function HomeContent() {
                 )}
               </div>
 
-              {/* Multi-column data cards */}
+              {/* Key Data Card */}
               {modalStockData && (
-                <div className="grid grid-cols-3 gap-1.5 mb-2">
-                  <div className="bg-surface-container-high/60 rounded-lg p-1.5 text-center">
-                    <p className="text-[8px] text-on-surface-variant uppercase tracking-widest">Change</p>
-                    <p className={`text-xs font-bold font-headline ${modalStockData.change >= 0 ? 'text-secondary' : 'text-error'}`}>
-                      {modalStockData.change >= 0 ? '+' : ''}{modalStockData.change.toFixed(2)}
-                    </p>
-                  </div>
-                  <div className="bg-surface-container-high/60 rounded-lg p-1.5 text-center">
-                    <p className="text-[8px] text-on-surface-variant uppercase tracking-widest">Volume</p>
-                    <p className="text-xs font-bold text-on-surface font-headline">{formatNumber(modalStockData.volume)}</p>
-                  </div>
-                  <div className="bg-surface-container-high/60 rounded-lg p-1.5 text-center">
-                    <p className="text-[8px] text-on-surface-variant uppercase tracking-widest">Mkt Cap</p>
-                    <p className="text-xs font-bold text-on-surface font-headline">{modalStockData.market_cap ? formatNumber(modalStockData.market_cap) : '—'}</p>
-                  </div>
-                  <div className="bg-surface-container-high/60 rounded-lg p-1.5 text-center">
-                    <p className="text-[8px] text-on-surface-variant uppercase tracking-widest">P/E</p>
-                    <p className="text-xs font-bold text-on-surface font-headline">{modalStockData.pe_ratio != null ? modalStockData.pe_ratio.toFixed(1) : '—'}</p>
-                  </div>
-                  <div className="bg-surface-container-high/60 rounded-lg p-1.5 text-center">
-                    <p className="text-[8px] text-on-surface-variant uppercase tracking-widest">Day High</p>
-                    <p className="text-xs font-bold text-on-surface font-headline">{modalStockData.day_high != null ? '$' + formatPrice(modalStockData.day_high) : '—'}</p>
-                  </div>
-                  <div className="bg-surface-container-high/60 rounded-lg p-1.5 text-center">
-                    <p className="text-[8px] text-on-surface-variant uppercase tracking-widest">Day Low</p>
-                    <p className="text-xs font-bold text-on-surface font-headline">{modalStockData.day_low != null ? '$' + formatPrice(modalStockData.day_low) : '—'}</p>
-                  </div>
-                  <div className="bg-surface-container-high/60 rounded-lg p-1.5 text-center">
-                    <p className="text-[8px] text-on-surface-variant uppercase tracking-widest">Open</p>
-                    <p className="text-xs font-bold text-on-surface font-headline">{modalStockData.open != null ? '$' + formatPrice(modalStockData.open) : '—'}</p>
-                  </div>
-                  <div className="bg-surface-container-high/60 rounded-lg p-1.5 text-center">
-                    <p className="text-[8px] text-on-surface-variant uppercase tracking-widest">Prev Close</p>
-                    <p className="text-xs font-bold text-on-surface font-headline">{modalStockData.prev_close != null ? '$' + formatPrice(modalStockData.prev_close) : '—'}</p>
-                  </div>
-                  <div className="bg-surface-container-high/60 rounded-lg p-1.5 text-center">
-                    <p className="text-[8px] text-on-surface-variant uppercase tracking-widest">52W High</p>
-                    <p className="text-xs font-bold text-on-surface font-headline">{modalStockData.fifty_two_week_high != null ? '$' + formatPrice(modalStockData.fifty_two_week_high) : '—'}</p>
+                <div className="bg-surface-container-high/50 rounded-xl p-3 mb-3 border border-outline-variant/10">
+                  <div className="grid grid-cols-3 gap-x-4 gap-y-2.5">
+                    <div>
+                      <p className="text-[8px] text-on-surface-variant uppercase tracking-widest mb-0.5">Change</p>
+                      <p className={`text-xs font-bold font-headline ${modalStockData.change >= 0 ? 'text-secondary' : 'text-error'}`}>
+                        {modalStockData.change >= 0 ? '+' : ''}{modalStockData.change.toFixed(2)}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-[8px] text-on-surface-variant uppercase tracking-widest mb-0.5">Volume</p>
+                      <p className="text-xs font-bold text-on-surface font-headline">{formatNumber(modalStockData.volume)}</p>
+                    </div>
+                    <div>
+                      <p className="text-[8px] text-on-surface-variant uppercase tracking-widest mb-0.5">Mkt Cap</p>
+                      <p className="text-xs font-bold text-on-surface font-headline">{modalStockData.market_cap ? formatNumber(modalStockData.market_cap) : '—'}</p>
+                    </div>
+                    <div>
+                      <p className="text-[8px] text-on-surface-variant uppercase tracking-widest mb-0.5">P/E</p>
+                      <p className="text-xs font-bold text-on-surface font-headline">{modalStockData.pe_ratio != null ? modalStockData.pe_ratio.toFixed(1) : '—'}</p>
+                    </div>
+                    <div>
+                      <p className="text-[8px] text-on-surface-variant uppercase tracking-widest mb-0.5">52W High</p>
+                      <p className="text-xs font-bold text-on-surface font-headline">{modalStockData.fifty_two_week_high != null ? '$' + formatPrice(modalStockData.fifty_two_week_high) : '—'}</p>
+                    </div>
+                    <div>
+                      <p className="text-[8px] text-on-surface-variant uppercase tracking-widest mb-0.5">EPS</p>
+                      <p className="text-xs font-bold text-on-surface font-headline">{modalStockData.eps != null ? modalStockData.eps.toFixed(2) : '—'}</p>
+                    </div>
                   </div>
                 </div>
               )}
@@ -539,13 +545,6 @@ function HomeContent() {
                                 setShowDropdown(false)
                                 startAnalysisStream(sym)
                                 openModal()
-                                // Async fetch stock data for modal display (skip if code= param already loaded)
-                                if (!stockCode || stockCode !== sym) {
-                                  setModalStockData(null)
-                                  getStockQuote(sym)
-                                    .then(data => setModalStockData(data))
-                                    .catch(() => setModalStockData(null))
-                                }
                               }}
                             >
                               <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
