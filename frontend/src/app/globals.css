@@ -3,49 +3,59 @@
 @tailwind utilities;
 
 /* ═══════════════════════════════════════════════════════
-   The Predictive Prism — Stitch Design System
-   AI Stock Diagnoser — Oceanic Depth + Prism Glow
+   Hyper-Analogue Brutalism — Stitch Design System
+   AI Stock Diagnosis — Acid Green + Electric Blue + Clash Pink
    ═══════════════════════════════════════════════════════ */
 
 body {
-  background-color: #0a0f13;
-  color: #f3f7fd;
-  font-family: 'Inter', sans-serif;
+  background-color: #0e0e0f;
+  color: #ffffff;
+  font-family: 'Work Sans', sans-serif;
   overflow-x: hidden;
 }
 
 ::selection {
-  background-color: rgba(129, 236, 255, 0.3);
-  color: #81ecff;
+  background-color: rgba(156, 255, 147, 0.3);
+  color: #9cff93;
+}
+
+/* ── Brutalist Border ── */
+.brutalist-border {
+  border: 2px solid #9cff93;
+}
+
+/* ── Noise Overlay ── */
+.noise-overlay {
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  opacity: 0.05;
+  pointer-events: none;
+}
+
+/* ── Scan Line ── */
+.scan-line {
+  width: 100%;
+  height: 2px;
+  background: #9cff93;
+  position: absolute;
+  top: 0;
+  left: 0;
+  opacity: 0.3;
+  animation: scan 3s linear infinite;
 }
 
 /* ── Glass & Surface Effects ── */
 .glass-card {
-  background: rgba(14, 20, 24, 0.6);
-  backdrop-filter: blur(40px);
-  -webkit-backdrop-filter: blur(40px);
+  background: rgba(26, 25, 27, 0.6);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
 }
 
 .glass-nav {
-  background: rgba(10, 15, 19, 0.8);
-  backdrop-filter: blur(40px);
-  -webkit-backdrop-filter: blur(40px);
+  background: rgba(0, 0, 0, 1);
 }
 
 .text-glow {
-  text-shadow: 0 0 15px rgba(129, 236, 255, 0.6);
-}
-
-/* ── Prism Glow Background ── */
-.prism-glow {
-  background: radial-gradient(circle at 50% 50%, rgba(129, 236, 255, 0.15) 0%, transparent 70%);
-}
-
-/* ── Scanning Line ── */
-.scanning-line {
-  height: 2px;
-  background: linear-gradient(90deg, transparent, #81ecff, transparent);
-  animation: scan-line 2s linear infinite;
+  text-shadow: 0 0 15px rgba(156, 255, 147, 0.6);
 }
 
 /* ── Scrollbar ── */
@@ -53,7 +63,7 @@ body {
 .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
 ::-webkit-scrollbar { width: 0px; background: transparent; }
 
-/* ── Sticky CTA / Scroll Trigger Button ── */
+/* ── Sticky CTA ── */
 #sticky-cta {
   transform: translateY(100%);
   opacity: 0;
@@ -70,7 +80,7 @@ body {
 .screen-mask {
   position: fixed;
   inset: 0;
-  background: rgba(10, 15, 19, 0.9);
+  background: rgba(0, 0, 0, 0.9);
   backdrop-filter: blur(24px);
   z-index: 90;
   opacity: 0;
@@ -105,7 +115,7 @@ body {
 
 /* ── Material Symbols ── */
 .material-symbols-outlined {
-  font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
 }
 
 /* ── Marquee Ticker ── */
@@ -113,21 +123,6 @@ body {
   display: flex;
   width: fit-content;
   animation: marquee 40s linear infinite;
-}
-
-/* ── Hot Stocks Infinite Carousel ── */
-.hot-stocks-viewport {
-  max-height: 420px;
-  overflow: hidden;
-}
-.hot-stocks-track {
-  display: flex;
-  flex-direction: column;
-  padding-bottom: 20px;
-  animation: hot-stocks-scroll 60s linear infinite;
-}
-.hot-stocks-track:hover {
-  animation-play-state: paused;
 }
 
 /* ── Loading Bar Animation ── */
@@ -138,30 +133,28 @@ body {
 /* ── Modal Conversion Button Effects ── */
 #modal-submit-btn.animate-btn-activate {
   position: relative;
-  background: #81ecff !important;
-  color: #003840 !important;
+  background: #9cff93 !important;
+  color: #00440a !important;
   border: none !important;
   animation: btn-breathe 2.5s ease-in-out infinite, btn-activate 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards !important;
   filter: grayscale(0) !important;
   opacity: 1 !important;
   overflow: hidden;
   z-index: 1;
-  box-shadow: 0 0 20px rgba(129, 236, 255, 0.3);
+  box-shadow: 0 0 20px rgba(156, 255, 147, 0.3);
 }
 
-/* Gradient border effect */
 #modal-submit-btn.animate-btn-activate::before {
   content: '';
   position: absolute;
   inset: -2px;
-  border-radius: 1.5rem;
   background: conic-gradient(
     from 0deg,
-    #81ecff,
-    #5cfd80,
-    #a68cff,
-    #81ecff,
-    #81ecff
+    #9cff93,
+    #6e9bff,
+    #ff51fa,
+    #9cff93,
+    #9cff93
   );
   z-index: -2;
   animation: border-spin 3s linear infinite;
@@ -171,18 +164,17 @@ body {
   content: '';
   position: absolute;
   inset: 2px;
-  border-radius: 1.5rem;
-  background: #81ecff;
+  background: #9cff93;
   z-index: -1;
 }
 
 @keyframes btn-breathe {
   0%, 100% {
-    box-shadow: 0 0 15px rgba(129, 236, 255, 0.3), 0 0 30px rgba(129, 236, 255, 0.1);
+    box-shadow: 0 0 15px rgba(156, 255, 147, 0.3), 0 0 30px rgba(156, 255, 147, 0.1);
     transform: scale(1);
   }
   50% {
-    box-shadow: 0 0 25px rgba(129, 236, 255, 0.5), 0 0 50px rgba(129, 236, 255, 0.2), 0 0 80px rgba(92, 253, 128, 0.1);
+    box-shadow: 0 0 25px rgba(156, 255, 147, 0.5), 0 0 50px rgba(156, 255, 147, 0.2), 0 0 80px rgba(110, 155, 255, 0.1);
     transform: scale(1.02);
   }
 }
@@ -195,4 +187,15 @@ body {
 @keyframes loadingProgress {
   0% { width: 0%; }
   100% { width: 100%; }
+}
+
+@keyframes scan {
+  0% { top: 0%; }
+  100% { top: 100%; }
+}
+
+@keyframes pulse-border {
+  0% { border-color: #9cff93; }
+  50% { border-color: #ff51fa; }
+  100% { border-color: #9cff93; }
 }

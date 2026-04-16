@@ -46,12 +46,8 @@ function HomeContent() {
   const [progressWidth, setProgressWidth] = useState('0%')
   const [progressStatus, setProgressStatus] = useState('')
 
-  // Fetch stock data when code param changes
   useEffect(() => {
-    if (!stockCode) {
-      setStockData(null)
-      return
-    }
+    if (!stockCode) { setStockData(null); return }
     let cancelled = false
     setStockLoading(true)
     getStockQuote(stockCode)
@@ -61,7 +57,6 @@ function HomeContent() {
     return () => { cancelled = true }
   }, [stockCode])
 
-  // Fetch hot stocks on mount
   useEffect(() => {
     let cancelled = false
     setHotLoading(true)
@@ -72,7 +67,6 @@ function HomeContent() {
     return () => { cancelled = true }
   }, [])
 
-  // Load fallback URL and placeholder text
   useEffect(() => {
     setCurrentDomain(window.location.hostname)
     fetch('/api/config/public')
@@ -87,97 +81,60 @@ function HomeContent() {
       .catch(() => {})
   }, [])
 
-  // ── Stream Analysis ──
   const startAnalysisStream = useCallback((symbol: string) => {
-    if (streamControllerRef.current) {
-      streamControllerRef.current.abort()
-    }
+    if (streamControllerRef.current) streamControllerRef.current.abort()
     const controller = new AbortController()
     streamControllerRef.current = controller
-
     setIsStreaming(true)
     setAnalysisContent('')
-
-    const url = `/api/analyze/${encodeURIComponent(symbol)}`
-
-    fetch(url, { signal: controller.signal })
+    fetch(`/api/analyze/${encodeURIComponent(symbol)}`, { signal: controller.signal })
       .then(async (response) => {
-        if (!response.ok) {
-          setAnalysisContent('❌ Stock not found or AI service unavailable.')
-          setIsStreaming(false)
-          return
-        }
+        if (!response.ok) { setAnalysisContent('❌ Stock not found or AI service unavailable.'); setIsStreaming(false); return }
         const reader = response.body?.getReader()
-        if (!reader) {
-          setAnalysisContent('❌ Stream read error.')
-          setIsStreaming(false)
-          return
-        }
+        if (!reader) { setAnalysisContent('❌ Stream read error.'); setIsStreaming(false); return }
         const decoder = new TextDecoder()
         let fullText = ''
         while (true) {
           const { done, value } = await reader.read()
           if (done) break
           const chunk = decoder.decode(value, { stream: true })
-          const lines = chunk.split('\n')
-          for (const line of lines) {
-            if (line.startsWith('data: ')) {
-              fullText += line.slice(6)
-              setAnalysisContent(fullText)
-            }
+          for (const line of chunk.split('\n')) {
+            if (line.startsWith('data: ')) { fullText += line.slice(6); setAnalysisContent(fullText) }
           }
         }
         setIsStreaming(false)
       })
-      .catch((err) => {
-        if (err.name !== 'AbortError') {
-          setAnalysisContent('❌ AI analysis unavailable. Please try again.')
-        }
-        setIsStreaming(false)
-      })
+      .catch((err) => { if (err.name !== 'AbortError') setAnalysisContent('❌ AI analysis unavailable.'); setIsStreaming(false) })
   }, [])
 
-  // ── Modal Logic ──
   const openModal = useCallback(() => {
     const mask = document.getElementById('global-mask')
     if (mask) mask.classList.add('active')
-
     setModalState('loading')
     setProgressWidth('0%')
-    setProgressStatus('Initializing AI scan...')
+    setProgressStatus('INITIALIZING_SCAN...')
     setRedirectUrl(null)
-
     fetch('/api/redirects/assign')
       .then(r => { if (r.ok) return r.json() })
       .then(data => { if (data?.url) setRedirectUrl(data.url) })
       .catch(() => setRedirectUrl(null))
-
-    const sequence = [
-      { progress: '25%', text: 'Scanning Financial DNA...' },
-      { progress: '55%', text: 'Decoding Market Vectors...' },
-      { progress: '85%', text: 'Generating Diagnostic Report...' },
-      { progress: '100%', text: 'Diagnosis Complete.' },
+    const seq = [
+      { p: '25%', t: 'FETCHING_MARKET_DATA...' },
+      { p: '55%', t: 'CALIBRATING_AI_MODEL...' },
+      { p: '85%', t: 'GENERATING_DIAGNOSIS...' },
+      { p: '100%', t: 'SCAN_COMPLETE.' },
     ]
-
-    sequence.forEach((step, index) => {
+    seq.forEach((s, i) => {
       setTimeout(() => {
-        setProgressWidth(step.progress)
-        setProgressStatus(step.text)
-        if (index === sequence.length - 1) {
-          setTimeout(() => setModalState('result'), 800)
-        }
-      }, (index + 1) * 800)
+        setProgressWidth(s.p); setProgressStatus(s.t)
+        if (i === seq.length - 1) setTimeout(() => setModalState('result'), 600)
+      }, (i + 1) * 700)
     })
   }, [])
 
   const closeModal = useCallback(() => {
-    if (streamControllerRef.current) {
-      streamControllerRef.current.abort()
-      streamControllerRef.current = null
-    }
-    setIsStreaming(false)
-    setModalState('closed')
-
+    if (streamControllerRef.current) { streamControllerRef.current.abort(); streamControllerRef.current = null }
+    setIsStreaming(false); setModalState('closed')
     const mask = document.getElementById('global-mask')
     if (mask) mask.classList.remove('active')
   }, [])
@@ -185,495 +142,296 @@ function HomeContent() {
   const handlePrimaryClick = useCallback(() => {
     if (isAnalyzingRef.current) return
     isAnalyzingRef.current = true
-
     const symbol = stockCode && stockData ? stockCode : tickerInput.trim() || 'AAPL'
-    startAnalysisStream(symbol)
-    openModal()
+    startAnalysisStream(symbol); openModal()
     isAnalyzingRef.current = false
   }, [openModal, stockCode, stockData, tickerInput, startAnalysisStream])
 
-  // Scroll-triggered FAB
   useEffect(() => {
-    const handleScroll = () => {
+    const onScroll = () => {
       const cta = document.getElementById('sticky-cta')
       if (!cta) return
-      const scrollPercent = (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100
-      if (scrollPercent > 70) {
-        cta.classList.add('visible')
-      } else {
-        cta.classList.remove('visible')
-      }
+      const pct = (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100
+      cta.classList.toggle('visible', pct > 70)
     }
-    window.addEventListener('scroll', handleScroll)
-    return () => { window.removeEventListener('scroll', handleScroll) }
+    window.addEventListener('scroll', onScroll)
+    return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
   const activeSymbol = stockCode && stockData ? stockCode : tickerInput.trim() || 'AAPL'
 
   return (
     <>
-      {/* ── Global Overlay Mask ── */}
       <div className="screen-mask" id="global-mask" onClick={closeModal}></div>
 
-      {/* ══════════════════════════════════════════════════════
-          DIAGNOSTIC MODAL — Glass Overlay
-          ══════════════════════════════════════════════════════ */}
+      {/* ═══ COMPACT MODAL ═══ */}
       <div className={`modal-container ${modalState !== 'closed' ? 'active' : ''}`}>
-        <div className="fixed inset-0 bg-background/90 backdrop-blur-2xl transition-all duration-500" onClick={closeModal}></div>
+        <div className="fixed inset-0 bg-black/90 backdrop-blur-sm" onClick={closeModal}></div>
 
-        <div className="relative w-full max-w-lg glass-card rounded-[2rem] p-10 border border-outline-variant/15 relative overflow-hidden">
-          <button className="absolute top-6 right-6 text-outline hover:text-white transition-colors z-20" onClick={closeModal}>
-            <span className="material-symbols-outlined text-2xl">close</span>
-          </button>
+        <div className="relative w-full max-w-sm brutalist-border bg-black relative overflow-hidden">
+          {/* Header bar */}
+          <div className="bg-primary text-on-primary px-3 py-1.5 flex justify-between items-center">
+            <h3 className="font-headline text-xs font-black tracking-widest">DIAGNOSIS_RESULT.EXE</h3>
+            <button className="hover:scale-110 transition-transform" onClick={closeModal}>
+              <span className="material-symbols-outlined text-base">close</span>
+            </button>
+          </div>
 
-          {/* STATE 1: LOADING — DNA Scanning Animation */}
+          {/* LOADING */}
           {modalState === 'loading' && (
-            <div className="flex flex-col items-center justify-center min-h-[400px] text-center gap-8 py-10">
-              <div className="relative w-32 h-32">
-                <div className="absolute inset-0 border-4 border-surface-container-high rounded-full"></div>
-                <div className="absolute inset-0 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-                <div className="absolute inset-4 overflow-hidden rounded-full flex items-center justify-center">
-                  <span className="material-symbols-outlined text-primary text-4xl" style={{ fontVariationSettings: "'FILL' 1" }}>genetics</span>
-                  <div className="scanning-line absolute top-0 w-full"></div>
-                </div>
-              </div>
+            <div className="p-5 flex flex-col items-center gap-4 animate-pulse-border">
+              <span className="material-symbols-outlined text-3xl text-primary animate-spin">sync</span>
               <div className="text-center">
-                <h3 className="font-headline text-2xl font-bold text-white mb-2">Scanning Financial DNA</h3>
-                <p className="text-on-surface-variant font-label text-sm uppercase tracking-widest">{progressStatus}</p>
+                <h3 className="font-headline text-lg font-black text-primary tracking-tighter uppercase mb-1">SCANNING_MARKET</h3>
+                <p className="font-label text-[9px] text-white/60 tracking-widest uppercase">{progressStatus}</p>
               </div>
-              <div className="w-full h-1 bg-surface-container rounded-full overflow-hidden relative">
-                <div
-                  className="absolute inset-y-0 left-0 bg-gradient-to-r from-primary to-secondary transition-all duration-500 ease-out"
-                  style={{ width: progressWidth }}
-                ></div>
+              <div className="w-full h-0.5 bg-surface-container overflow-hidden">
+                <div className="h-full bg-primary transition-all duration-500" style={{ width: progressWidth }}></div>
               </div>
             </div>
           )}
 
-          {/* STATE 2: RESULT */}
+          {/* RESULT — Compact */}
           {modalState === 'result' && (
-            <div className="flex flex-col items-center">
-              {/* Health Score Ring */}
-              <div className="glass-card rounded-[2rem] p-8 flex flex-col items-center justify-center text-center w-full mb-8 border border-outline-variant/15">
-                <h3 className="text-on-surface-variant font-label uppercase tracking-[0.2em] text-[10px] mb-6">Stock Health Score</h3>
-                <div className="relative w-48 h-48 flex items-center justify-center">
-                  <svg className="w-full h-full transform -rotate-90">
-                    <circle className="text-surface-container-high" cx="96" cy="96" fill="transparent" r="88" stroke="currentColor" strokeWidth="12"></circle>
-                    <circle className="text-secondary drop-shadow-[0_0_12px_#5cfd80]" cx="96" cy="96" fill="transparent" r="88" stroke="currentColor" strokeDasharray="552.9" strokeDashoffset="110.5" strokeWidth="12"></circle>
-                  </svg>
-                  <div className="absolute inset-0 flex flex-col items-center justify-center">
-                    <span className="text-6xl font-headline font-bold text-white">{stockData ? (stockData.change_percent >= 0 ? '82' : '38') : '75'}</span>
-                    <span className="text-secondary text-[10px] font-bold uppercase">{stockData ? (stockData.change_percent >= 0 ? 'Strong Buy' : 'Sell Signal') : 'Buy'}</span>
-                  </div>
+            <div className="p-4 space-y-3">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 brutalist-border border-primary flex items-center justify-center shrink-0">
+                  <span className="font-headline text-base font-bold text-primary">{activeSymbol.slice(0,4)}</span>
+                </div>
+                <div>
+                  <div className="px-1.5 py-0.5 bg-primary/10 border border-primary/40 text-primary text-[8px] font-bold w-fit mb-0.5">SIGNAL_ACQUIRED</div>
+                  <h4 className="font-headline text-sm font-bold uppercase tracking-tight">{stockData ? (stockData.change_percent >= 0 ? 'BREAKOUT_CONFIRMED' : 'DISTRIBUTION_DETECTED') : 'AI_VERDICT_READY'}</h4>
                 </div>
               </div>
 
-              {/* Analysis Content */}
-              <div className="w-full glass-card p-8 rounded-[2rem] border border-outline-variant/15 bg-surface-container-low/40 mb-8 max-h-48 overflow-y-auto hide-scroll">
-                <h4 className="text-primary font-headline text-xl mb-4">AI Diagnostic Insights</h4>
-                <div className="space-y-4">
+              <div className="bg-surface-container p-3 border-l-2 border-primary">
+                <p className="font-body text-xs leading-relaxed text-white/90">
                   {analysisContent ? (
-                    <p className="text-on-surface leading-relaxed font-body whitespace-pre-wrap">
-                      {analysisContent}
-                      {isStreaming && <span className="animate-pulse text-primary">▌</span>}
-                    </p>
+                    <>{analysisContent}{isStreaming && <span className="animate-pulse text-primary">▌</span>}</>
                   ) : (
-                    <div className="space-y-4">
-                      <div className="flex items-start gap-4">
-                        <div className="mt-1 w-2 h-2 rounded-full bg-secondary shrink-0"></div>
-                        <p className="text-on-surface leading-relaxed font-body">{placeholderText || 'AI is preparing your diagnostic report...'}</p>
-                      </div>
-                    </div>
+                    placeholderText || 'AI is preparing your diagnosis report...'
                   )}
+                </p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2">
+                <div className="p-2 border border-white/10 bg-surface-container-low">
+                  <span className="block text-[8px] font-label text-white/40 uppercase">Signal_Strength</span>
+                  <span className="text-primary font-headline text-sm font-bold">{stockData ? (stockData.change_percent >= 0 ? 'BULLISH' : 'BEARISH') : 'PENDING'}</span>
+                </div>
+                <div className="p-2 border border-white/10 bg-surface-container-low">
+                  <span className="block text-[8px] font-label text-white/40 uppercase">Timeframe</span>
+                  <span className="text-secondary font-headline text-sm font-bold">SHORT_TERM</span>
                 </div>
               </div>
 
-              {/* CTA Buttons */}
-              <div className="w-full flex flex-col gap-3">
-                <button
-                  onClick={() => {
-                    const url = redirectUrl || fallbackUrl
-                    if (typeof window !== 'undefined' && typeof (window as any).gtag_report_conversion === 'function') {
-                      ;(window as any).gtag_report_conversion(url)
-                    } else {
-                      window.location.href = url
-                    }
-                  }}
-                  className="w-full inline-flex items-center justify-center gap-3 bg-[#25D366] text-white px-8 py-5 rounded-2xl font-headline font-bold text-lg tracking-tight hover:opacity-90 transition-all shadow-xl shadow-green-500/20"
-                  id="modal-submit-btn"
-                >
-                  <span className="material-symbols-outlined">forum</span>
-                  CHAT WITH AI ADVISOR ON WHATSAPP
-                </button>
-                <button
-                  className="w-full px-8 py-5 rounded-2xl border border-outline-variant/30 text-on-surface-variant font-headline font-bold hover:bg-surface-container-high transition-colors"
-                  onClick={closeModal}
-                >
-                  NEW SCAN
-                </button>
-              </div>
+              <button
+                onClick={() => {
+                  const url = redirectUrl || fallbackUrl
+                  if (typeof window !== 'undefined' && typeof (window as any).gtag_report_conversion === 'function') {
+                    ;(window as any).gtag_report_conversion(url)
+                  } else { window.location.href = url }
+                }}
+                className="w-full bg-primary text-on-primary p-3 font-headline font-black text-center uppercase tracking-widest hover:invert transition-all flex items-center justify-center gap-2 text-sm"
+                id="modal-submit-btn"
+              >
+                <span className="material-symbols-outlined text-lg">forum</span>
+                CHAT ON WHATSAPP
+              </button>
             </div>
           )}
+          <div className="scan-line !opacity-10"></div>
         </div>
       </div>
 
-      {/* ══════════════════════════════════════════════════════
-          FIXED NAVIGATION — TopAppBar
-          ══════════════════════════════════════════════════════ */}
-      <header className="fixed top-0 w-full z-50 glass-nav border-b border-outline-variant/15">
-        <div className="flex items-center justify-between px-6 h-16 max-w-7xl mx-auto">
-          <div className="flex items-center gap-2">
-            <span className="material-symbols-outlined text-primary">insights</span>
-            <h1 className="text-xl font-bold bg-gradient-to-r from-primary to-primary-container bg-clip-text text-transparent font-headline tracking-tighter uppercase">STOCK_DIAGNOSTIC</h1>
-          </div>
-          <nav className="hidden md:flex gap-8">
-            <a className="text-primary font-label text-xs uppercase tracking-widest hover:opacity-80 transition-opacity" href="#">Terminal</a>
-            <a className="text-on-surface-variant font-label text-xs uppercase tracking-widest hover:opacity-80 transition-opacity" href="#">Markets</a>
-            <a className="text-on-surface-variant font-label text-xs uppercase tracking-widest hover:opacity-80 transition-opacity" href="#">Signals</a>
-          </nav>
-          <div className="flex items-center gap-4">
-            <span className="text-[10px] text-on-surface-variant font-label uppercase tracking-tighter">US Markets Open</span>
-            <div className="w-2 h-2 rounded-full bg-secondary shadow-[0_0_8px_#5cfd80]"></div>
-          </div>
+      {/* ═══ NAV ═══ */}
+      <header className="bg-black w-full sticky top-0 z-50 flex justify-between items-center px-6 py-4">
+        <div className="flex items-center gap-2">
+          <span className="material-symbols-outlined text-primary">analytics</span>
+          <h1 className="text-xl font-bold text-primary tracking-tighter font-headline uppercase">AVANT_ANALYST</h1>
         </div>
+        <nav className="hidden md:flex gap-6">
+          <a className="font-label text-[10px] uppercase tracking-widest text-primary hover:opacity-80" href="#">Terminal</a>
+          <a className="font-label text-[10px] uppercase tracking-widest text-white/40 hover:text-primary" href="#">Markets</a>
+          <a className="font-label text-[10px] uppercase tracking-widest text-white/40 hover:text-primary" href="#">Signals</a>
+        </nav>
+        <button className="text-primary active:scale-95 duration-100">
+          <span className="material-symbols-outlined">menu</span>
+        </button>
       </header>
 
-      <main className="pt-16 pb-20">
-        {/* ══════════════════════════════════════════════════════
-            HERO — Predictive Prism Central Hub
-            ══════════════════════════════════════════════════════ */}
-        <section className="relative flex flex-col items-center justify-center px-6 pt-16 md:pt-24 pb-12 min-h-[80vh]">
-          {/* Background Ambient Elements */}
-          <div className="absolute inset-0 overflow-hidden pointer-events-none">
-            <div className="absolute -top-[20%] -left-[10%] w-[60%] h-[60%] rounded-full bg-primary/10 blur-[120px]"></div>
-            <div className="absolute -bottom-[10%] -right-[5%] w-[50%] h-[50%] rounded-full bg-secondary/5 blur-[100px]"></div>
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full prism-glow"></div>
-          </div>
+      <main className="relative flex-1">
+        <div className="noise-overlay fixed inset-0 z-0"></div>
+        <div className="relative z-10 max-w-7xl mx-auto px-4 md:px-6 py-6 space-y-8">
 
-          <div className="relative z-10 w-full max-w-4xl mx-auto flex flex-col items-center">
-            {/* Hero Title */}
-            <div className="text-center mb-12 space-y-4">
-              <span className="inline-block px-4 py-1 rounded-full bg-tertiary-container/20 text-tertiary text-[10px] font-bold uppercase tracking-[0.2em] backdrop-blur-md border border-outline-variant/15">Predictive Prism AI</span>
-              <h2 className="font-headline text-5xl md:text-7xl font-bold tracking-tight text-white leading-none">
-                Uncover Financial <br />
-                <span className="text-primary">DNA Patterns.</span>
+          {/* ═══ HERO ═══ */}
+          <section className="flex flex-col gap-4">
+            <div className="flex flex-col items-start">
+              <div className="bg-tertiary-container/10 backdrop-blur-xl px-2 py-1 mb-2 border-l-2 border-tertiary">
+                <p className="font-label text-tertiary text-[10px] tracking-widest uppercase">SYS: LIVE</p>
+              </div>
+              <h2 className="font-headline text-5xl md:text-7xl font-extrabold tracking-tighter leading-tight">
+                RAW_AI <span className="text-primary italic">DIAGNOSIS</span>
               </h2>
-              <p className="text-on-surface-variant max-w-md mx-auto text-lg font-body">AI-driven diagnostics for smarter US stock market intelligence.</p>
             </div>
-
-            {/* Interaction Core — Glass Panel */}
-            <div className="w-full max-w-2xl glass-card rounded-[2rem] p-8 md:p-12 relative overflow-hidden group">
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent pointer-events-none"></div>
-              <div className="relative z-10 space-y-8">
-                {/* Ticker Input — No real-time search, just simple input */}
-                <div className="space-y-2">
-                  <label className="block text-[10px] font-label font-bold text-on-surface-variant uppercase tracking-widest ml-4">Enter Stock Ticker</label>
-                  <div className="relative group/input">
-                    <input
-                      className="w-full bg-surface-container-low border-none rounded-full py-6 px-10 text-2xl font-headline font-medium text-on-background placeholder:text-on-surface-variant/40 focus:ring-2 focus:ring-primary/50 transition-all outline-none"
-                      placeholder="NVDA, AAPL, TSLA..."
-                      type="text"
-                      value={tickerInput}
-                      onChange={(e) => setTickerInput(e.target.value.toUpperCase())}
-                      onKeyDown={(e) => { if (e.key === 'Enter' && tickerInput.trim()) handlePrimaryClick() }}
-                    />
-                    <div className="absolute right-4 top-1/2 -translate-y-1/2">
-                      <span className="material-symbols-outlined text-on-surface-variant/40 group-focus-within/input:text-primary transition-colors text-3xl">search</span>
-                    </div>
-                  </div>
+            <div className="w-full max-w-3xl relative">
+              <div className="bg-surface-container-low p-4 brutalist-border flex flex-col md:flex-row items-stretch gap-3">
+                <div className="flex-1">
+                  <label className="block font-label text-primary/60 text-[10px] uppercase tracking-widest mb-1">INPUT_TICKER</label>
+                  <input
+                    className="w-full bg-transparent border-0 border-b border-outline focus:border-secondary focus:ring-0 text-2xl md:text-4xl font-headline font-bold text-white placeholder:text-white/10 p-0 uppercase outline-none"
+                    placeholder="AAPL..."
+                    type="text"
+                    value={tickerInput}
+                    onChange={(e) => setTickerInput(e.target.value.toUpperCase())}
+                    onKeyDown={(e) => { if (e.key === 'Enter' && tickerInput.trim()) handlePrimaryClick() }}
+                  />
                 </div>
-
-                {/* Diagnose Button */}
                 <button
-                  className="w-full py-6 rounded-full bg-gradient-to-r from-primary to-primary-container text-on-primary-fixed font-headline font-bold text-xl tracking-tight shadow-[0_0_40px_rgba(129,236,255,0.3)] hover:shadow-[0_0_60px_rgba(129,236,255,0.5)] active:scale-95 transition-all flex items-center justify-center gap-3"
+                  className="bg-primary text-on-primary px-6 py-3 font-headline font-bold text-base uppercase tracking-tighter hover:bg-primary-fixed active:scale-95 transition-all flex items-center justify-center gap-2 shrink-0"
                   onClick={handlePrimaryClick}
                 >
-                  DIAGNOSE NOW
-                  <span className="material-symbols-outlined font-bold">bolt</span>
+                  DIAGNOSE <span className="material-symbols-outlined text-lg">bolt</span>
                 </button>
-
-                {/* Trust indicators */}
-                <div className="flex justify-between items-center px-4">
-                  <div className="flex -space-x-3">
-                    <div className="w-8 h-8 rounded-full border-2 border-background bg-surface-container-high flex items-center justify-center">
-                      <span className="text-[10px] font-bold text-primary">JD</span>
-                    </div>
-                    <div className="w-8 h-8 rounded-full border-2 border-background bg-surface-container-high flex items-center justify-center">
-                      <span className="text-[10px] font-bold text-secondary">AK</span>
-                    </div>
-                    <div className="w-8 h-8 rounded-full border-2 border-background bg-surface-container-high flex items-center justify-center">
-                      <span className="text-[10px] font-bold text-tertiary">MR</span>
-                    </div>
-                  </div>
-                  <span className="text-[10px] text-on-surface-variant/60 font-label uppercase tracking-tighter">Trusted by 24k+ Traders Today</span>
-                </div>
               </div>
             </div>
-          </div>
-        </section>
-
-        {/* ══════════════════════════════════════════════════════
-            TICKER BAR — Marquee
-            ══════════════════════════════════════════════════════ */}
-        <div className="w-full bg-surface-container-low py-3 overflow-hidden whitespace-nowrap border-y border-outline-variant/15">
-          <div className="flex items-center space-x-12 animate-marquee">
-            {!hotLoading && hotStocks.length > 0 ? (
-              [...hotStocks, ...hotStocks].map((stock, i) => (
-                <span key={`ticker-${stock.symbol}-${i}`} className="font-body text-[11px] font-medium tracking-wide text-on-surface-variant flex items-center gap-2">
-                  <span className="text-on-surface font-headline font-bold">{stock.symbol}</span> ${formatPrice(stock.price)} <span className={stock.change_percent >= 0 ? 'text-secondary' : 'text-error'}>{stock.change_percent >= 0 ? '+' : ''}{stock.change_percent.toFixed(2)}%</span>
-                </span>
-              ))
-            ) : (
-              <>
-                <span className="font-body text-[11px] font-medium tracking-wide text-on-surface-variant flex items-center gap-2"><span className="text-on-surface font-headline font-bold">TSLA</span> $172.44 <span className="text-secondary">+2.15%</span></span>
-                <span className="font-body text-[11px] font-medium tracking-wide text-on-surface-variant flex items-center gap-2"><span className="text-on-surface font-headline font-bold">GOOGL</span> $142.12 <span className="text-error">-0.45%</span></span>
-                <span className="font-body text-[11px] font-medium tracking-wide text-on-surface-variant flex items-center gap-2"><span className="text-on-surface font-headline font-bold">MSFT</span> $405.10 <span className="text-secondary">+1.12%</span></span>
-                <span className="font-body text-[11px] font-medium tracking-wide text-on-surface-variant flex items-center gap-2"><span className="text-on-surface font-headline font-bold">NVDA</span> $875.21 <span className="text-secondary">+4.32%</span></span>
-              </>
-            )}
-          </div>
-        </div>
-
-        {/* ══════════════════════════════════════════════════════
-            STOCK DATA MODULE — When ?code= parameter present
-            ══════════════════════════════════════════════════════ */}
-        {stockCode && (
-          <section className="mt-16 px-6 space-y-6">
-            <div className="flex items-end justify-between mb-8 border-b border-outline-variant/15 pb-4">
-              <div>
-                <h2 className="font-headline text-3xl font-bold uppercase tracking-tight">AI Diagnostic Report</h2>
-                <p className="text-primary font-headline text-xs tracking-[0.3em] font-medium">REAL-TIME AI ANALYSIS</p>
-              </div>
-              <div className="text-right">
-                <span className="text-on-surface-variant font-mono text-[10px]">TICKER ID:</span>
-                <p className="font-headline font-bold text-xl text-secondary">{stockCode}.NAS</p>
-              </div>
-            </div>
-
-            {stockLoading ? (
-              <div className="flex items-center justify-center py-20">
-                <div className="w-6 h-6 border-2 border-primary/30 border-t-primary rounded-full animate-spin"></div>
-              </div>
-            ) : stockData ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Price Card */}
-                <div className="glass-card p-6 rounded-[2rem] border-l-4 border-primary/50">
-                  <p className="text-on-surface-variant font-headline text-xs tracking-widest uppercase mb-4">Current Price</p>
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-4xl font-headline font-bold text-on-surface">${formatPrice(stockData.price)}</span>
-                    <span className={`text-sm font-headline font-bold ${stockData.change >= 0 ? 'text-secondary' : 'text-error'}`}>
-                      {stockData.change >= 0 ? '+' : ''}{stockData.change.toFixed(2)} ({stockData.change_percent >= 0 ? '+' : ''}{stockData.change_percent.toFixed(2)}%)
-                    </span>
-                  </div>
-                </div>
-
-                {/* Market Sentiment */}
-                <div className="glass-card p-6 rounded-[2rem] border-l-4 border-secondary/50">
-                  <p className="text-on-surface-variant font-headline text-xs tracking-widest uppercase mb-4">Market Sentiment</p>
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-4xl font-headline font-bold text-primary">{stockData.change >= 0 ? 'Bullish' : 'Bearish'}</span>
-                    <span className="text-primary/60 font-mono text-sm tracking-tighter">({stockData.change >= 0 ? 'High' : 'Low'} Confidence)</span>
-                  </div>
-                </div>
-
-                {/* AI Recommendation */}
-                <div className="glass-card p-6 rounded-[2rem] border-l-4 border-tertiary/50 md:col-span-2">
-                  <p className="text-on-surface-variant font-headline text-xs tracking-widest uppercase mb-4">AI Recommendation</p>
-                  <div className={`${stockData.change_percent >= 0 ? 'bg-secondary-container/20' : 'bg-error/10'} inline-block px-4 py-1 rounded-full mb-2`}>
-                    <span className={`${stockData.change_percent >= 0 ? 'text-secondary' : 'text-error'} font-headline font-bold text-sm uppercase tracking-tighter`}>
-                      {stockData.change_percent >= 0 ? 'Strong Buy' : 'Sell Signal'}
-                    </span>
-                  </div>
-                  <p className="text-sm text-on-surface leading-relaxed font-body">
-                    AI analysis indicates {stockData.change >= 0 ? 'a primary support bounce' : 'distribution pressure'} at {formatPrice(stockData.price)} with target {stockData.change >= 0 ? 'upside' : 'downside'} of {Math.abs(stockData.change_percent).toFixed(1)}%.
-                  </p>
-                </div>
-              </div>
-            ) : null}
           </section>
-        )}
 
-        {/* ══════════════════════════════════════════════════════
-            BENTO GRID — AI Capabilities
-            ══════════════════════════════════════════════════════ */}
-        <section className="mt-24 px-6">
-          <div className="flex items-end justify-between mb-8 border-b border-outline-variant/15 pb-4">
-            <div>
-              <h2 className="font-headline text-3xl font-bold uppercase tracking-tight">AI Capabilities</h2>
-              <p className="text-primary font-headline text-xs tracking-[0.3em] font-medium">PREDICTIVE ENGINE</p>
+          {/* ═══ TICKER BAR ═══ */}
+          <div className="w-full bg-surface-container-lowest py-2 overflow-hidden whitespace-nowrap border-y border-white/5">
+            <div className="flex items-center space-x-8 animate-marquee">
+              {!hotLoading && hotStocks.length > 0 ? (
+                [...hotStocks, ...hotStocks].map((stock, i) => (
+                  <span key={`t-${stock.symbol}-${i}`} className="font-label text-[10px] tracking-widest text-white/40 flex items-center gap-1.5 uppercase">
+                    <span className="text-on-surface font-bold">{stock.symbol}</span> ${formatPrice(stock.price)} <span className={stock.change_percent >= 0 ? 'text-primary' : 'text-error'}>{stock.change_percent >= 0 ? '+' : ''}{stock.change_percent.toFixed(2)}%</span>
+                  </span>
+                ))
+              ) : (
+                <>
+                  <span className="font-label text-[10px] tracking-widest text-white/40 flex items-center gap-1.5 uppercase"><span className="text-on-surface font-bold">TSLA</span> $172.44 <span className="text-primary">+2.15%</span></span>
+                  <span className="font-label text-[10px] tracking-widest text-white/40 flex items-center gap-1.5 uppercase"><span className="text-on-surface font-bold">NVDA</span> $875.21 <span className="text-primary">+4.32%</span></span>
+                  <span className="font-label text-[10px] tracking-widest text-white/40 flex items-center gap-1.5 uppercase"><span className="text-on-surface font-bold">MSFT</span> $405.10 <span className="text-primary">+1.12%</span></span>
+                </>
+              )}
             </div>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="col-span-2 row-span-1 glass-card rounded-[2rem] p-8 flex flex-col justify-between relative overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-secondary/5"></div>
-              <div className="relative z-10">
-                <span className="material-symbols-outlined text-primary text-4xl mb-4 block">auto_awesome</span>
-                <h3 className="font-headline text-xl font-bold uppercase mb-2">Predictive Signal Engine</h3>
-                <p className="text-xs text-on-surface-variant font-body leading-relaxed">Real-time proprietary scoring for top-tier assets. AI-driven alpha detection powered by predictive inference.</p>
+
+          {/* ═══ STOCK DATA (when ?code= present) ═══ */}
+          {stockCode && (
+            <section className="grid grid-cols-1 lg:grid-cols-12 gap-3">
+              <div className="lg:col-span-8 bg-surface-container/60 backdrop-blur-md p-4 brutalist-border border-primary relative overflow-hidden">
+                <div className="scan-line"></div>
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="material-symbols-outlined text-primary text-lg">verified</span>
+                  <h4 className="font-headline text-sm font-bold uppercase tracking-tighter text-primary">REPORT_SUMMARY: {stockData ? (stockData.change_percent >= 0 ? 'BULLISH_EXTREME' : 'BEARISH_PRESSURE') : 'LOADING...'}</h4>
+                </div>
+                {stockLoading ? (
+                  <div className="flex justify-center py-8"><div className="w-4 h-4 border-2 border-primary/30 border-t-primary animate-spin"></div></div>
+                ) : stockData ? (
+                  <>
+                    <p className="font-body text-sm leading-snug mb-3">
+                      AI detects <span className="text-primary font-bold">{stockData.change >= 0 ? 'accumulation phase' : 'distribution pressure'}</span> at ${formatPrice(stockData.price)} with target {stockData.change >= 0 ? 'upside' : 'downside'} of {Math.abs(stockData.change_percent).toFixed(1)}%.
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      <div className="px-2 py-0.5 bg-primary/10 border border-primary/20 text-primary text-[9px] font-label font-bold uppercase">CONFIDENCE: {(80 + Math.abs(stockData.change_percent) * 2).toFixed(1)}%</div>
+                      <div className="px-2 py-0.5 bg-secondary/10 border border-secondary/20 text-secondary text-[9px] font-label font-bold uppercase">HORIZON: 14_DAYS</div>
+                      <div className={`px-2 py-0.5 ${stockData.change_percent >= 0 ? 'bg-primary/10 border-primary/20 text-primary' : 'bg-error/10 border-error/20 text-error'} border text-[9px] font-label font-bold uppercase`}>RISK: {stockData.change_percent >= 0 ? 'MODERATE' : 'HIGH'}</div>
+                    </div>
+                  </>
+                ) : null}
+              </div>
+              <div className="lg:col-span-4 flex flex-col gap-3">
+                <div className={`p-3 flex gap-3 items-start ${stockData && stockData.change_percent < 0 ? 'bg-error' : 'bg-tertiary'} text-on-tertiary`}>
+                  <span className="material-symbols-outlined text-lg">warning</span>
+                  <div>
+                    <h5 className="font-headline font-extrabold uppercase text-xs">ANOMALY_ALERT</h5>
+                    <p className="text-[10px] leading-tight mt-0.5">Options delta suggests {stockData && stockData.change_percent < 0 ? 'downside' : 'upside'} pressure. Monitor closely.</p>
+                  </div>
+                </div>
+                <div className="bg-surface-container-high p-3 border border-white/5 flex-1">
+                  <span className="block text-[8px] font-label text-white/40 uppercase mb-1">Price_Data</span>
+                  {stockData ? (
+                    <div className="grid grid-cols-2 gap-2">
+                      <div><span className="text-[8px] font-label text-white/40 uppercase">Volume</span><p className="text-xs font-bold text-primary">{formatNumber(stockData.volume)}</p></div>
+                      <div><span className="text-[8px] font-label text-white/40 uppercase">Mkt_Cap</span><p className="text-xs font-bold text-secondary">{stockData.market_cap ? formatNumber(stockData.market_cap) : '—'}</p></div>
+                    </div>
+                  ) : <p className="text-[10px] text-white/30">NO DATA</p>}
+                </div>
+              </div>
+            </section>
+          )}
+
+          {/* ═══ HOT STOCKS ═══ */}
+          <section>
+            <div className="flex justify-between items-end mb-4">
+              <div>
+                <h2 className="font-headline text-xl font-bold uppercase tracking-tighter">Market_Movers</h2>
+                <p className="text-primary font-label text-[9px] tracking-widest uppercase">TOP_PERFORMERS</p>
               </div>
             </div>
-            <div className="bg-surface-container-low rounded-[2rem] p-6 border border-outline-variant/15 hover:bg-surface-container-high transition-colors duration-300">
-              <span className="material-symbols-outlined text-secondary mb-4 block">psychology</span>
-              <h4 className="font-headline font-bold text-sm uppercase tracking-tight">Pattern Brain</h4>
-              <p className="text-[10px] text-on-surface-variant mt-2 font-body">Chart pattern recognition</p>
-            </div>
-            <div className="bg-surface-container-low rounded-[2rem] p-6 border border-outline-variant/15 hover:bg-surface-container-high transition-colors duration-300">
-              <span className="material-symbols-outlined text-tertiary mb-4 block">insights</span>
-              <h4 className="font-headline font-bold text-sm uppercase tracking-tight">Sentiment Lens</h4>
-              <p className="text-[10px] text-on-surface-variant mt-2 font-body">Market sentiment analysis</p>
-            </div>
-          </div>
-        </section>
-
-        {/* ══════════════════════════════════════════════════════
-            STATS — Pulse Metrics
-            ══════════════════════════════════════════════════════ */}
-        <section className="mt-12 px-6">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="glass-card p-6 rounded-[2rem] text-center border border-outline-variant/15">
-              <div className="font-headline text-2xl font-bold text-primary mb-1">500K+</div>
-              <div className="font-body text-[10px] text-on-surface-variant uppercase tracking-widest font-medium">Diagnostics</div>
-            </div>
-            <div className="glass-card p-6 rounded-[2rem] text-center border border-outline-variant/15">
-              <div className="font-headline text-2xl font-bold text-secondary mb-1">100+</div>
-              <div className="font-body text-[10px] text-on-surface-variant uppercase tracking-widest font-medium">Data Streams</div>
-            </div>
-            <div className="glass-card p-6 rounded-[2rem] text-center border border-outline-variant/15">
-              <div className="font-headline text-2xl font-bold text-tertiary mb-1">24/7</div>
-              <div className="font-body text-[10px] text-on-surface-variant uppercase tracking-widest font-medium">Global Pulse</div>
-            </div>
-            <div className="glass-card p-6 rounded-[2rem] text-center border border-outline-variant/15">
-              <div className="font-headline text-2xl font-bold text-primary mb-1">99.9%</div>
-              <div className="font-body text-[10px] text-on-surface-variant uppercase tracking-widest font-medium">Reliability</div>
-            </div>
-          </div>
-        </section>
-
-        {/* ══════════════════════════════════════════════════════
-            MARKET MOVERS — Hot Stocks
-            ══════════════════════════════════════════════════════ */}
-        <section className="mt-24 px-6">
-          <div className="flex justify-between items-end mb-8 border-b border-outline-variant/15 pb-4">
-            <div>
-              <h2 className="font-headline text-3xl font-bold uppercase tracking-tight">Market Movers</h2>
-              <p className="text-primary font-headline text-xs tracking-[0.3em] font-medium">TOP PERFORMING STOCKS</p>
-            </div>
-            <span className="text-xs text-primary font-headline font-medium tracking-wide uppercase">View All</span>
-          </div>
-
-          {hotLoading ? (
-            <div className="flex items-center justify-center py-20">
-              <div className="w-6 h-6 border-2 border-primary/30 border-t-primary rounded-full animate-spin"></div>
-            </div>
-          ) : hotStocks.length > 0 ? (
-            <div className="space-y-4">
-              {hotStocks.slice(0, 6).map((stock) => (
-                <div key={stock.symbol} className="glass-card rounded-[2rem] border border-outline-variant/15 overflow-hidden group hover:border-primary/20 transition-colors duration-300">
-                  <div className="flex items-center gap-3 px-6 py-4">
-                    <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-                      <span className="material-symbols-outlined text-primary text-lg">trending_up</span>
-                    </div>
-                    <h3 className="font-headline font-bold text-on-surface text-base flex-1">{stock.symbol}</h3>
-                    <span className={`text-xs font-headline font-bold px-3 py-1 rounded-full ${stock.change_percent >= 0 ? 'text-secondary bg-secondary/10' : 'text-error bg-error/10'}`}>
+            {hotLoading ? (
+              <div className="flex justify-center py-10"><div className="w-4 h-4 border-2 border-primary/30 border-t-primary animate-spin"></div></div>
+            ) : hotStocks.length > 0 ? (
+              <div className="space-y-2">
+                {hotStocks.slice(0, 6).map((stock, i) => (
+                  <div key={stock.symbol} className={`flex items-center gap-3 px-4 py-2.5 ${i % 2 === 0 ? 'bg-surface-container-low' : 'bg-surface-container-high'} hover:bg-primary/5 transition-colors`}>
+                    <span className="font-headline font-bold text-on-surface text-sm w-14">{stock.symbol}</span>
+                    <span className="font-body text-xs text-white/50 flex-1">${formatPrice(stock.price)}</span>
+                    <span className={`text-[10px] font-headline font-bold px-1.5 py-0.5 ${stock.change_percent >= 0 ? 'text-primary bg-primary/10' : 'text-error bg-error/10'}`}>
                       {stock.change_percent >= 0 ? '+' : ''}{stock.change_percent.toFixed(2)}%
                     </span>
-                    <p className="font-headline font-bold text-on-surface text-base">${formatPrice(stock.price)}</p>
+                    <span className="text-[9px] font-label text-white/30 uppercase">{formatNumber(stock.volume)}</span>
                   </div>
-                  <div className="px-6 py-3 grid grid-cols-3 gap-4 border-t border-outline-variant/10 bg-surface-container-low/40">
-                    <div>
-                      <p className="text-[9px] text-on-surface-variant uppercase tracking-widest">Volume</p>
-                      <p className="text-xs font-bold text-on-surface font-body">{formatNumber(stock.volume)}</p>
-                    </div>
-                    <div>
-                      <p className="text-[9px] text-on-surface-variant uppercase tracking-widest">Mkt Cap</p>
-                      <p className="text-xs font-bold text-on-surface font-body">{stock.market_cap ? formatNumber(stock.market_cap) : '—'}</p>
-                    </div>
-                    <div>
-                      <p className="text-[9px] text-on-surface-variant uppercase tracking-widest">P/E</p>
-                      <p className="text-xs font-bold text-on-surface font-body">{stock.pe_ratio != null ? stock.pe_ratio.toFixed(1) : '—'}</p>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="flex items-center justify-center py-20">
-              <p className="text-sm text-on-surface-variant">No hot stocks data available</p>
-            </div>
-          )}
-        </section>
-
-        {/* ══════════════════════════════════════════════════════
-            PLATFORM FEATURES
-            ══════════════════════════════════════════════════════ */}
-        <section className="mt-24 px-6">
-          <div className="flex items-end justify-between mb-8 border-b border-outline-variant/15 pb-4">
-            <div>
-              <h2 className="font-headline text-3xl font-bold uppercase tracking-tight">Platform Features</h2>
-              <p className="text-primary font-headline text-xs tracking-[0.3em] font-medium">BUILT FOR INVESTORS</p>
-            </div>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="glass-card rounded-[2rem] p-8 relative overflow-hidden group hover:border-primary/20 transition-colors duration-300 border border-outline-variant/15">
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-              <div className="relative z-10">
-                <span className="material-symbols-outlined text-primary text-4xl mb-6 block">shield_lock</span>
-                <h3 className="font-headline text-lg font-bold text-on-surface mb-3 uppercase">Bank-Level Security</h3>
-                <p className="text-sm text-on-surface-variant leading-relaxed font-body">Your data is protected by industry-standard encryption protocols, keeping your stock analysis private and secure.</p>
+                ))}
               </div>
-            </div>
-            <div className="glass-card rounded-[2rem] p-8 border border-outline-variant/15 group hover:border-secondary/20 transition-colors duration-300">
-              <span className="material-symbols-outlined text-secondary text-4xl mb-6 block">hub</span>
-              <h3 className="font-headline text-lg font-bold text-on-surface mb-3 uppercase">Real-Time Integration</h3>
-              <p className="text-sm text-on-surface-variant leading-relaxed font-body">Connect your existing workflow directly to our analysis platform for real-time stock data and AI-driven insights.</p>
-            </div>
-          </div>
-        </section>
+            ) : (
+              <p className="text-xs text-white/30 py-10 text-center">NO MARKET DATA AVAILABLE</p>
+            )}
+          </section>
 
-        {/* ══════════════════════════════════════════════════════
-            CTA SECTION
-            ══════════════════════════════════════════════════════ */}
-        <section className="mt-24 px-6 text-center">
-          <div className="glass-card p-10 md:p-16 rounded-[2rem] border border-primary/10 relative overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5"></div>
-            <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-primary rounded-full blur-[120px] opacity-5"></div>
-            <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-secondary rounded-full blur-[120px] opacity-5"></div>
-            <h2 className="font-headline text-3xl md:text-4xl font-bold text-on-surface mb-4 relative z-10 text-glow uppercase">Start Your AI Diagnosis</h2>
-            <p className="text-on-surface-variant text-sm mb-10 relative z-10 max-w-xs mx-auto leading-relaxed font-body">Join thousands of investors using AI-powered stock diagnostics to make smarter decisions.</p>
+          {/* ═══ CTA ═══ */}
+          <section className="bg-primary p-6 md:p-10 relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-4">
+            <div className="max-w-md text-center md:text-left relative z-10">
+              <h2 className="font-headline text-2xl md:text-4xl font-extrabold text-on-primary tracking-tighter leading-none mb-2">
+                FULL_TERMINAL_ACCESS
+              </h2>
+              <p className="font-body text-on-primary/80 text-xs">
+                Join the closed-beta. Get direct AI stock analysis delivered via WhatsApp.
+              </p>
+            </div>
             <button
-              className="relative z-10 py-5 px-10 rounded-full bg-gradient-to-r from-primary to-primary-container text-on-primary-fixed font-headline font-bold text-lg tracking-tight shadow-[0_0_40px_rgba(129,236,255,0.3)] hover:shadow-[0_0_60px_rgba(129,236,255,0.5)] active:scale-95 transition-all"
+              className="w-full md:w-auto inline-flex items-center justify-center gap-2 bg-black text-primary px-6 py-4 font-headline font-black text-base uppercase tracking-widest hover:bg-surface-container-highest transition-all group shrink-0"
               onClick={handlePrimaryClick}
             >
-              DIAGNOSE NOW
-              <span className="material-symbols-outlined align-middle ml-2">bolt</span>
+              WHATSAPP
+              <span className="material-symbols-outlined text-lg group-hover:translate-x-2 transition-transform">forum</span>
             </button>
-          </div>
-        </section>
+            <div className="absolute -right-4 -bottom-4 w-24 h-24 opacity-5 pointer-events-none">
+              <span className="material-symbols-outlined text-[120px]">grid_view</span>
+            </div>
+          </section>
+        </div>
       </main>
 
-      {/* ══════════════════════════════════════════════════════
-          FOOTER
-          ══════════════════════════════════════════════════════ */}
-      <footer className="w-full border-t border-outline-variant/15 bg-background flex flex-col items-center py-8 px-4 space-y-4">
+      {/* ═══ FOOTER ═══ */}
+      <footer className="bg-black border-t border-white/5 px-6 py-6 flex flex-col md:flex-row justify-between items-center gap-4">
+        <div className="text-primary font-bold font-headline text-xs tracking-tighter uppercase">AVANT_ANALYST_DEPT.</div>
         <div className="flex flex-wrap justify-center gap-6">
-          <Link className="text-on-surface-variant/60 font-body text-[10px] uppercase tracking-[0.05em] hover:text-primary transition-colors" href="/privacy">Privacy</Link>
-          <Link className="text-on-surface-variant/60 font-body text-[10px] uppercase tracking-[0.05em] hover:text-primary transition-colors" href="/terms">Terms</Link>
-          <Link className="text-on-surface-variant/60 font-body text-[10px] uppercase tracking-[0.05em] hover:text-primary transition-colors" href="/contact">Contact</Link>
+          <Link className="font-headline text-[10px] uppercase tracking-widest text-white/40 hover:text-primary" href="/privacy">Privacy</Link>
+          <Link className="font-headline text-[10px] uppercase tracking-widest text-white/40 hover:text-primary" href="/terms">Terms</Link>
+          <Link className="font-headline text-[10px] uppercase tracking-widest text-tertiary hover:text-primary font-bold" href="/contact">WhatsApp</Link>
         </div>
-        <p className="text-on-surface-variant/60 font-body text-[10px] uppercase tracking-[0.05em]">&copy; 2026{currentDomain ? ` ${currentDomain} ` : ' '}PREDICTIVE PRISM AI. US MARKETS ONLY.</p>
+        <p className="font-headline text-[9px] uppercase tracking-widest text-white/20">&copy; 2026{currentDomain ? ` ${currentDomain}` : ''} AVANT_ANALYST</p>
       </footer>
 
-      {/* ══════════════════════════════════════════════════════
-          FIXED FLOATING ACTION BUTTON — Scroll-triggered
-          ══════════════════════════════════════════════════════ */}
-      <div className="fixed bottom-8 left-0 w-full px-6 z-[80]" id="sticky-cta">
+      {/* ═══ FAB ═══ */}
+      <div className="fixed bottom-6 left-0 w-full px-6 z-[80]" id="sticky-cta">
         <div className="max-w-xl mx-auto">
           <button
-            className="w-full py-5 px-8 rounded-full bg-gradient-to-r from-primary to-primary-container text-on-primary-fixed font-headline font-bold text-lg tracking-tight shadow-[0_0_40px_rgba(129,236,255,0.3)] hover:shadow-[0_0_60px_rgba(129,236,255,0.5)] active:scale-95 transition-all flex items-center justify-center gap-3"
+            className="w-full bg-primary text-on-primary py-4 font-headline font-black text-base uppercase tracking-widest hover:bg-primary-fixed active:scale-95 transition-all flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(156,255,147,0.3)]"
             onClick={handlePrimaryClick}
           >
-            DIAGNOSE NOW
-            <span className="material-symbols-outlined font-bold">bolt</span>
+            DIAGNOSE NOW <span className="material-symbols-outlined text-lg">bolt</span>
           </button>
         </div>
       </div>
