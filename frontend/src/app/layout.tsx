@@ -3,15 +3,15 @@ import './globals.css'
 import GoogleAnalytics from '../components/GoogleAnalytics'
 
 export const metadata: Metadata = {
-  title: 'InsightLedger — Human-Centric Market Analysis',
-  description: 'AI-powered market intelligence platform — Smarter insights powered by intuitive data analysis for the modern investor. Real-time streaming analysis and actionable verdicts for US stocks.',
+  title: 'STOCK_INTEL | AI Stock Analysis',
+  description: 'Professional-grade AI stock analysis platform. Real-time streaming analysis, market insights, and actionable verdicts for US stocks.',
 }
 
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
   maximumScale: 1,
-  themeColor: '#0f172a',
+  themeColor: '#0e0e0f',
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

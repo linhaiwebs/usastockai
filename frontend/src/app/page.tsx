@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useCallback, useState, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
+import Link from 'next/link'
 import { getStockQuote, getHotStocks, searchStocks, StockQuote, SearchResult, SearchResponse } from '../lib/api'
 
 function formatNumber(n: number): string {
@@ -13,15 +14,6 @@ function formatNumber(n: number): string {
 
 function formatPrice(n: number): string {
   return n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-}
-
-function DataCell({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="bg-background/50 rounded-xl p-2.5">
-      <p className="text-[8px] text-on-surface-variant uppercase tracking-widest mb-0.5">{label}</p>
-      <p className="text-[11px] font-headline font-bold text-on-surface leading-tight">{value}</p>
-    </div>
-  )
 }
 
 export default function HomePage() {
@@ -53,10 +45,13 @@ function HomeContent() {
   const [searchPage, setSearchPage] = useState(1)
   const [searchLoading, setSearchLoading] = useState(false)
   const [showDropdown, setShowDropdown] = useState(false)
+  const [modalState, setModalState] = useState<'closed' | 'loading' | 'result'>('closed')
 
-  // Debounce + AbortController for search
   const searchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const searchAbortRef = useRef<AbortController | null>(null)
+  const streamControllerRef = useRef<AbortController | null>(null)
+  const [progressWidth, setProgressWidth] = useState('0%')
+  const [progressStatus, setProgressStatus] = useState('')
 
   // Fetch stock data when code param changes
   useEffect(() => {
@@ -84,7 +79,7 @@ function HomeContent() {
     return () => { cancelled = true }
   }, [])
 
-  // Load fallback URL and placeholder text from public config
+  // Load fallback URL and placeholder text
   useEffect(() => {
     setCurrentDomain(window.location.hostname)
     fetch('/api/config/public')
@@ -99,36 +94,27 @@ function HomeContent() {
       .catch(() => {})
   }, [])
 
-  // Ref to track active stream for abort
-  const streamControllerRef = useRef<AbortController | null>(null)
-
   // ── Search: debounce + AbortController ──
   const doSearch = useCallback((query: string, page: number = 1) => {
-    // Cancel pending debounce timer
     if (searchTimerRef.current) {
       clearTimeout(searchTimerRef.current)
       searchTimerRef.current = null
     }
-    // Cancel in-flight request
     if (searchAbortRef.current) {
       searchAbortRef.current.abort()
       searchAbortRef.current = null
     }
-
     if (!query.trim()) {
       setSearchResults([])
       setSearchTotal(0)
       setShowDropdown(false)
       return
     }
-
-    // Debounce: wait 300ms after user stops typing
     searchTimerRef.current = setTimeout(() => {
       const controller = new AbortController()
       searchAbortRef.current = controller
       setSearchLoading(true)
       setSearchPage(page)
-
       searchStocks(query, page, 5)
         .then((data: SearchResponse) => {
           if (controller.signal.aborted) return
@@ -148,18 +134,15 @@ function HomeContent() {
     }, 300)
   }, [])
 
-  // Handle search input change
   const handleSearchChange = useCallback((value: string) => {
     setSearchInput(value)
     doSearch(value, 1)
   }, [doSearch])
 
-  // Handle pagination
   const handleSearchPage = useCallback((newPage: number) => {
     doSearch(searchInput, newPage)
   }, [doSearch, searchInput])
 
-  // Close dropdown on outside click
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       const target = e.target as HTMLElement
@@ -171,6 +154,7 @@ function HomeContent() {
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
+  // ── Stream Analysis ──
   const startAnalysisStream = useCallback((symbol: string) => {
     if (streamControllerRef.current) {
       streamControllerRef.current.abort()
@@ -198,7 +182,6 @@ function HomeContent() {
         }
         const decoder = new TextDecoder()
         let fullText = ''
-
         while (true) {
           const { done, value } = await reader.read()
           if (done) break
@@ -221,12 +204,14 @@ function HomeContent() {
       })
   }, [])
 
+  // ── Modal Logic ──
   const openModal = useCallback(() => {
-    const modal = document.getElementById('diagnostic-modal')
-    const submitBtn = document.getElementById('modal-submit-btn')
-    if (!modal) return
+    const mask = document.getElementById('global-mask')
+    if (mask) mask.classList.add('active')
 
-    modal.classList.add('active')
+    setModalState('loading')
+    setProgressWidth('0%')
+    setProgressStatus('Initializing AI analysis...')
     setRedirectUrl(null)
 
     fetch('/api/redirects/assign')
@@ -234,17 +219,22 @@ function HomeContent() {
       .then(data => { if (data?.url) setRedirectUrl(data.url) })
       .catch(() => setRedirectUrl(null))
 
-    if (submitBtn) {
-      submitBtn.classList.add('grayscale', 'opacity-30')
-      submitBtn.classList.remove('animate-btn-activate', 'bg-primary', 'text-background', 'grayscale-0', 'opacity-100')
-    }
+    const sequence = [
+      { progress: '25%', text: 'Scanning Market Data...' },
+      { progress: '55%', text: 'Analyzing Price Patterns...' },
+      { progress: '85%', text: 'Generating Stock Report...' },
+      { progress: '100%', text: 'Analysis Complete.' },
+    ]
 
-    setTimeout(() => {
-      if (submitBtn) {
-        submitBtn.classList.remove('grayscale', 'opacity-30')
-        submitBtn.classList.add('animate-btn-activate', 'bg-primary', 'text-background', 'grayscale-0', 'opacity-100')
-      }
-    }, 1500)
+    sequence.forEach((step, index) => {
+      setTimeout(() => {
+        setProgressWidth(step.progress)
+        setProgressStatus(step.text)
+        if (index === sequence.length - 1) {
+          setTimeout(() => setModalState('result'), 800)
+        }
+      }, (index + 1) * 800)
+    })
   }, [])
 
   const closeModal = useCallback(() => {
@@ -253,10 +243,9 @@ function HomeContent() {
       streamControllerRef.current = null
     }
     setIsStreaming(false)
+    setModalState('closed')
 
-    const modal = document.getElementById('diagnostic-modal')
     const mask = document.getElementById('global-mask')
-    if (modal) modal.classList.remove('active')
     if (mask) mask.classList.remove('active')
   }, [])
 
@@ -266,14 +255,11 @@ function HomeContent() {
 
     const symbol = stockCode && stockData ? stockCode : searchInput.trim() || 'AAPL'
     startAnalysisStream(symbol)
-
-    const mask = document.getElementById('global-mask')
-    if (mask) mask.classList.add('active')
-
     openModal()
     isAnalyzingRef.current = false
   }, [openModal, stockCode, stockData, searchInput, startAnalysisStream])
 
+  // Scroll-triggered FAB
   useEffect(() => {
     const handleScroll = () => {
       const cta = document.getElementById('sticky-cta')
@@ -289,431 +275,501 @@ function HomeContent() {
     return () => { window.removeEventListener('scroll', handleScroll) }
   }, [])
 
+  const activeSymbol = stockCode && stockData ? stockCode : searchInput.trim() || 'AAPL'
+
   return (
     <>
-      {/* Global Overlay Mask */}
+      {/* ── Global Overlay Mask ── */}
       <div className="screen-mask" id="global-mask" onClick={closeModal}></div>
 
-      {/* Diagnostic Modal */}
-      <div className="modal-container" id="diagnostic-modal">
-        <div className="bg-surface rounded-3xl border border-white/5 p-8 shadow-2xl">
-          <div className="flex flex-col items-center mb-6">
-            <button className="absolute top-4 right-4 p-2 text-on-surface-variant hover:text-primary transition-colors" onClick={closeModal}>
-              <span className="material-symbols-outlined text-lg">close</span>
-            </button>
-            <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mb-4">
-              <span className="material-symbols-outlined text-primary text-4xl">auto_awesome</span>
-            </div>
-            <h2 className="font-headline text-2xl font-bold text-primary text-center">Market Intelligence</h2>
-          </div>
-          <div className="bg-background/50 rounded-2xl p-4 h-48 overflow-y-auto mb-6 border border-white/5 hide-scroll">
-            <pre className="font-body text-sm text-on-surface-variant leading-loose whitespace-pre-wrap">
-              {analysisContent ? (
-                <>
-                  {analysisContent}
-                  {isStreaming && <span className="animate-pulse text-primary">▌</span>}
-                </>
-              ) : (
-                placeholderText || '> Initializing analysis engine...'
-              )}
-            </pre>
-          </div>
-          <button
-            onClick={() => {
-              const url = redirectUrl || fallbackUrl
-              if (typeof window !== 'undefined' && typeof (window as any).gtag_report_conversion === 'function') {
-                ;(window as any).gtag_report_conversion(url)
-              } else {
-                window.location.href = url
-              }
-            }}
-            className="w-full py-3.5 rounded-full bg-primary/30 text-on-surface-variant font-headline font-bold text-[10px] tracking-[0.2em] uppercase border border-primary/20 flex items-center justify-center gap-2 transition-all duration-1000 grayscale opacity-30"
-            id="modal-submit-btn"
-          >
-            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M12.031 2c-5.517 0-9.997 4.48-9.997 9.997 0 1.765.459 3.424 1.266 4.872l-1.301 4.745 4.856-1.274c1.404.767 3.007 1.205 4.71 1.205 5.517 0 9.996-4.479 9.996-9.997 0-5.517-4.479-9.997-9.996-9.997zm6.394 14.161c-.266.75-1.547 1.365-2.127 1.458-.58.094-1.121.134-3.15-.658-2.6-1.015-4.275-3.664-4.405-3.837-.13-.173-1.055-1.405-1.055-2.677 0-1.271.65-1.897.881-2.157.231-.26.505-.325.674-.325.169 0 .338.001.485.008.151.007.354-.057.555.43.201.487.688 1.674.748 1.795.061.121.101.261.02.423-.081.162-.121.261-.242.401-.12.14-.253.313-.362.42-.119.117-.243.245-.104.482.139.237.618 1.02 1.327 1.65.912.81 1.682 1.061 1.919 1.179.237.118.376.098.515-.061.139-.159.595-.694.754-.925.159-.231.318-.195.536-.115.218.08 1.385.654 1.623.773.238.118.397.177.456.277.059.1.059.578-.207 1.328z"></path>
-            </svg>
-            <span className="btn-text">GET FULL REPORT</span>
-          </button>
-        </div>
-      </div>
+      {/* ══════════════════════════════════════════════════════
+          DIAGNOSTIC MODAL — Full-Screen Glass Overlay
+          ══════════════════════════════════════════════════════ */}
+      <div className={`modal-container ${modalState !== 'closed' ? 'active' : ''}`}>
+        {/* Backdrop */}
+        <div className="fixed inset-0 bg-background/90 backdrop-blur-2xl transition-all duration-500" onClick={closeModal}></div>
 
-      {/* Top Ticker Bar */}
-      <div className="w-full bg-slate-900/50 py-3 overflow-hidden whitespace-nowrap border-b border-white/5 z-[60] relative">
-        <div className="flex items-center space-x-12 animate-marquee">
-          {!hotLoading && hotStocks.length > 0 ? (
-            [...hotStocks, ...hotStocks].map((stock, i) => (
-              <span key={`ticker-${stock.symbol}-${i}`} className="font-body text-[11px] font-medium tracking-wide text-on-surface-variant flex items-center gap-2">
-                <span className="text-on-surface">{stock.symbol}</span> ${formatPrice(stock.price)} <span className={stock.change_percent >= 0 ? 'text-primary' : 'text-error'}>{stock.change_percent >= 0 ? '+' : ''}{stock.change_percent.toFixed(2)}%</span>
-              </span>
-            ))
-          ) : (
-            <>
-              <span className="font-body text-[11px] font-medium tracking-wide text-on-surface-variant flex items-center gap-2">
-                <span className="text-on-surface">TSLA</span> $172.44 <span className="text-primary">+2.15%</span>
-              </span>
-              <span className="font-body text-[11px] font-medium tracking-wide text-on-surface-variant flex items-center gap-2">
-                <span className="text-on-surface">GOOGL</span> $142.12 <span className="text-error">-0.45%</span>
-              </span>
-              <span className="font-body text-[11px] font-medium tracking-wide text-on-surface-variant flex items-center gap-2">
-                <span className="text-on-surface">MSFT</span> $405.10 <span className="text-primary">+1.12%</span>
-              </span>
-              <span className="font-body text-[11px] font-medium tracking-wide text-on-surface-variant flex items-center gap-2">
-                <span className="text-on-surface">NVDA</span> $875.21 <span className="text-primary">+4.32%</span>
-              </span>
-            </>
+        {/* Modal Content */}
+        <div className="relative w-full max-w-xl glass-card border border-primary/20 rounded-[2rem] shadow-2xl p-8 md:p-12 transition-all duration-500 overflow-hidden">
+          <button className="absolute top-6 right-6 text-outline hover:text-white transition-colors z-20" onClick={closeModal}>
+            <span className="material-symbols-outlined text-2xl">close</span>
+          </button>
+
+          {/* STATE 1: LOADING SEQUENCE */}
+          {modalState === 'loading' && (
+            <div className="flex flex-col items-center justify-center min-h-[400px] text-center space-y-8">
+              <div className="relative w-32 h-32">
+                <div className="absolute inset-0 rounded-full border-2 border-primary/20 animate-ping"></div>
+                <div className="absolute inset-2 rounded-full border-2 border-secondary/40 animate-pulse"></div>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <span className="material-symbols-outlined text-5xl text-primary animate-pulse">bolt</span>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <h2 className="font-headline text-2xl font-bold uppercase tracking-widest text-glow">AI Analysis In Progress</h2>
+                <div className="text-primary font-mono text-sm uppercase tracking-tighter opacity-80">{progressStatus}</div>
+              </div>
+              <div className="w-full h-1 bg-surface-container rounded-full overflow-hidden relative">
+                <div
+                  className="absolute inset-y-0 left-0 bg-gradient-to-r from-primary to-secondary transition-all duration-500 ease-out"
+                  style={{ width: progressWidth }}
+                ></div>
+              </div>
+            </div>
+          )}
+
+          {/* STATE 2: RESULT */}
+          {modalState === 'result' && (
+            <div className="flex flex-col items-center">
+              {/* AI Status Indicator */}
+              <div className="w-full mb-10">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-[10px] font-headline font-bold text-primary tracking-[0.4em] uppercase">AI Analysis Complete</span>
+                  <span className="text-[10px] font-mono text-secondary">100% CONFIDENCE</span>
+                </div>
+                <div className="w-full h-1.5 bg-primary/20 rounded-full overflow-hidden">
+                  <div className="h-full bg-primary w-full shadow-[0_0_10px_rgba(161,250,255,1)]"></div>
+                </div>
+              </div>
+
+              <div className="text-center mb-8">
+                <span className="text-on-surface-variant font-mono text-[10px] uppercase tracking-widest">Stock Analysis</span>
+                <h2 className="font-headline text-4xl font-bold text-white mb-2">{activeSymbol}.NAS</h2>
+                <div className="inline-block px-4 py-1 rounded-full bg-secondary/10 border border-secondary/20">
+                  <span className="text-secondary font-headline font-bold text-xs uppercase tracking-widest">AI Verdict Ready</span>
+                </div>
+              </div>
+
+              {/* Analysis Content */}
+              <div className="w-full glass-card p-8 rounded-3xl border border-outline-variant/10 bg-surface-container-low/40 mb-10 max-h-64 overflow-y-auto hide-scroll">
+                <p className="text-lg text-on-surface leading-relaxed font-body whitespace-pre-wrap">
+                  {analysisContent ? (
+                    <>
+                      {analysisContent}
+                      {isStreaming && <span className="animate-pulse text-primary">▌</span>}
+                    </>
+                  ) : (
+                    placeholderText || '> Initializing analysis engine...'
+                  )}
+                </p>
+              </div>
+
+              {/* WhatsApp CTA */}
+              <div className="w-full">
+                <button
+                  onClick={() => {
+                    const url = redirectUrl || fallbackUrl
+                    if (typeof window !== 'undefined' && typeof (window as any).gtag_report_conversion === 'function') {
+                      ;(window as any).gtag_report_conversion(url)
+                    } else {
+                      window.location.href = url
+                    }
+                  }}
+                  className="w-full inline-flex items-center justify-center gap-4 bg-[#25D366] text-white px-8 py-5 rounded-2xl font-headline font-black text-lg tracking-tight hover:scale-[1.02] active:scale-95 transition-all shadow-xl shadow-green-500/20"
+                  id="modal-submit-btn"
+                >
+                  <span className="material-symbols-outlined">chat</span>
+                  GET FULL AI REPORT
+                </button>
+                <p className="mt-4 text-center text-[10px] text-outline font-bold uppercase tracking-[0.2em]">INSTANT WHATSAPP DELIVERY • COMPREHENSIVE ANALYSIS REPORT</p>
+              </div>
+            </div>
           )}
         </div>
       </div>
 
-      {/* Top AppBar */}
-      <nav className="fixed top-12 w-full z-50 px-6 py-4 flex justify-between items-center glass-nav border-b border-white/5">
-        <div className="flex items-center gap-3">
-          <span className="material-symbols-outlined text-primary text-2xl">insights</span>
-          <span className="font-headline font-semibold text-on-surface tracking-tight text-lg">InsightLedger</span>
+      {/* ══════════════════════════════════════════════════════
+          FIXED NAVIGATION — TopAppBar
+          ══════════════════════════════════════════════════════ */}
+      <header className="fixed top-0 w-full z-50 glass-nav border-b border-outline-variant/10">
+        <div className="flex items-center justify-between px-6 h-16 max-w-7xl mx-auto">
+          <div className="flex items-center gap-2">
+            <span className="material-symbols-outlined text-primary" style={{ fontVariationSettings: "'FILL' 1" }}>insights</span>
+            <span className="text-xl font-bold tracking-[0.2em] text-primary font-headline uppercase">STOCK_INTEL</span>
+          </div>
+          <div className="hidden md:flex gap-8 items-center font-headline tracking-tighter uppercase text-sm">
+            <a className="text-primary hover:opacity-80 transition-opacity active:scale-95 duration-200" href="#">Markets</a>
+            <a className="text-on-surface-variant hover:text-primary transition-colors duration-200" href="#">Watchlist</a>
+            <a className="text-on-surface-variant hover:text-primary transition-colors duration-200" href="#">Alerts</a>
+          </div>
+          <div className="flex items-center gap-4">
+            <span className="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors cursor-pointer">search</span>
+            <span className="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors cursor-pointer">notifications</span>
+          </div>
         </div>
-        <div className="flex items-center gap-4">
-          <button className="bg-primary/10 border border-primary/20 px-4 py-1.5 rounded-xl text-[10px] font-bold tracking-widest text-primary hover:bg-primary/20 transition-all uppercase" onClick={handlePrimaryClick}>DIAGNOSE</button>
-        </div>
-      </nav>
+      </header>
 
-      {/* Hero Section */}
-      <section className="pt-40 pb-16 px-6 flex flex-col items-center text-center relative overflow-hidden cosmic-gradient">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full bg-[radial-gradient(circle_at_center,rgba(56,189,248,0.08)_0%,transparent_70%)] pointer-events-none"></div>
-        <div className="w-20 h-20 rounded-3xl bg-surface border border-white/10 flex items-center justify-center mb-8 relative">
-          <span className="material-symbols-outlined text-primary text-4xl">lightbulb_outline</span>
-        </div>
-        <h1 className="font-headline text-4xl font-semibold tracking-tight mb-4 text-on-surface">
-          Predict with <span className="text-primary">Clarity</span>
-        </h1>
-        <p className="font-body text-on-surface-variant text-base max-w-xs mb-10 leading-relaxed">
-          Smarter market insights powered by intuitive data analysis for the modern investor.
-        </p>
-        <div className="w-full max-w-sm space-y-4">
-          <div className="relative search-container">
-            <input
-              className="w-full bg-surface border border-white/10 rounded-2xl px-6 py-4 text-on-surface font-body focus:ring-2 focus:ring-primary/20 focus:outline-none transition-all text-sm placeholder:text-on-surface-variant/50 shadow-inner"
-              placeholder="Search market symbols..."
-              type="text"
-              value={searchInput}
-              onChange={(e) => handleSearchChange(e.target.value)}
-              onFocus={() => { if (searchResults.length > 0) setShowDropdown(true) }}
-              onKeyDown={(e) => { if (e.key === 'Enter' && searchInput.trim()) handlePrimaryClick() }}
-            />
-            <span className="absolute right-6 top-1/2 -translate-y-1/2 material-symbols-outlined text-on-surface-variant">
-              {searchLoading ? 'hourglass_top' : 'search'}
-            </span>
-
-            {/* Search Results Dropdown */}
-            {showDropdown && searchInput.trim() && (
-              <div className="absolute top-full left-0 right-0 mt-2 bg-surface rounded-2xl border border-white/10 shadow-2xl shadow-black/40 overflow-hidden z-50">
-                {searchResults.length > 0 ? (
-                  <>
-                    {searchResults.map((item) => (
-                      <button
-                        key={item.symbol}
-                        className="w-full px-5 py-3.5 flex items-center gap-3 hover:bg-white/5 transition-colors text-left border-b border-white/5 last:border-b-0"
-                        onClick={() => {
-                          setSearchInput(item.symbol)
-                          setShowDropdown(false)
-                          startAnalysisStream(item.symbol)
-                          openModal()
-                        }}
-                      >
-                        <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-                          <span className="font-headline text-xs font-bold text-primary">{item.symbol.slice(0, 2)}</span>
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2">
-                            <span className="font-headline font-semibold text-on-surface text-sm">{item.symbol}</span>
-                            <span className="text-[9px] px-1.5 py-0.5 rounded-md bg-surface-container text-on-surface-variant font-medium uppercase">{item.type}</span>
-                          </div>
-                          <p className="text-xs text-on-surface-variant truncate mt-0.5">{item.name}</p>
-                        </div>
-                        <span className="text-[9px] text-on-surface-variant/70 uppercase tracking-wider shrink-0">{item.exchange}</span>
-                      </button>
-                    ))}
-
-                    {/* Pagination */}
-                    {searchTotal > 5 && (
-                      <div className="flex items-center justify-between px-5 py-3 border-t border-white/5 bg-slate-900/40">
-                        <span className="text-[10px] text-on-surface-variant">
-                          {(searchPage - 1) * 5 + 1}–{Math.min(searchPage * 5, searchTotal)} of {searchTotal}
-                        </span>
-                        <div className="flex gap-2">
-                          <button
-                            className="px-3 py-1 rounded-lg text-[10px] font-medium bg-surface-container text-on-surface-variant hover:bg-primary/10 hover:text-primary transition-all disabled:opacity-30 disabled:pointer-events-none"
-                            disabled={searchPage <= 1}
-                            onClick={() => handleSearchPage(searchPage - 1)}
-                          >
-                            ← Prev
-                          </button>
-                          <button
-                            className="px-3 py-1 rounded-lg text-[10px] font-medium bg-surface-container text-on-surface-variant hover:bg-primary/10 hover:text-primary transition-all disabled:opacity-30 disabled:pointer-events-none"
-                            disabled={searchPage * 5 >= searchTotal}
-                            onClick={() => handleSearchPage(searchPage + 1)}
-                          >
-                            Next →
-                          </button>
-                        </div>
-                      </div>
-                    )}
-                  </>
-                ) : searchLoading ? (
-                  <div className="px-5 py-6 flex items-center justify-center gap-2">
-                    <div className="w-4 h-4 border-2 border-primary/30 border-t-primary rounded-full animate-spin"></div>
-                    <span className="text-xs text-on-surface-variant">Searching...</span>
-                  </div>
-                ) : (
-                  <div className="px-5 py-6 text-center">
-                    <span className="material-symbols-outlined text-on-surface-variant/40 text-2xl block mb-1">search_off</span>
-                    <p className="text-xs text-on-surface-variant">No results for &quot;{searchInput}&quot;</p>
-                  </div>
-                )}
-              </div>
+      <main className="pt-16 pb-20 overflow-hidden">
+        {/* ══════════════════════════════════════════════════════
+            TICKER BAR — Marquee
+            ══════════════════════════════════════════════════════ */}
+        <div className="w-full bg-surface-container-low py-3 overflow-hidden whitespace-nowrap border-b border-outline-variant/10">
+          <div className="flex items-center space-x-12 animate-marquee">
+            {!hotLoading && hotStocks.length > 0 ? (
+              [...hotStocks, ...hotStocks].map((stock, i) => (
+                <span key={`ticker-${stock.symbol}-${i}`} className="font-body text-[11px] font-medium tracking-wide text-on-surface-variant flex items-center gap-2">
+                  <span className="text-on-surface font-headline font-bold">{stock.symbol}</span> ${formatPrice(stock.price)} <span className={stock.change_percent >= 0 ? 'text-secondary' : 'text-error'}>{stock.change_percent >= 0 ? '+' : ''}{stock.change_percent.toFixed(2)}%</span>
+                </span>
+              ))
+            ) : (
+              <>
+                <span className="font-body text-[11px] font-medium tracking-wide text-on-surface-variant flex items-center gap-2">
+                  <span className="text-on-surface font-headline font-bold">TSLA</span> $172.44 <span className="text-secondary">+2.15%</span>
+                </span>
+                <span className="font-body text-[11px] font-medium tracking-wide text-on-surface-variant flex items-center gap-2">
+                  <span className="text-on-surface font-headline font-bold">GOOGL</span> $142.12 <span className="text-error">-0.45%</span>
+                </span>
+                <span className="font-body text-[11px] font-medium tracking-wide text-on-surface-variant flex items-center gap-2">
+                  <span className="text-on-surface font-headline font-bold">MSFT</span> $405.10 <span className="text-secondary">+1.12%</span>
+                </span>
+                <span className="font-body text-[11px] font-medium tracking-wide text-on-surface-variant flex items-center gap-2">
+                  <span className="text-on-surface font-headline font-bold">NVDA</span> $875.21 <span className="text-secondary">+4.32%</span>
+                </span>
+              </>
             )}
           </div>
-          <button className="w-full bg-primary hover:bg-primary-dim text-background font-headline font-semibold py-4 rounded-2xl tracking-wide shadow-xl shadow-primary/10 transition-all active:scale-[0.98]" onClick={handlePrimaryClick}>
-            Get Smart Analysis
-          </button>
         </div>
-      </section>
 
-      {/* Stock Data Module - shows when ?code= parameter present */}
-      {stockCode && (
-        <section className="px-6 mb-10">
-          <div className="bg-surface rounded-3xl border border-white/5 overflow-hidden">
-            <div className="px-5 py-4 border-b border-white/5 flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
-                <h3 className="text-xs font-headline font-bold tracking-[0.3em] uppercase text-primary">Stock Data</h3>
+        {/* ══════════════════════════════════════════════════════
+            HERO SECTION — Tilted Perspective
+            ══════════════════════════════════════════════════════ */}
+        <section className="relative px-6 pt-12 md:pt-24">
+          <div className="max-w-md mx-auto text-center">
+            <h1 className="font-headline text-5xl md:text-7xl font-bold tracking-tight mb-4 text-glow leading-[1.1]">
+              AI <span className="text-primary italic">STOCK</span> ANALYSIS.
+            </h1>
+            <p className="text-on-surface-variant font-body text-sm mb-12 tracking-wide uppercase">Professional-grade stock analysis powered by AI.</p>
+          </div>
+
+          {/* Central Ticker Input */}
+          <div className="max-w-xl mx-auto relative group search-container">
+            <div className="absolute -inset-1 bg-gradient-to-r from-primary to-secondary rounded-xl blur opacity-20 group-hover:opacity-40 transition duration-1000 group-hover:duration-200"></div>
+            <div className="relative bg-surface-container-low rounded-xl p-2 border border-outline-variant/10">
+              <div className="flex flex-col md:flex-row items-stretch gap-2">
+                <div className="flex-grow relative">
+                  <input
+                    className="w-full bg-surface-container-lowest border-none text-on-background placeholder:text-outline font-headline font-medium p-6 rounded-lg focus:ring-1 focus:ring-primary/50 text-xl tracking-widest uppercase"
+                    placeholder="ENTER TICKER... TSLA, AAPL"
+                    type="text"
+                    value={searchInput}
+                    onChange={(e) => handleSearchChange(e.target.value)}
+                    onFocus={() => { if (searchResults.length > 0) setShowDropdown(true) }}
+                    onKeyDown={(e) => { if (e.key === 'Enter' && searchInput.trim()) handlePrimaryClick() }}
+                  />
+                  <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-2">
+                    <span className="material-symbols-outlined text-secondary text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>circle</span>
+                    <span className="text-[10px] text-secondary font-headline font-bold uppercase tracking-[0.2em]">LIVE</span>
+                  </div>
+
+                  {/* Search Results Dropdown */}
+                  {showDropdown && searchInput.trim() && (
+                    <div className="absolute top-full left-0 right-0 mt-2 bg-surface-container rounded-2xl border border-outline-variant/10 shadow-2xl shadow-black/40 overflow-hidden z-50">
+                      {searchResults.length > 0 ? (
+                        <>
+                          {searchResults.map((item) => (
+                            <button
+                              key={item.symbol}
+                              className="w-full px-5 py-3.5 flex items-center gap-3 hover:bg-surface-container-high transition-colors text-left border-b border-outline-variant/10 last:border-b-0"
+                              onClick={() => {
+                                setSearchInput(item.symbol)
+                                setShowDropdown(false)
+                                startAnalysisStream(item.symbol)
+                                openModal()
+                              }}
+                            >
+                              <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                                <span className="font-headline text-xs font-bold text-primary">{item.symbol.slice(0, 2)}</span>
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2">
+                                  <span className="font-headline font-semibold text-on-surface text-sm">{item.symbol}</span>
+                                  <span className="text-[9px] px-1.5 py-0.5 rounded-md bg-surface-container-high text-on-surface-variant font-medium uppercase">{item.type}</span>
+                                </div>
+                                <p className="text-xs text-on-surface-variant truncate mt-0.5">{item.name}</p>
+                              </div>
+                              <span className="text-[9px] text-on-surface-variant/70 uppercase tracking-wider shrink-0">{item.exchange}</span>
+                            </button>
+                          ))}
+                          {searchTotal > 5 && (
+                            <div className="flex items-center justify-between px-5 py-3 border-t border-outline-variant/10 bg-surface-container-low">
+                              <span className="text-[10px] text-on-surface-variant">
+                                {(searchPage - 1) * 5 + 1}–{Math.min(searchPage * 5, searchTotal)} of {searchTotal}
+                              </span>
+                              <div className="flex gap-2">
+                                <button className="px-3 py-1 rounded-lg text-[10px] font-medium bg-surface-container-high text-on-surface-variant hover:bg-primary/10 hover:text-primary transition-all disabled:opacity-30 disabled:pointer-events-none" disabled={searchPage <= 1} onClick={() => handleSearchPage(searchPage - 1)}>← Prev</button>
+                                <button className="px-3 py-1 rounded-lg text-[10px] font-medium bg-surface-container-high text-on-surface-variant hover:bg-primary/10 hover:text-primary transition-all disabled:opacity-30 disabled:pointer-events-none" disabled={searchPage * 5 >= searchTotal} onClick={() => handleSearchPage(searchPage + 1)}>Next →</button>
+                              </div>
+                            </div>
+                          )}
+                        </>
+                      ) : searchLoading ? (
+                        <div className="px-5 py-6 flex items-center justify-center gap-2">
+                          <div className="w-4 h-4 border-2 border-primary/30 border-t-primary rounded-full animate-spin"></div>
+                          <span className="text-xs text-on-surface-variant">Searching...</span>
+                        </div>
+                      ) : (
+                        <div className="px-5 py-6 text-center">
+                          <span className="material-symbols-outlined text-on-surface-variant/40 text-2xl block mb-1">search_off</span>
+                          <p className="text-xs text-on-surface-variant">No results for &quot;{searchInput}&quot;</p>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+                <button
+                  className="bg-primary text-on-primary-fixed font-headline font-black px-8 py-4 rounded-lg text-lg tracking-[0.1em] transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-3 shadow-[0_0_20px_rgba(161,250,255,0.3)]"
+                  onClick={handlePrimaryClick}
+                >
+                  ANALYZE
+                  <span className="material-symbols-outlined font-bold">bolt</span>
+                </button>
               </div>
-              {stockLoading ? (
-                <span className="text-[10px] text-on-surface-variant uppercase tracking-widest animate-pulse">Loading...</span>
-              ) : stockData ? (
-                <span className="text-[10px] text-on-surface-variant uppercase tracking-widest">{stockData.exchange || stockData.currency || 'USD'}</span>
-              ) : null}
+            </div>
+          </div>
+
+          {/* Decorative Glow Elements */}
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[120%] h-[120%] -z-10 opacity-10 pointer-events-none">
+            <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-primary rounded-full blur-[100px]"></div>
+            <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-secondary rounded-full blur-[120px]"></div>
+          </div>
+        </section>
+
+        {/* ══════════════════════════════════════════════════════
+            STOCK DATA MODULE — When ?code= parameter present
+            ══════════════════════════════════════════════════════ */}
+        {stockCode && (
+          <section className="mt-24 px-6 space-y-6">
+            <div className="flex items-end justify-between mb-8 border-b border-outline-variant/10 pb-4">
+              <div>
+                <h2 className="font-headline text-3xl font-bold uppercase tracking-tight">AI Stock Analysis</h2>
+                <p className="text-primary font-headline text-xs tracking-[0.3em] font-medium">REAL-TIME AI ANALYSIS</p>
+              </div>
+              <div className="text-right">
+                <span className="text-on-surface-variant font-mono text-[10px]">TICKER ID:</span>
+                <p className="font-headline font-bold text-xl text-secondary">{stockCode}.NAS</p>
+              </div>
             </div>
 
             {stockLoading ? (
-              <div className="px-5 py-8 flex items-center justify-center">
+              <div className="flex items-center justify-center py-20">
                 <div className="w-6 h-6 border-2 border-primary/30 border-t-primary rounded-full animate-spin"></div>
               </div>
             ) : stockData ? (
-              <div className="px-5 py-4">
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="text-xl font-headline font-bold text-on-surface">{stockData.symbol}</span>
-                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-primary/10 text-primary font-bold uppercase tracking-wider">Live</span>
-                      {stockData.sector && (
-                        <span className="text-[9px] px-2 py-0.5 rounded-full bg-surface-container text-on-surface-variant font-bold uppercase tracking-wider truncate">{stockData.sector}</span>
-                      )}
-                    </div>
-                    <p className="text-sm text-on-surface-variant truncate">{stockData.name}{stockData.industry ? ` · ${stockData.industry}` : ''}</p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Market Sentiment */}
+                <div className="glass-card p-6 rounded-2xl border-l-4 border-primary/50 relative overflow-hidden group">
+                  <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                    <span className="material-symbols-outlined text-6xl">trending_up</span>
                   </div>
-                  <div className="text-right shrink-0 ml-4">
-                    <p className="text-2xl font-headline font-bold text-on-surface">${formatPrice(stockData.price)}</p>
-                    <div className="flex items-center justify-end gap-1 mt-0.5">
-                      <span className={`text-sm font-bold ${stockData.change >= 0 ? 'text-primary' : 'text-error'}`}>
-                        {stockData.change >= 0 ? '+' : ''}{formatPrice(stockData.change)}
-                      </span>
-                      <span className={`text-[10px] px-1.5 py-0.5 rounded-md font-bold ${
-                        stockData.change_percent >= 0 ? 'bg-primary/10 text-primary' : 'bg-error/10 text-error'
-                      }`}>
-                        {stockData.change_percent >= 0 ? '▲' : '▼'} {Math.abs(stockData.change_percent).toFixed(2)}%
-                      </span>
-                    </div>
+                  <p className="text-on-surface-variant font-headline text-xs tracking-widest uppercase mb-4">Market Sentiment</p>
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-4xl font-headline font-bold text-primary">{stockData.change >= 0 ? 'Bullish' : 'Bearish'}</span>
+                    <span className="text-primary/60 font-mono text-sm tracking-tighter">({stockData.change >= 0 ? 'High' : 'Low'} Confidence)</span>
                   </div>
                 </div>
-                <div className="grid grid-cols-3 gap-2 mb-3">
-                  <DataCell label="Open" value={stockData.open != null ? `$${formatPrice(stockData.open)}` : '—'} />
-                  <DataCell label="Prev Close" value={stockData.prev_close != null ? `$${formatPrice(stockData.prev_close)}` : '—'} />
-                  <DataCell label="Day Range" value={stockData.day_low != null && stockData.day_high != null ? `${formatPrice(stockData.day_low)}–${formatPrice(stockData.day_high)}` : '—'} />
-                  <DataCell label="52W Range" value={stockData.fifty_two_week_low != null && stockData.fifty_two_week_high != null ? `${formatPrice(stockData.fifty_two_week_low)}–${formatPrice(stockData.fifty_two_week_high)}` : '—'} />
-                  <DataCell label="Volume" value={formatNumber(stockData.volume)} />
-                  <DataCell label="Avg Volume" value={stockData.avg_volume ? formatNumber(stockData.avg_volume) : '—'} />
-                  <DataCell label="Market Cap" value={stockData.market_cap ? formatNumber(stockData.market_cap) : '—'} />
-                  <DataCell label="P/E Ratio" value={stockData.pe_ratio != null ? stockData.pe_ratio.toFixed(2) : '—'} />
-                  <DataCell label="EPS" value={stockData.eps != null ? `$${stockData.eps.toFixed(2)}` : '—'} />
-                  <DataCell label="Div Yield" value={stockData.dividend_yield != null ? `${(stockData.dividend_yield * 100).toFixed(2)}%` : '—'} />
-                  <DataCell label="Beta" value={stockData.beta != null ? stockData.beta.toFixed(2) : '—'} />
-                  <DataCell label="Target Price" value={stockData.target_mean_price != null ? `$${formatPrice(stockData.target_mean_price)}` : '—'} />
+                {/* AI Recommendation */}
+                <div className="glass-card p-6 rounded-2xl border-l-4 border-secondary/50">
+                  <p className="text-on-surface-variant font-headline text-xs tracking-widest uppercase mb-4">AI Recommendation</p>
+                  <div className={`${stockData.change_percent >= 0 ? 'bg-secondary/10' : 'bg-error/10'} inline-block px-4 py-1 rounded-full mb-2`}>
+                    <span className={`${stockData.change_percent >= 0 ? 'text-secondary' : 'text-error'} font-headline font-bold text-sm uppercase tracking-tighter`}>
+                      {stockData.change_percent >= 0 ? 'Strong Buy' : 'Sell Signal'}
+                    </span>
+                  </div>
+                  <p className="text-sm text-on-surface leading-relaxed font-body">
+                    AI analysis indicates {stockData.change >= 0 ? 'a primary support bounce' : 'distribution pressure'} at {formatPrice(stockData.price)} with target {stockData.change >= 0 ? 'upside' : 'downside'} of {Math.abs(stockData.change_percent).toFixed(1)}%.
+                  </p>
                 </div>
               </div>
-            ) : (
-              <div className="px-5 py-6 text-center">
-                <p className="text-sm text-on-surface-variant">Stock data unavailable for <span className="text-primary font-bold">{stockCode}</span></p>
+            ) : null}
+          </section>
+        )}
+
+        {/* ══════════════════════════════════════════════════════
+            BENTO GRID — Core Intelligence Modules
+            ══════════════════════════════════════════════════════ */}
+        <section className="mt-24 px-6">
+          <div className="flex items-end justify-between mb-8 border-b border-outline-variant/10 pb-4">
+            <div>
+              <h2 className="font-headline text-3xl font-bold uppercase tracking-tight">AI Capabilities</h2>
+              <p className="text-primary font-headline text-xs tracking-[0.3em] font-medium">AI PROCESSING UNITS</p>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="col-span-2 row-span-1 bg-surface-container-high rounded-3xl p-8 flex flex-col justify-between relative overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-secondary/5"></div>
+              <div className="relative z-10">
+                <span className="material-symbols-outlined text-primary text-4xl mb-4 block">auto_awesome</span>
+                <h3 className="font-headline text-xl font-bold uppercase mb-2">AI Signal Engine</h3>
+                <p className="text-xs text-on-surface-variant font-body leading-relaxed">Real-time proprietary scoring for top-tier assets. Professional-grade stock analysis powered by AI inference.</p>
               </div>
-            )}
+            </div>
+            <div className="bg-surface-container-low rounded-3xl p-6 border border-outline-variant/10 hover:bg-surface-container-high transition-colors duration-300">
+              <span className="material-symbols-outlined text-secondary mb-4 block">psychology</span>
+              <h4 className="font-headline font-bold text-sm uppercase tracking-tight">Pattern Recognition</h4>
+              <p className="text-[10px] text-on-surface-variant mt-2 font-body">Chart pattern recognition</p>
+            </div>
+            <div className="bg-surface-container-low rounded-3xl p-6 border border-outline-variant/10 hover:bg-surface-container-high transition-colors duration-300">
+              <span className="material-symbols-outlined text-primary mb-4 block">history_edu</span>
+              <h4 className="font-headline font-bold text-sm uppercase tracking-tight">Historical Data</h4>
+              <p className="text-[10px] text-on-surface-variant mt-2 font-body">Historical data vault</p>
+            </div>
           </div>
         </section>
-      )}
 
-      {/* Features Section */}
-      <section className="py-14 px-6 bg-slate-900/40">
-        <div className="mb-10 text-center">
-          <h2 className="font-headline text-xl font-semibold text-on-surface tracking-tight mb-2">Smarter Data Processing</h2>
-          <div className="h-1 w-12 bg-primary mx-auto rounded-full"></div>
-        </div>
-        <div className="space-y-4">
-          <div className="p-6 bg-surface rounded-3xl border border-white/5 flex items-start gap-5 shadow-sm">
-            <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0">
-              <span className="material-symbols-outlined text-primary">neurology</span>
+        {/* ══════════════════════════════════════════════════════
+            STATS — Pulse Metrics
+            ══════════════════════════════════════════════════════ */}
+        <section className="mt-12 px-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="glass-card p-6 rounded-3xl text-center border border-outline-variant/10">
+              <div className="font-headline text-2xl font-bold text-primary mb-1">500K+</div>
+              <div className="font-body text-[10px] text-on-surface-variant uppercase tracking-widest font-medium">AI Analyses</div>
             </div>
+            <div className="glass-card p-6 rounded-3xl text-center border border-outline-variant/10">
+              <div className="font-headline text-2xl font-bold text-secondary mb-1">100+</div>
+              <div className="font-body text-[10px] text-on-surface-variant uppercase tracking-widest font-medium">Data Streams</div>
+            </div>
+            <div className="glass-card p-6 rounded-3xl text-center border border-outline-variant/10">
+              <div className="font-headline text-2xl font-bold text-tertiary mb-1">24/7</div>
+              <div className="font-body text-[10px] text-on-surface-variant uppercase tracking-widest font-medium">Global Pulse</div>
+            </div>
+            <div className="glass-card p-6 rounded-3xl text-center border border-outline-variant/10">
+              <div className="font-headline text-2xl font-bold text-primary mb-1">99.9%</div>
+              <div className="font-body text-[10px] text-on-surface-variant uppercase tracking-widest font-medium">Reliability</div>
+            </div>
+          </div>
+        </section>
+
+        {/* ══════════════════════════════════════════════════════
+            SECTOR INTELLIGENCE — Hot Stocks
+            ══════════════════════════════════════════════════════ */}
+        <section className="mt-24 px-6">
+          <div className="flex justify-between items-end mb-8 border-b border-outline-variant/10 pb-4">
             <div>
-              <h3 className="font-headline font-semibold text-on-surface text-base mb-1">Human-Centric Trends</h3>
-              <p className="text-sm text-on-surface-variant leading-relaxed font-body">Detecting meaningful market shifts across global sectors with ease.</p>
+              <h2 className="font-headline text-3xl font-bold uppercase tracking-tight">Market Movers</h2>
+              <p className="text-primary font-headline text-xs tracking-[0.3em] font-medium">TOP PERFORMING STOCKS</p>
             </div>
+            <span className="text-xs text-primary font-headline font-medium tracking-wide uppercase">View All</span>
           </div>
-          <div className="p-6 bg-surface rounded-3xl border border-white/5 flex items-start gap-5 shadow-sm">
-            <div className="w-12 h-12 rounded-2xl bg-secondary/10 flex items-center justify-center shrink-0">
-              <span className="material-symbols-outlined text-secondary">speed</span>
-            </div>
-            <div>
-              <h3 className="font-headline font-semibold text-on-surface text-base mb-1">Real-time Clarity</h3>
-              <p className="text-sm text-on-surface-variant leading-relaxed font-body">Immediate processing of complex data into simple, actionable insights.</p>
-            </div>
-          </div>
-          <div className="p-6 bg-surface rounded-3xl border border-white/5 flex items-start gap-5 shadow-sm">
-            <div className="w-12 h-12 rounded-2xl bg-tertiary/10 flex items-center justify-center shrink-0">
-              <span className="material-symbols-outlined text-tertiary">filter_list</span>
-            </div>
-            <div>
-              <h3 className="font-headline font-semibold text-on-surface text-base mb-1">Curated Selection</h3>
-              <p className="text-sm text-on-surface-variant leading-relaxed font-body">Precise stock screening based on quality fundamental indicators.</p>
-            </div>
-          </div>
-        </div>
-      </section>
 
-      {/* Stats Section */}
-      <section className="py-14 px-6">
-        <div className="grid grid-cols-2 gap-4">
-          <div className="p-6 bg-surface rounded-3xl text-center border border-white/5">
-            <div className="font-headline text-2xl font-semibold text-primary mb-1">5,000+</div>
-            <div className="font-body text-[10px] text-on-surface-variant uppercase tracking-widest font-medium">Assets Tracked</div>
-          </div>
-          <div className="p-6 bg-surface rounded-3xl text-center border border-white/5">
-            <div className="font-headline text-2xl font-semibold text-secondary mb-1">100+</div>
-            <div className="font-body text-[10px] text-on-surface-variant uppercase tracking-widest font-medium">Data Streams</div>
-          </div>
-          <div className="p-6 bg-surface rounded-3xl text-center border border-white/5">
-            <div className="font-headline text-2xl font-semibold text-tertiary mb-1">24/7</div>
-            <div className="font-body text-[10px] text-on-surface-variant uppercase tracking-widest font-medium">Global Pulse</div>
-          </div>
-          <div className="p-6 bg-surface rounded-3xl text-center border border-white/5">
-            <div className="font-headline text-2xl font-semibold text-primary mb-1">99.9%</div>
-            <div className="font-body text-[10px] text-on-surface-variant uppercase tracking-widest font-medium">Reliability</div>
-          </div>
-        </div>
-      </section>
-
-      {/* Hot Stocks / Sector Intelligence */}
-      <section className="py-14 px-6 bg-slate-900/40">
-        <div className="flex justify-between items-end mb-8">
-          <div>
-            <h2 className="font-headline text-xl font-semibold text-on-surface tracking-tight">Sector Intelligence</h2>
-            <p className="text-xs text-on-surface-variant font-body mt-1">Leading performers by score</p>
-          </div>
-          <span className="text-xs text-primary font-medium tracking-wide uppercase">View All</span>
-        </div>
-
-        {hotLoading ? (
-          <div className="flex items-center justify-center py-20">
-            <div className="w-6 h-6 border-2 border-primary/30 border-t-primary rounded-full animate-spin"></div>
-          </div>
-        ) : hotStocks.length > 0 ? (
-          <div className="space-y-4">
-            {hotStocks.slice(0, 6).map((stock) => (
-              <div key={stock.symbol} className="w-full bg-surface p-2 rounded-3xl border border-white/5 overflow-hidden">
-                <div className="flex items-center gap-3 px-4 py-3 border-b border-white/5">
-                  <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center">
-                    <span className="material-symbols-outlined text-primary text-base">trending_up</span>
+          {hotLoading ? (
+            <div className="flex items-center justify-center py-20">
+              <div className="w-6 h-6 border-2 border-primary/30 border-t-primary rounded-full animate-spin"></div>
+            </div>
+          ) : hotStocks.length > 0 ? (
+            <div className="space-y-4">
+              {hotStocks.slice(0, 6).map((stock) => (
+                <div key={stock.symbol} className="glass-card rounded-3xl border border-outline-variant/10 overflow-hidden group hover:border-primary/20 transition-colors duration-300">
+                  <div className="flex items-center gap-3 px-6 py-4">
+                    <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                      <span className="material-symbols-outlined text-primary text-lg">trending_up</span>
+                    </div>
+                    <h3 className="font-headline font-bold text-on-surface text-base flex-1">{stock.symbol}</h3>
+                    <span className={`text-xs font-headline font-bold px-3 py-1 rounded-full ${stock.change_percent >= 0 ? 'text-secondary bg-secondary/10' : 'text-error bg-error/10'}`}>
+                      {stock.change_percent >= 0 ? '+' : ''}{stock.change_percent.toFixed(2)}%
+                    </span>
+                    <p className="font-headline font-bold text-on-surface text-base">${formatPrice(stock.price)}</p>
                   </div>
-                  <h3 className="font-headline font-semibold text-on-surface text-sm flex-1">{stock.symbol}</h3>
-                  <span className={`text-xs font-bold ${stock.change_percent >= 0 ? 'text-primary' : 'text-error'}`}>
-                    {stock.change_percent >= 0 ? '+' : ''}{stock.change_percent.toFixed(2)}%
-                  </span>
-                  <p className="font-headline font-semibold text-on-surface text-sm">${formatPrice(stock.price)}</p>
-                </div>
-                <div className="px-4 py-3 grid grid-cols-3 gap-4">
-                  <div>
-                    <p className="text-[9px] text-on-surface-variant uppercase tracking-widest">Volume</p>
-                    <p className="text-xs font-bold text-on-surface font-body">{formatNumber(stock.volume)}</p>
-                  </div>
-                  <div>
-                    <p className="text-[9px] text-on-surface-variant uppercase tracking-widest">Mkt Cap</p>
-                    <p className="text-xs font-bold text-on-surface font-body">{stock.market_cap ? formatNumber(stock.market_cap) : '—'}</p>
-                  </div>
-                  <div>
-                    <p className="text-[9px] text-on-surface-variant uppercase tracking-widest">P/E</p>
-                    <p className="text-xs font-bold text-on-surface font-body">{stock.pe_ratio != null ? stock.pe_ratio.toFixed(1) : '—'}</p>
+                  <div className="px-6 py-3 grid grid-cols-3 gap-4 border-t border-outline-variant/10 bg-surface-container-low/40">
+                    <div>
+                      <p className="text-[9px] text-on-surface-variant uppercase tracking-widest">Volume</p>
+                      <p className="text-xs font-bold text-on-surface font-body">{formatNumber(stock.volume)}</p>
+                    </div>
+                    <div>
+                      <p className="text-[9px] text-on-surface-variant uppercase tracking-widest">Mkt Cap</p>
+                      <p className="text-xs font-bold text-on-surface font-body">{stock.market_cap ? formatNumber(stock.market_cap) : '—'}</p>
+                    </div>
+                    <div>
+                      <p className="text-[9px] text-on-surface-variant uppercase tracking-widest">P/E</p>
+                      <p className="text-xs font-bold text-on-surface font-body">{stock.pe_ratio != null ? stock.pe_ratio.toFixed(1) : '—'}</p>
+                    </div>
                   </div>
                 </div>
+              ))}
+            </div>
+          ) : (
+            <div className="flex items-center justify-center py-20">
+              <p className="text-sm text-on-surface-variant">No hot stocks data available</p>
+            </div>
+          )}
+        </section>
+
+        {/* ══════════════════════════════════════════════════════
+            CAPABILITIES — Bento Grid
+            ══════════════════════════════════════════════════════ */}
+        <section className="mt-24 px-6">
+          <div className="flex items-end justify-between mb-8 border-b border-outline-variant/10 pb-4">
+            <div>
+              <h2 className="font-headline text-3xl font-bold uppercase tracking-tight">Platform Features</h2>
+              <p className="text-primary font-headline text-xs tracking-[0.3em] font-medium">BUILT FOR INVESTORS</p>
+            </div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="bg-surface-container-high rounded-3xl p-8 relative overflow-hidden group hover:border-primary/20 transition-colors duration-300">
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+              <div className="relative z-10">
+                <span className="material-symbols-outlined text-primary text-4xl mb-6 block">shield_lock</span>
+                <h3 className="font-headline text-lg font-bold text-on-surface mb-3 uppercase">Bank-Level Security</h3>
+                <p className="text-sm text-on-surface-variant leading-relaxed font-body">Your data is protected by industry-standard encryption protocols, keeping your stock analysis private and secure.</p>
               </div>
-            ))}
-          </div>
-        ) : (
-          <div className="flex items-center justify-center py-20">
-            <p className="text-sm text-on-surface-variant">No hot stocks data available</p>
-          </div>
-        )}
-      </section>
-
-      {/* Capabilities Bento */}
-      <section className="py-16 px-6">
-        <div className="grid grid-cols-1 gap-5">
-          <div className="p-8 bg-surface rounded-3xl border border-white/5 relative overflow-hidden">
-            <div className="relative z-10">
-              <span className="material-symbols-outlined text-primary text-4xl mb-6 block">shield_lock</span>
-              <h3 className="font-headline text-lg font-semibold text-on-surface mb-3">Enterprise Security</h3>
-              <p className="text-sm text-on-surface-variant leading-relaxed font-body">Your data is protected by industry-standard encryption protocols, keeping your insights private.</p>
+            </div>
+            <div className="bg-surface-container-low rounded-3xl p-8 border border-outline-variant/10 group hover:border-secondary/20 transition-colors duration-300">
+              <span className="material-symbols-outlined text-secondary text-4xl mb-6 block">hub</span>
+              <h3 className="font-headline text-lg font-bold text-on-surface mb-3 uppercase">Real-Time Integration</h3>
+              <p className="text-sm text-on-surface-variant leading-relaxed font-body">Connect your existing workflow directly to our analysis platform for real-time stock data and AI-driven insights.</p>
             </div>
           </div>
-          <div className="p-8 bg-surface rounded-3xl border border-white/5">
-            <span className="material-symbols-outlined text-secondary text-4xl mb-6 block">hub</span>
-            <h3 className="font-headline text-lg font-semibold text-on-surface mb-3">Seamless Integration</h3>
-            <p className="text-sm text-on-surface-variant leading-relaxed font-body">Connect your existing workflow directly to our analysis mesh for real-time decision support.</p>
+        </section>
+
+        {/* ══════════════════════════════════════════════════════
+            CTA SECTION
+            ══════════════════════════════════════════════════════ */}
+        <section className="mt-24 px-6 text-center">
+          <div className="glass-card p-10 md:p-16 rounded-3xl border border-primary/10 relative overflow-hidden shadow-2xl">
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5"></div>
+            <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-primary rounded-full blur-[120px] opacity-5"></div>
+            <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-secondary rounded-full blur-[120px] opacity-5"></div>
+            <h2 className="font-headline text-3xl md:text-4xl font-bold text-on-surface mb-4 relative z-10 text-glow uppercase">Start Your AI Analysis</h2>
+            <p className="text-on-surface-variant text-sm mb-10 relative z-10 max-w-xs mx-auto leading-relaxed font-body">Join thousands of investors using AI-powered stock analysis to make smarter decisions.</p>
+            <button className="bg-primary text-on-primary-fixed font-headline font-black px-10 py-5 rounded-2xl text-lg tracking-[0.1em] transition-all hover:scale-[1.02] active:scale-95 shadow-[0_0_20px_rgba(161,250,255,0.3)] relative z-10" onClick={handlePrimaryClick}>
+              ANALYZE NOW
+              <span className="material-symbols-outlined align-middle ml-2">bolt</span>
+            </button>
           </div>
-        </div>
-      </section>
+        </section>
+      </main>
 
-      {/* CTA Section */}
-      <section className="py-16 px-6 text-center">
-        <div className="p-10 bg-gradient-to-br from-surface to-slate-900 rounded-3xl border border-white/10 relative overflow-hidden shadow-2xl">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(56,189,248,0.05)_0%,transparent_60%)]"></div>
-          <h2 className="font-headline text-2xl font-semibold text-on-surface mb-4 relative z-10">Ready for Smarter Insights?</h2>
-          <p className="text-on-surface-variant text-sm mb-10 relative z-10 max-w-xs mx-auto leading-relaxed font-body">Join thousands of investors using human-centric data to navigate the markets.</p>
-          <button className="w-full bg-primary hover:bg-primary-dim text-background font-headline font-semibold py-4 rounded-2xl tracking-wide shadow-lg transition-all active:scale-[0.98] relative z-10" onClick={handlePrimaryClick}>
-            Start Free Analysis
-          </button>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="bg-background pt-16 pb-32 px-8 flex flex-col items-center border-t border-white/5">
-        <div className="flex items-center gap-3 mb-10">
-          <span className="material-symbols-outlined text-primary text-2xl">insights</span>
-          <span className="font-headline font-semibold text-on-surface tracking-tight text-base">InsightLedger</span>
-        </div>
-        <div className="w-full max-w-xs mb-12">
-          <button className="w-full border-2 border-primary text-primary hover:bg-primary/5 font-headline font-semibold py-4 rounded-2xl tracking-wide transition-all flex items-center justify-center gap-3" onClick={handlePrimaryClick}>
-            <span className="material-symbols-outlined">query_stats</span>
-            Run Market Scan
-          </button>
-        </div>
-        <div className="pt-10 border-t border-white/5 w-full text-center">
-          <p className="font-body text-[10px] text-on-surface-variant/60 uppercase tracking-[0.2em]">&copy; 2026{currentDomain ? ` ${currentDomain} ` : ' '}INSIGHTLEDGER. DESIGNED FOR CLARITY.</p>
+      {/* ══════════════════════════════════════════════════════
+          FOOTER
+          ══════════════════════════════════════════════════════ */}
+      <footer className="bg-surface-container-low border-t border-outline-variant/10 px-6 pt-12 pb-24">
+        <div className="max-w-4xl mx-auto flex flex-col items-center text-center">
+          <div className="flex items-center gap-2 mb-8">
+            <span className="material-symbols-outlined text-primary text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>insights</span>
+            <span className="text-lg font-bold tracking-[0.2em] text-primary font-headline uppercase">STOCK_INTEL</span>
+          </div>
+          <div className="flex flex-wrap justify-center gap-6 mb-8 font-headline text-xs tracking-widest uppercase">
+            <Link className="text-on-surface-variant hover:text-primary transition-colors" href="/privacy">Privacy Policy</Link>
+            <Link className="text-on-surface-variant hover:text-primary transition-colors" href="/terms">Terms of Service</Link>
+            <Link className="text-on-surface-variant hover:text-primary transition-colors" href="/contact">Contact</Link>
+          </div>
+          <p className="text-[10px] text-outline uppercase tracking-[0.3em] font-medium">&copy; 2026{currentDomain ? ` ${currentDomain} ` : ' '}STOCK_INTEL AI ANALYSIS. ALL RIGHTS RESERVED.</p>
         </div>
       </footer>
 
-      {/* Fixed Floating Action Button */}
+      {/* ══════════════════════════════════════════════════════
+          FIXED FLOATING ACTION BUTTON — Scroll-triggered
+          ══════════════════════════════════════════════════════ */}
       <div className="fixed bottom-8 left-0 w-full px-6 z-[80]" id="sticky-cta">
-        <button className="w-full bg-primary hover:bg-primary-dim text-background font-headline font-bold py-5 rounded-3xl tracking-wide shadow-2xl shadow-primary/30 flex items-center justify-center gap-4 active:scale-[0.98] transition-all" onClick={handlePrimaryClick}>
-          <span className="material-symbols-outlined text-2xl animate-pulse">search_spark</span>
-          Run Diagnostic Scan
-        </button>
+        <div className="max-w-xl mx-auto">
+          <button
+            className="w-full bg-background border-2 border-primary text-primary font-headline font-black py-5 rounded-2xl text-xl tracking-[0.2em] shadow-[0_0_30px_rgba(161,250,255,0.2)] hover:bg-primary hover:text-on-primary-fixed transition-all active:scale-95 flex items-center justify-center gap-4"
+            onClick={handlePrimaryClick}
+          >
+            ANALYZE NOW
+            <span className="material-symbols-outlined font-bold">bolt</span>
+          </button>
+        </div>
       </div>
     </>
   )
