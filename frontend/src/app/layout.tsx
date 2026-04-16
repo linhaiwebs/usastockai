@@ -3,8 +3,8 @@ import './globals.css'
 import GoogleAnalytics from '../components/GoogleAnalytics'
 
 export const metadata: Metadata = {
-  title: 'STOCK_INTEL | AI Stock Analysis',
-  description: 'Professional-grade AI stock analysis platform. Real-time streaming analysis, market insights, and actionable verdicts for US stocks.',
+  title: 'STOCK_DIAGNOSTIC | AI Predictive Prism',
+  description: 'AI-driven stock diagnostics for smarter US market intelligence. Uncover financial DNA patterns with predictive analysis.',
 }
 
 export const viewport: Viewport = {

@@ -6,11 +6,11 @@ export default function PrivacyPage() {
   return (
     <div className="min-h-screen bg-background text-on-background font-body">
       {/* Navigation */}
-      <header className="fixed top-0 w-full z-50 glass-nav border-b border-outline-variant/10">
+      <header className="fixed top-0 w-full z-50 glass-nav border-b border-outline-variant/15">
         <div className="flex items-center justify-between px-6 h-16 max-w-7xl mx-auto">
           <Link href="/" className="flex items-center gap-2">
             <span className="material-symbols-outlined text-primary" style={{ fontVariationSettings: "'FILL' 1" }}>insights</span>
-            <span className="text-xl font-bold tracking-[0.2em] text-primary font-headline uppercase">STOCK_INTEL</span>
+            <span className="text-xl font-bold tracking-[0.2em] text-primary font-headline uppercase">STOCK_DIAGNOSTIC</span>
           </Link>
         </div>
       </header>
@@ -24,7 +24,7 @@ export default function PrivacyPage() {
             <section>
               <h2 className="font-headline text-xl font-bold text-primary uppercase tracking-tight mb-4">1. Information We Collect</h2>
               <p className="text-on-surface-variant leading-relaxed text-sm">
-                We collect information you provide directly when using STOCK_INTEL, including stock symbols you search for, analysis requests, and any data you voluntarily submit. We also automatically collect certain technical information when you visit our platform, including your IP address, browser type, device information, and usage patterns through cookies and similar technologies.
+                We collect information you provide directly when using STOCK_DIAGNOSTIC, including stock symbols you search for, analysis requests, and any data you voluntarily submit. We also automatically collect certain technical information when you visit our platform, including your IP address, browser type, device information, and usage patterns through cookies and similar technologies.
               </p>
             </section>
 
@@ -85,9 +85,9 @@ export default function PrivacyPage() {
             </section>
           </div>
 
-          <div className="mt-16 pt-8 border-t border-outline-variant/10">
+          <div className="mt-16 pt-8 border-t border-outline-variant/15">
             <Link href="/" className="text-primary font-headline font-bold uppercase tracking-widest hover:opacity-80 transition-opacity">
-              ← Back to STOCK_INTEL
+              ← Back to STOCK_DIAGNOSTIC
             </Link>
           </div>
         </div>
