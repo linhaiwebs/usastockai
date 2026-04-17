@@ -23,17 +23,40 @@ const nextConfig = {
   },
   
   // HTTP头缓存配置
+  // ⚠️ 关键：HTML页面必须 no-store，否则 nginx 反代/CDN/浏览器会缓存旧 HTML
+  // 旧 HTML 引用旧 JS chunk hash → 部署后用户看到旧版本
+  // /_next/static/ 的文件名包含 content hash，可以安全地长期缓存
   async headers() {
     return [
+      // HTML 页面 — 绝不缓存，确保每次都拿到最新版本
       {
-        source: '/:all*(svg|jpg|jpeg|png|gif|ico|webp|avif)',
+        source: '/(.*)',
         headers: [
           {
             key: 'Cache-Control',
-            value: 'public, max-age=31536000, immutable',
+            value: 'no-cache, no-store, must-revalidate',
+          },
+          {
+            key: 'Pragma',
+            value: 'no-cache',
+          },
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff',
           },
         ],
       },
+      // Next.js 数据路由 (client-side navigation) — 不缓存
+      {
+        source: '/_next/data/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'no-cache, no-store, must-revalidate',
+          },
+        ],
+      },
+      // 静态资源（含 content hash）— 可安全长期缓存
       {
         source: '/_next/static/:path*',
         headers: [
@@ -43,6 +66,17 @@ const nextConfig = {
           },
         ],
       },
+      // 图片资源 — 长期缓存
+      {
+        source: '/:all*(svg|jpg|jpeg|png|gif|ico|webp|avif)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
+      // 字体 — 长期缓存
       {
         source: '/fonts/:path*',
         headers: [

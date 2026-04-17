@@ -2,9 +2,16 @@ import type { Metadata, Viewport } from 'next'
 import './globals.css'
 import GoogleAnalytics from '../components/GoogleAnalytics'
 
+// Build-time version fingerprint — changes every build, visible in page source
+// Use to verify which version is deployed: view-source → search "x-ver"
+const BUILD_VER = process.env.NEXT_BUILD_VER || `b${Date.now()}`
+
 export const metadata: Metadata = {
   title: 'STOCK_INTEL | AI Stock Analysis',
   description: 'Professional-grade AI stock analysis platform. Real-time streaming analysis, market insights, and actionable verdicts for US stocks.',
+  other: {
+    'x-ver': BUILD_VER,
+  },
 }
 
 export const viewport: Viewport = {
