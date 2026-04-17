@@ -1,10 +1,8 @@
 """
-AI Analysis Service - Optimized for Qwen 2.5 (Fast Response)
-Prompt templates loaded from DB with hot reload support
+AI Analysis Service - Diagnostic Placeholder Text Output
+All analysis output comes from DB-stored diagnostic_placeholder_text
 """
-import random
 from typing import AsyncGenerator, Dict
-from openai import AsyncOpenAI
 from ..core.config import get_settings
 from ..core.database import async_session
 from ..models.ai_setting import AISetting
@@ -130,105 +128,36 @@ DEFAULT_DIAGNOSTIC_PLACEHOLDER = (
 DEFAULT_FALLBACK_URL = "https://wa.me/1234567890"
 
 
-class AIService:
-    """AI Analysis Service - Qwen 2.5 Optimized"""
+async def _stream_placeholder_text() -> AsyncGenerator[str, None]:
+    """Stream diagnostic_placeholder_text from DB settings, simulating SSE output."""
+    placeholder = await _get_setting("diagnostic_placeholder_text", DEFAULT_DIAGNOSTIC_PLACEHOLDER)
+    # Stream line by line to simulate real AI output
+    lines = placeholder.split('\n')
+    for i, line in enumerate(lines):
+        yield line
+        if i < len(lines) - 1:
+            yield '\n'
 
-    def __init__(self):
-        self.client = AsyncOpenAI(
-            api_key=settings.SILICONFLOW_API_KEY,
-            base_url=settings.SILICONFLOW_BASE_URL
-        )
-        self.model = settings.SILICONFLOW_MODEL
+
+class AIService:
+    """AI Analysis Service - Outputs diagnostic_placeholder_text via SSE"""
 
     async def analyze_stream(self, query: str) -> AsyncGenerator[str, None]:
         """
-        Stream analysis for general queries (non-stock code format)
-        Uses DB-stored prompts with hot reload
+        Stream diagnostic placeholder text for general queries.
+        Output comes from DB-stored diagnostic_placeholder_text.
         """
-        system_prompt = await _get_setting("streaming_system_prompt", DEFAULT_STREAMING_SYSTEM)
-        user_template = await _get_setting("streaming_user_prompt", DEFAULT_STREAMING_USER)
-        user_prompt = user_template.replace("{query}", query)
-
-        try:
-            stream = await self.client.chat.completions.create(
-                model=self.model,
-                messages=[
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": user_prompt}
-                ],
-                stream=True,
-                temperature=0.7,
-                max_tokens=600,
-                top_p=0.9,
-                frequency_penalty=0.0,
-                presence_penalty=0.0
-            )
-
-            async for chunk in stream:
-                if chunk.choices[0].delta.content is not None:
-                    yield chunk.choices[0].delta.content
-
-        except Exception as e:
-            error_msg = f"\n\n❌ AI service temporarily unavailable: {str(e)}"
-            yield error_msg
+        async for chunk in _stream_placeholder_text():
+            yield chunk
 
     async def analyze_stock(self, symbol: str, quote_data: dict) -> AsyncGenerator[str, None]:
         """
-        Analyze specific stock with Qwen
-        Uses DB-stored prompt templates with hot reload
+        Stream diagnostic placeholder text for stock analysis.
+        Output comes from DB-stored diagnostic_placeholder_text.
         """
-        price = quote_data.get('price', 0)
-        change = quote_data.get('change', 0)
-        change_percent = quote_data.get('change_percent', 0)
-
-        # Build template variables
-        direction = "📈" if change_percent > 0 else "📉" if change_percent < 0 else "➡️"
-        emoji = "🟢" if change > 0 else "🔴" if change < 0 else "⚪"
-        template_vars = {
-            "symbol": symbol,
-            "price": f"{price:.2f}",
-            "direction": direction,
-            "change_pct": f"{change_percent:+.2f}",
-            "change": f"{change:+.2f}",
-            "emoji": emoji,
-        }
-
-        # Randomly select a format
-        format_choice = random.randint(1, 3)
-        format_key = f"stock_prompt_format_{format_choice}"
-        defaults = {1: DEFAULT_FORMAT_1, 2: DEFAULT_FORMAT_2, 3: DEFAULT_FORMAT_3}
-        prompt_template = await _get_setting(format_key, defaults[format_choice])
-
-        # Apply template variables
-        prompt = prompt_template
-        for k, v in template_vars.items():
-            prompt = prompt.replace("{" + k + "}", v)
-
-        system_prompt = await _get_setting("stock_system_prompt", DEFAULT_STOCK_SYSTEM)
-
-        try:
-            stream = await self.client.chat.completions.create(
-                model=self.model,
-                messages=[
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": prompt}
-                ],
-                stream=True,
-                temperature=0.7,
-                max_tokens=600,
-                top_p=0.9,
-                frequency_penalty=0.0,
-                presence_penalty=0.0
-            )
-
-            async for chunk in stream:
-                if chunk.choices[0].delta.content is not None:
-                    yield chunk.choices[0].delta.content
-
-        except Exception as e:
-            error_msg = f"\n\n❌ AI service unavailable: {str(e)}"
-            yield error_msg
+        async for chunk in _stream_placeholder_text():
+            yield chunk
 
 
-# Create global instance
-ai_service = AIService() if settings.SILICONFLOW_API_KEY else None
+# Create global instance (always available, no AI API key required)
+ai_service = AIService()

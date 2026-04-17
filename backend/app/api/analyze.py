@@ -6,10 +6,8 @@ from fastapi.responses import StreamingResponse
 from sse_starlette.sse import EventSourceResponse
 from ..services.ai_service import ai_service
 from ..services.stock_service import stock_service
-from ..core.config import get_settings
 
 router = APIRouter(prefix="/api", tags=["ai"])
-settings = get_settings()
 
 
 @router.get("/analyze")
@@ -17,9 +15,6 @@ async def analyze_query(q: str):
     """Streaming AI analysis (non-stock code format)"""
     if not q:
         raise HTTPException(status_code=400, detail="Query parameter 'q' is required")
-    
-    if not ai_service:
-        raise HTTPException(status_code=503, detail="AI service not configured")
     
     async def event_generator():
         """Generate SSE event stream"""
@@ -40,10 +35,7 @@ async def analyze_query(q: str):
 
 @router.get("/analyze/{symbol}")
 async def analyze_stock(symbol: str):
-    """Analyze specific stock (randomly select a diagnostic format)"""
-    if not ai_service:
-        raise HTTPException(status_code=503, detail="AI service not configured")
-    
+    """Analyze specific stock (outputs diagnostic placeholder text)"""
     # Get stock data
     quote = await stock_service.get_quote(symbol)
     if not quote:
