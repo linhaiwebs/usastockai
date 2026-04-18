@@ -9,7 +9,7 @@ export default function TermsPage() {
       <header className="fixed top-0 w-full z-50 glass-nav shadow-[0_4px_30px_rgba(0,0,0,0.5)]">
         <div className="flex items-center justify-between px-6 h-16 max-w-7xl mx-auto">
           <Link href="/" className="flex items-center gap-3">
-            <span className="material-symbols-outlined text-[#00FFA3] text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>analytics</span>
+            <span className="material-symbols-outlined text-[#00FFA3] text-xl">analytics</span>
             <span className="font-headline tracking-[-0.02em] uppercase text-xl font-black text-[#00FFA3] drop-shadow-[0_0_8px_rgba(0,255,163,0.4)]">NEURAL ALPHA</span>
           </Link>
         </div>

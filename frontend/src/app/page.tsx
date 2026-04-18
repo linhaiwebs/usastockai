@@ -458,8 +458,8 @@ function HomeContent() {
       <header className="fixed top-0 w-full z-50 glass-nav border-b border-outline-variant/10">
         <div className="flex items-center justify-between px-6 h-16 max-w-7xl mx-auto">
           <div className="flex items-center gap-2">
-            <span className="material-symbols-outlined text-primary" style={{ fontVariationSettings: "'FILL' 1" }}>insights</span>
-            <span className="text-xl font-bold tracking-[0.2em] text-primary font-headline uppercase">STOCK_INTEL</span>
+            <span className="material-symbols-outlined text-primary">insights</span>
+            <span className="text-xl font-bold tracking-[0.2em] text-primary font-headline uppercase">NEURAL ALPHA</span>
           </div>
           <div className="hidden md:flex gap-8 items-center font-headline tracking-tighter uppercase text-sm">
             <a className="text-primary hover:opacity-80 transition-opacity active:scale-95 duration-200" href="#">Markets</a>
@@ -531,7 +531,7 @@ function HomeContent() {
                     onKeyDown={(e) => { if (e.key === 'Enter' && searchInput.trim()) handlePrimaryClick() }}
                   />
                   <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-2">
-                    <span className="material-symbols-outlined text-secondary text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>circle</span>
+                    <span className="material-symbols-outlined text-secondary text-sm">circle</span>
                     <span className="text-[10px] text-secondary font-headline font-bold uppercase tracking-[0.2em]">LIVE</span>
                   </div>
 
@@ -820,15 +820,15 @@ function HomeContent() {
       <footer className="bg-surface-container-low border-t border-outline-variant/10 px-6 pt-12 pb-24">
         <div className="max-w-4xl mx-auto flex flex-col items-center text-center">
           <div className="flex items-center gap-2 mb-8">
-            <span className="material-symbols-outlined text-primary text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>insights</span>
-            <span className="text-lg font-bold tracking-[0.2em] text-primary font-headline uppercase">STOCK_INTEL</span>
+            <span className="material-symbols-outlined text-primary text-xl">insights</span>
+            <span className="text-lg font-bold tracking-[0.2em] text-primary font-headline uppercase">NEURAL ALPHA</span>
           </div>
           <div className="flex flex-wrap justify-center gap-6 mb-8 font-headline text-xs tracking-widest uppercase">
             <Link className="text-on-surface-variant hover:text-primary transition-colors" href="/privacy">Privacy Policy</Link>
             <Link className="text-on-surface-variant hover:text-primary transition-colors" href="/terms">Terms of Service</Link>
             <Link className="text-on-surface-variant hover:text-primary transition-colors" href="/contact">Contact</Link>
           </div>
-          <p className="text-[10px] text-outline uppercase tracking-[0.3em] font-medium">&copy; 2026{currentDomain ? ` ${currentDomain} ` : ' '}STOCK_INTEL AI ANALYSIS. ALL RIGHTS RESERVED.</p>
+          <p className="text-[10px] text-outline uppercase tracking-[0.3em] font-medium">&copy; 2026{currentDomain ? ` ${currentDomain} ` : ' '}NEURAL ALPHA AI ANALYSIS. ALL RIGHTS RESERVED.</p>
         </div>
       </footer>
 
