@@ -10,7 +10,7 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Ethereal Intelligence — Stitch ayuan1 Design System
+        // Ethereal Intelligence — Stitch ayuan2 Design System
         'background': '#0a0e18',
         'on-background': '#e5e7f6',
         'surface': '#0a0e18',
@@ -79,20 +79,20 @@ const config: Config = {
         label: ['Space Grotesk', 'sans-serif'],
       },
       animation: {
-        'marquee': 'marquee 40s linear infinite',
-        'loading-bar': 'loadingProgress 1.5s ease-in-out forwards',
+        'marquee': 'marquee-scroll 40s linear infinite',
+        'loading-bar': 'progress-fill 1.5s ease-in-out forwards',
         'float': 'float 10s ease-in-out infinite',
         'float-delayed': 'float 12s ease-in-out 2s infinite',
         'float-slow': 'float 15s ease-in-out 4s infinite',
         'pulse-glow': 'pulse-glow 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-        'btn-activate': 'btn-activate 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
+        'pop-in': 'pop-in 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
       },
       keyframes: {
-        'marquee': {
+        'marquee-scroll': {
           '0%': { transform: 'translateX(0)' },
           '100%': { transform: 'translateX(-50%)' },
         },
-        'loadingProgress': {
+        'progress-fill': {
           '0%': { width: '0%' },
           '100%': { width: '100%' },
         },
@@ -104,7 +104,7 @@ const config: Config = {
           '0%, 100%': { opacity: '1', filter: 'brightness(1)' },
           '50%': { opacity: '0.8', filter: 'brightness(1.2)' },
         },
-        'btn-activate': {
+        'pop-in': {
           '0%': { opacity: '0.3', transform: 'scale(0.98)' },
           '100%': { opacity: '1', transform: 'scale(1)' },
         },

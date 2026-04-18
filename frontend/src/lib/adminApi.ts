@@ -1,30 +1,16 @@
 /**
- * Admin API Helper Functions
+ * Admin panel API utilities
  */
+import { API_ENDPOINT } from './config'
 
-import { API_BASE } from './config'
-
-export async function apiCall(endpoint: string, options: any = {}) {
+export async function apiCall(endpoint: string, opts: any = {}) {
   const token = typeof window !== 'undefined' ? localStorage.getItem('admin_token') : null
-
-  const headers: any = {
-    'Content-Type': 'application/json',
-    ...options.headers
-  }
-
-  if (token) {
-    headers['Authorization'] = `Bearer ${token}`
-  }
-
-  const url = `${API_BASE}${endpoint}`
+  const hdrs: any = { 'Content-Type': 'application/json', ...opts.headers }
+  if (token) hdrs['Authorization'] = `Bearer ${token}`
 
   try {
-    const response = await fetch(url, {
-      ...options,
-      headers,
-    })
-
-    if (response.status === 401) {
+    const resp = await fetch(`${API_ENDPOINT}${endpoint}`, { ...opts, headers: hdrs })
+    if (resp.status === 401) {
       if (typeof window !== 'undefined') {
         localStorage.removeItem('admin_token')
         localStorage.removeItem('admin_username')
@@ -32,18 +18,14 @@ export async function apiCall(endpoint: string, options: any = {}) {
           window.location.href = '/adsadmin/login?expired=true'
         }
       }
-      throw new Error('Token expired or invalid')
+      throw new Error('Session expired')
     }
-
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({ detail: 'Request failed' }))
-      throw new Error(error.detail || 'Request failed')
+    if (!resp.ok) {
+      const err = await resp.json().catch(() => ({ detail: 'Request failed' }))
+      throw new Error(err.detail || 'Request failed')
     }
-
-    return response.json()
-  } catch (error: any) {
-    throw error
-  }
+    return resp.json()
+  } catch (e: any) { throw e }
 }
 
 export function isAuthenticated(): boolean {
@@ -58,3 +40,7 @@ export function logout() {
     window.location.href = '/adsadmin/login'
   }
 }
+
+export const adminFetch = apiCall
+export const checkAdminAuth = isAuthenticated
+export const clearAdminSession = logout

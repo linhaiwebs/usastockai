@@ -2,12 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ═══════════════════════════════════════════════════════
-   Ethereal Intelligence — Stitch ayuan1 Design System
-   Ethereal AI · Deep Space · Cyan-Purple Glassmorphism
-   ═══════════════════════════════════════════════════════ */
+/* ═════════════════════════════════════════════════════
+   Ethereal Intelligence — Stitch ayuan2 Design System
+   AI Stock Diagnosis · Deep Space · Cyan-Purple Glass
+   ═════════════════════════════════════════════════════ */
 
-/* ── Self-Hosted Fonts ── */
+/* ── Self-Hosted Font Faces ── */
 @font-face {
   font-family: 'Space Grotesk';
   font-style: normal;
@@ -84,32 +84,31 @@ body {
   color: #99f7ff;
 }
 
-/* ── Glass Card (Ethereal) ── */
-.glass-card {
+/* ── Glass Surfaces ── */
+.glass-surface {
   background: rgba(255, 255, 255, 0.05);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-.glass-nav {
+.glass-bar {
   background: rgba(11, 15, 25, 0.6);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
 }
 
-/* ── Ethereal Glow ── */
-.ethereal-glow {
+/* ── Glow Effects ── */
+.deep-glow {
   box-shadow: 0 0 40px rgba(112, 0, 255, 0.15);
 }
 
-/* ── Pulse Indicator ── */
-.pulse-dot {
-  animation: pulse-dot 2s infinite;
+.glow-dot {
+  animation: glow-dot 2s infinite;
 }
 
 /* ── Gradient Text (Cyan→Purple) ── */
-.gradient-text {
+.text-gradient {
   background: linear-gradient(to right, #99f7ff, #ac89ff, #874cff);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -117,28 +116,26 @@ body {
   filter: drop-shadow(0 0 20px rgba(153, 247, 255, 0.3));
 }
 
-/* ── Scrollbar ── */
-.hide-scroll::-webkit-scrollbar { display: none; }
-.hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
+/* ── Scrollbar Hidden ── */
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 ::-webkit-scrollbar { width: 0px; background: transparent; }
 
-/* ── Sticky CTA ── */
-#sticky-cta {
+/* ── Floating CTA (appears after scroll) ── */
+#scroll-cta {
   transform: translateY(100%);
   opacity: 0;
   pointer-events: none;
   transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
 }
-#sticky-cta.visible {
+#scroll-cta.shown {
   transform: translateY(0);
   opacity: 1;
   pointer-events: auto;
 }
 
-/* ── Screen Mask ── */
-.screen-mask {
+/* ── Overlay Mask ── */
+.diag-mask {
   position: fixed;
   inset: 0;
   background: rgba(10, 14, 24, 0.9);
@@ -149,14 +146,14 @@ body {
   transition: opacity 0.5s ease;
   overflow: hidden;
 }
-.screen-mask.active {
+.diag-mask.open {
   opacity: 1;
   pointer-events: auto;
   cursor: default;
 }
 
-/* ── Modal ── */
-.modal-container {
+/* ── Diagnosis Panel ── */
+.diag-panel {
   position: fixed;
   inset: 0;
   z-index: 110;
@@ -169,7 +166,7 @@ body {
   pointer-events: none;
   transition: opacity 0.5s ease;
 }
-.modal-container.active {
+.diag-panel.open {
   opacity: 1;
   pointer-events: auto;
 }
@@ -191,25 +188,13 @@ body {
   font-feature-settings: 'rlig' 1, 'liga' 1 !important;
 }
 
-/* ── Marquee Ticker ── */
-.animate-marquee {
-  display: flex;
-  width: fit-content;
-  animation: marquee 40s linear infinite;
-}
-
-/* ── Loading Bar ── */
-.loading-bar-anim {
-  animation: loadingProgress 1.5s ease-in-out forwards;
-}
-
-/* ── Modal Conversion Button ── */
-#modal-submit-btn.animate-btn-activate {
+/* ── CTA Button Breathing Animation ── */
+#whatsapp-cta.pulse-active {
   position: relative;
   background: #99f7ff !important;
   color: #004145 !important;
   border: none !important;
-  animation: btn-breathe 2.5s ease-in-out infinite, btn-activate 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards !important;
+  animation: breathe 2.5s ease-in-out infinite, pop-in 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards !important;
   filter: grayscale(0) !important;
   opacity: 1 !important;
   overflow: hidden;
@@ -217,17 +202,17 @@ body {
   box-shadow: 0 0 20px rgba(153, 247, 255, 0.3);
 }
 
-#modal-submit-btn.animate-btn-activate::before {
+#whatsapp-cta.pulse-active::before {
   content: '';
   position: absolute;
   inset: -2px;
   border-radius: 14px;
   background: conic-gradient(from 0deg, #99f7ff, #ac89ff, #00f1fe, #99f7ff, #99f7ff);
   z-index: -2;
-  animation: border-spin 3s linear infinite;
+  animation: spin-border 3s linear infinite;
 }
 
-#modal-submit-btn.animate-btn-activate::after {
+#whatsapp-cta.pulse-active::after {
   content: '';
   position: absolute;
   inset: 2px;
@@ -237,7 +222,7 @@ body {
 }
 
 /* ── Animations ── */
-@keyframes btn-breathe {
+@keyframes breathe {
   0%, 100% {
     box-shadow: 0 0 15px rgba(153, 247, 255, 0.3), 0 0 30px rgba(153, 247, 255, 0.1);
     transform: scale(1);
@@ -248,25 +233,15 @@ body {
   }
 }
 
-@keyframes border-spin {
+@keyframes spin-border {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
 
-@keyframes pulse-dot {
+@keyframes glow-dot {
   0% { box-shadow: 0 0 0 0 rgba(153, 247, 255, 0.4); }
   70% { box-shadow: 0 0 0 6px rgba(153, 247, 255, 0); }
   100% { box-shadow: 0 0 0 0 rgba(153, 247, 255, 0); }
-}
-
-@keyframes loadingProgress {
-  0% { width: 0%; }
-  100% { width: 100%; }
-}
-
-@keyframes marquee {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
 }
 
 @keyframes float {
@@ -277,4 +252,19 @@ body {
 @keyframes pulse-glow {
   0%, 100% { opacity: 1; filter: brightness(1); }
   50% { opacity: 0.8; filter: brightness(1.2); }
+}
+
+@keyframes pop-in {
+  0% { opacity: 0.3; transform: scale(0.98); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes marquee-scroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+@keyframes progress-fill {
+  0% { width: 0%; }
+  100% { width: 100%; }
 }

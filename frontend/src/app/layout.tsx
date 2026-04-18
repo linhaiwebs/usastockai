@@ -1,15 +1,13 @@
 import type { Metadata, Viewport } from 'next'
 import './globals.css'
-import GoogleAnalytics from '../components/GoogleAnalytics'
+import GATracker from '../components/GATracker'
 
-const BUILD_VER = process.env.NEXT_BUILD_VER || `b${Date.now()}`
+const VERSION = process.env.NEXT_BUILD_VER || `b${Date.now()}`
 
 export const metadata: Metadata = {
-  title: 'ETHEREAL AI | Stock Diagnosis',
-  description: 'Wall Street-level AI stock diagnostics. Decode hidden patterns and quantify risk before the market reacts.',
-  other: {
-    'x-ver': BUILD_VER,
-  },
+  title: 'AI Stock Diagnosis | Real-Time Market Intelligence',
+  description: 'Advanced AI-powered stock diagnostics. Decode hidden market patterns and quantify risk with institutional-grade analysis.',
+  other: { 'x-ver': VERSION },
 }
 
 export const viewport: Viewport = {
@@ -30,7 +28,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="preload" href="/fonts/manrope-500.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
       </head>
       <body className="min-h-screen selection:bg-primary/30 selection:text-primary antialiased">
-        <GoogleAnalytics />
+        <GATracker />
         {children}
       </body>
     </html>

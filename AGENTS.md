@@ -1,7 +1,7 @@
 # Planet Discovery — USA Stock AI Diagnostic System
 
 ## Project Overview
-AI-powered US stock sentiment analysis platform. Frontend built with Stitch "ayuan1" project theme (Ethereal Intelligence — Ethereal AI Deep Space design system).
+AI-powered US stock sentiment analysis platform. Frontend built with Stitch "ayuan2" project theme (Ethereal Intelligence — Ethereal AI Deep Space design system).
 
 ## Architecture
 - **Frontend**: Next.js 14 (App Router) + TailwindCSS + TypeScript
@@ -14,14 +14,14 @@ AI-powered US stock sentiment analysis platform. Frontend built with Stitch "ayu
 - Background: `#0A0E18` Deep Navy, Surface: `#0A0E18`
 - Fonts: Space Grotesk (headlines + labels), Manrope (body), Material Symbols Outlined (icons)
 - Brand: ETHEREAL AI (uppercase tracking, cyan color)
-- Key CSS: `.gradient-text`, `.glass-card`, `.glass-nav`, `.ethereal-glow`, `.pulse-dot`
+- Key CSS: `.text-gradient`, `.glass-surface`, `.glass-bar`, `.deep-glow`, `.glow-dot`
 - Sections: TopAppBar (font_download + ETHEREAL AI + info) → Trust Badge → Hero (gradient headline + search portal + ⚡ Free AI Diagnosis CTA) → Market Pulse (horizontal scroll cards) → Trending AI Analysis (left-accent cards) → Footer
-- Diagnostic modal: Full-screen glass overlay with AI Diagnosis loading → result state
+- Diagnostic panel: Full-screen glass overlay with AI Diagnosis loading → report state
 - Loading sequence: Progress bar animation (25%→55%→85%→100%) with status text
-- Scroll-triggered FAB (fixed bottom CTA appears after 70% scroll)
+- Scroll-triggered CTA (fixed bottom button appears after 70% scroll)
 - Google Analytics integration via backend API
 - Redirect system `/r/[id]` for WhatsApp CTA
-- CTA text: "Get Free Report via WhatsApp"
+- CTA text: "Get the report for free via WhatsApp"
 - Footer links to /privacy, /terms, /contact (all complete pages)
 - Glassmorphism: bg-white/[0.05] + backdrop-blur-[16px] + ghost borders (white/[0.05])
 - Floating glow orbs: secondary-container/15, primary-container/10, primary/5 (fixed, blurred)
@@ -42,14 +42,15 @@ AI-powered US stock sentiment analysis platform. Frontend built with Stitch "ayu
 - `frontend/src/app/privacy/page.tsx` — Privacy policy page
 - `frontend/src/app/terms/page.tsx` — Terms of service page
 - `frontend/src/app/contact/page.tsx` — Contact page
-- `frontend/src/lib/api.ts` — Backend API client with caching
+- `frontend/src/lib/api.ts` — Backend API client
 - `frontend/src/lib/config.ts` — API base URL configuration
 - `frontend/src/lib/adminApi.ts` — Admin API client
+- `frontend/src/components/GATracker.tsx` — Google Analytics component
 - `backend/app/models.py` — SQLAlchemy models
 - `init.sql` — Database schema
 
 ## Stitch Project Reference
-- **Project**: ayuan1 (ID: 5711603179151818050)
+- **Project**: ayuan2 (ID: 5711603179151818050)
 - **Design System**: Ethereal Intelligence
 - **Theme**: DARK, VIBRANT, customColor #00F2FF
 - **Font**: SPACE_GROTESK (headline + label), MANROPE (body)
