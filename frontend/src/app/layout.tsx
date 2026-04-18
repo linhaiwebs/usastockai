@@ -7,8 +7,8 @@ import GoogleAnalytics from '../components/GoogleAnalytics'
 const BUILD_VER = process.env.NEXT_BUILD_VER || `b${Date.now()}`
 
 export const metadata: Metadata = {
-  title: 'STOCK_INTEL | AI Stock Analysis',
-  description: 'Professional-grade AI stock analysis platform. Real-time streaming analysis, market insights, and actionable verdicts for US stocks.',
+  title: 'NEURAL ALPHA | AI Stock Terminal',
+  description: 'Institutional-grade AI stock diagnostics. Decode whale movements and hidden volatility before the market reacts.',
   other: {
     'x-ver': BUILD_VER,
   },
@@ -18,7 +18,7 @@ export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
   maximumScale: 1,
-  themeColor: '#0e0e0f',
+  themeColor: '#020408',
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -26,7 +26,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className="dark">
       <head>
         <link
-          href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;900&family=Inter:wght@300;400;500;600;700&display=swap"
           rel="stylesheet"
         />
         <link
@@ -34,7 +34,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           rel="stylesheet"
         />
       </head>
-      <body className="min-h-screen selection:bg-primary/30 selection:text-primary antialiased">
+      <body className="min-h-screen selection:bg-primary-container/30 selection:text-primary antialiased">
         <GoogleAnalytics />
         {children}
       </body>

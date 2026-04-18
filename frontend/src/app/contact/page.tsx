@@ -4,20 +4,21 @@ import Link from 'next/link'
 
 export default function ContactPage() {
   return (
-    <div className="min-h-screen bg-background text-on-background font-body">
+    <div className="min-h-screen bg-obsidian text-on-background font-body">
       {/* Navigation */}
-      <header className="fixed top-0 w-full z-50 glass-nav border-b border-outline-variant/10">
+      <header className="fixed top-0 w-full z-50 glass-nav shadow-[0_4px_30px_rgba(0,0,0,0.5)]">
         <div className="flex items-center justify-between px-6 h-16 max-w-7xl mx-auto">
-          <Link href="/" className="flex items-center gap-2">
-            <span className="material-symbols-outlined text-primary" style={{ fontVariationSettings: "'FILL' 1" }}>insights</span>
-            <span className="text-xl font-bold tracking-[0.2em] text-primary font-headline uppercase">STOCK_INTEL</span>
+          <Link href="/" className="flex items-center gap-3">
+            <span className="material-symbols-outlined text-[#00FFA3] text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>analytics</span>
+            <span className="font-headline tracking-[-0.02em] uppercase text-xl font-black text-[#00FFA3] drop-shadow-[0_0_8px_rgba(0,255,163,0.4)]">NEURAL ALPHA</span>
           </Link>
         </div>
+        <div className="bg-gradient-to-r from-transparent via-outline-variant/20 to-transparent h-[1px] bottom-0 absolute w-full"></div>
       </header>
 
-      <main className="pt-24 pb-20 px-6">
+      <main className="pt-28 pb-20 px-6">
         <div className="max-w-3xl mx-auto">
-          <h1 className="font-headline text-4xl md:text-5xl font-bold text-on-surface mb-4 text-glow uppercase">Contact Us</h1>
+          <h1 className="font-headline text-4xl md:text-5xl font-bold text-on-surface mb-4 liquid-silver-gradient uppercase">Contact Us</h1>
           <p className="text-on-surface-variant text-sm mb-12 font-headline tracking-widest uppercase">GET IN TOUCH</p>
 
           <div className="space-y-8">
@@ -57,7 +58,7 @@ export default function ContactPage() {
               </div>
               <p className="text-on-surface-variant leading-relaxed text-sm">
                 For partnership inquiries, technical support, or other detailed questions, please email us at{' '}
-                <a href="mailto:support@stockintel.ai" className="text-primary hover:underline">support@stockintel.ai</a>.
+                <a href="mailto:support@stockintel.ai" className="text-primary-container hover:underline">support@stockintel.ai</a>.
               </p>
             </section>
 
@@ -73,8 +74,8 @@ export default function ContactPage() {
               </div>
               <div className="space-y-4 text-sm">
                 <div>
-                  <p className="font-headline font-bold text-on-surface mb-1">Is STOCK_INTEL a financial advisor?</p>
-                  <p className="text-on-surface-variant leading-relaxed">No. STOCK_INTEL provides AI-generated analysis for informational purposes only. It is not a substitute for professional financial advice.</p>
+                  <p className="font-headline font-bold text-on-surface mb-1">Is NEURAL ALPHA a financial advisor?</p>
+                  <p className="text-on-surface-variant leading-relaxed">No. NEURAL ALPHA provides AI-generated analysis for informational purposes only. It is not a substitute for professional financial advice.</p>
                 </div>
                 <div className="border-t border-outline-variant/10 pt-4">
                   <p className="font-headline font-bold text-on-surface mb-1">How accurate is the AI stock analysis?</p>
@@ -82,15 +83,15 @@ export default function ContactPage() {
                 </div>
                 <div className="border-t border-outline-variant/10 pt-4">
                   <p className="font-headline font-bold text-on-surface mb-1">Is my data secure?</p>
-                  <p className="text-on-surface-variant leading-relaxed">Yes. We use industry-standard encryption and security practices. See our <Link href="/privacy" className="text-primary hover:underline">Privacy Policy</Link> for details.</p>
+                  <p className="text-on-surface-variant leading-relaxed">Yes. We use industry-standard encryption and security practices. See our <Link href="/privacy" className="text-primary-container hover:underline">Privacy Policy</Link> for details.</p>
                 </div>
               </div>
             </section>
           </div>
 
           <div className="mt-16 pt-8 border-t border-outline-variant/10">
-            <Link href="/" className="text-primary font-headline font-bold uppercase tracking-widest hover:opacity-80 transition-opacity">
-              ← Back to STOCK_INTEL
+            <Link href="/" className="text-primary-container font-headline font-bold uppercase tracking-widest hover:opacity-80 transition-opacity">
+              ← Back to NEURAL ALPHA
             </Link>
           </div>
         </div>

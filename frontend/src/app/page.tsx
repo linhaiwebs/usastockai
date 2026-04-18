@@ -24,6 +24,11 @@ export default function HomePage() {
   )
 }
 
+/* ══════════════════════════════════════════════════════════════
+   Neural Alpha Terminal — ayuan2 Stitch Design
+   All business logic preserved from original implementation
+   ══════════════════════════════════════════════════════════════ */
+
 function HomeContent() {
   const isAnalyzingRef = useRef(false)
   const searchParams = useSearchParams()

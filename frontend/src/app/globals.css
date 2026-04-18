@@ -3,37 +3,67 @@
 @tailwind utilities;
 
 /* ═══════════════════════════════════════════════════════
-   The Obsidian Ledger — Stitch Design System
-   Neon Cyber-Editorial Dark Theme
+   Terminal Sovereign — Stitch ayuan2 Design System
+   Neural Alpha Cyber-Terminal Dark Theme
    ═══════════════════════════════════════════════════════ */
 
 body {
-  background-color: #0e0e0f;
-  color: #ffffff;
+  background-color: #020408;
+  color: #e0e2eb;
   font-family: 'Inter', sans-serif;
   overflow-x: hidden;
 }
 
 ::selection {
-  background-color: rgba(161, 250, 255, 0.3);
-  color: #a1faff;
+  background-color: rgba(0, 255, 163, 0.3);
+  color: #00ffa3;
+}
+
+/* ── Liquid Silver Gradient Text ── */
+.liquid-silver-gradient {
+  background: linear-gradient(135deg, #e0e2eb 0%, #b9cbbd 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── CTA Gradient Button ── */
+.cta-gradient {
+  background: linear-gradient(135deg, #00e290 0%, #00ffa3 100%);
 }
 
 /* ── Glass & Surface Effects ── */
 .glass-card {
-  background: rgba(38, 38, 39, 0.4);
+  background: rgba(49, 53, 60, 0.4);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
 }
 
 .glass-nav {
-  background: rgba(14, 14, 15, 0.8);
+  background: rgba(2, 4, 8, 0.8);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
 }
 
+.glass-panel {
+  background: rgba(49, 53, 60, 0.4);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+/* ── Neural Glow Effect ── */
+.neural-glow {
+  box-shadow: 0 0 40px rgba(119, 1, 208, 0.15);
+}
+
+/* ── Pulse Dot ── */
+.pulse-dot {
+  animation: pulse-dot 2s infinite;
+}
+
+/* ── Text Glow ── */
 .text-glow {
-  text-shadow: 0 0 15px rgba(161, 250, 255, 0.6);
+  text-shadow: 0 0 15px rgba(0, 255, 163, 0.6);
 }
 
 /* ── Scrollbar ── */
@@ -58,7 +88,7 @@ body {
 .screen-mask {
   position: fixed;
   inset: 0;
-  background: rgba(14, 14, 15, 0.9);
+  background: rgba(2, 4, 8, 0.9);
   backdrop-filter: blur(24px);
   z-index: 90;
   opacity: 0;
@@ -126,15 +156,15 @@ body {
 /* ── Modal Conversion Button Effects ── */
 #modal-submit-btn.animate-btn-activate {
   position: relative;
-  background: #a1faff !important;
-  color: #004346 !important;
+  background: #00ffa3 !important;
+  color: #002111 !important;
   border: none !important;
   animation: btn-breathe 2.5s ease-in-out infinite, btn-activate 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards !important;
   filter: grayscale(0) !important;
   opacity: 1 !important;
   overflow: hidden;
   z-index: 1;
-  box-shadow: 0 0 20px rgba(161, 250, 255, 0.3);
+  box-shadow: 0 0 20px rgba(0, 255, 163, 0.3);
 }
 
 /* Gradient border effect */
@@ -145,11 +175,11 @@ body {
   border-radius: 1rem;
   background: conic-gradient(
     from 0deg,
-    #a1faff,
-    #c3f400,
-    #9cff93,
-    #a1faff,
-    #a1faff
+    #00ffa3,
+    #dcb8ff,
+    #00e290,
+    #00ffa3,
+    #00ffa3
   );
   z-index: -2;
   animation: border-spin 3s linear infinite;
@@ -160,17 +190,17 @@ body {
   position: absolute;
   inset: 2px;
   border-radius: 1rem;
-  background: #a1faff;
+  background: #00ffa3;
   z-index: -1;
 }
 
 @keyframes btn-breathe {
   0%, 100% {
-    box-shadow: 0 0 15px rgba(161, 250, 255, 0.3), 0 0 30px rgba(161, 250, 255, 0.1);
+    box-shadow: 0 0 15px rgba(0, 255, 163, 0.3), 0 0 30px rgba(0, 255, 163, 0.1);
     transform: scale(1);
   }
   50% {
-    box-shadow: 0 0 25px rgba(161, 250, 255, 0.5), 0 0 50px rgba(161, 250, 255, 0.2), 0 0 80px rgba(195, 244, 0, 0.1);
+    box-shadow: 0 0 25px rgba(0, 255, 163, 0.5), 0 0 50px rgba(0, 255, 163, 0.2), 0 0 80px rgba(119, 1, 208, 0.1);
     transform: scale(1.02);
   }
 }
@@ -178,6 +208,12 @@ body {
 @keyframes border-spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
+}
+
+@keyframes pulse-dot {
+  0% { box-shadow: 0 0 0 0 rgba(0, 255, 163, 0.4); }
+  70% { box-shadow: 0 0 0 6px rgba(0, 255, 163, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(0, 255, 163, 0); }
 }
 
 @keyframes loadingProgress {
