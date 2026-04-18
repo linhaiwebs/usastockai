@@ -1,39 +1,41 @@
 # Planet Discovery — USA Stock AI Diagnostic System
 
 ## Project Overview
-AI-powered US stock sentiment analysis platform. Frontend built with Stitch "ayuan2" project theme (Terminal Sovereign — Neural Alpha Cyber-Terminal design system).
+AI-powered US stock sentiment analysis platform. Frontend built with Stitch "ayuan1" project theme (Ethereal Intelligence — Ethereal AI Deep Space design system).
 
 ## Architecture
 - **Frontend**: Next.js 14 (App Router) + TailwindCSS + TypeScript
 - **Backend**: FastAPI (Python) + SQLAlchemy + MySQL
 - **AI Model**: Qwen2.5-7B-Instruct (via vLLM)
-- **Design System**: Terminal Sovereign Dark Theme (#00ffa3 primary/mint, #7701d0 secondary/violet, #bc2b00 tertiary/alert, #020408 obsidian background)
+- **Design System**: Ethereal Intelligence Dark Theme (#99f7ff primary/cyan, #ac89ff secondary/purple, #d674ff tertiary/magenta, #0a0e18 deep navy background)
 
-## Frontend Design — Terminal Sovereign (Neural Alpha)
-- Dark mode with `#00FFA3` Mint Green accent, `#7701D0` Neural Violet secondary, `#BC2B00` Alert Red tertiary
-- Background: `#020408` Deep Obsidian, Surface: `#101419`
-- Fonts: Space Grotesk (headlines + labels), Inter (body), Material Symbols Outlined (icons)
-- Brand: NEURAL ALPHA (uppercase tracking)
-- Key CSS: `.liquid-silver-gradient`, `.cta-gradient`, `.glass-panel`, `.neural-glow`, `.pulse-dot`
-- Sections: TopAppBar (analytics icon + NEURAL ALPHA + LIVE DATA pulse) → Hero (liquid-silver headline + terminal search + RUN AI DIAGNOSIS CTA) → StockData → TrendingAlphaPulse (4-card grid) → BentoGrid → CTA → Footer
-- Diagnostic modal: Full-screen glass overlay with Neural Scan loading → Alpha Reveal result
+## Frontend Design — Ethereal Intelligence (Ethereal AI)
+- Dark mode with `#99F7FF` Electric Cyan accent, `#AC89FF` Ethereal Purple secondary, `#D674FF` Nebula Magenta tertiary
+- Background: `#0A0E18` Deep Navy, Surface: `#0A0E18`
+- Fonts: Space Grotesk (headlines + labels), Manrope (body), Material Symbols Outlined (icons)
+- Brand: ETHEREAL AI (uppercase tracking, cyan color)
+- Key CSS: `.gradient-text`, `.glass-card`, `.glass-nav`, `.ethereal-glow`, `.pulse-dot`
+- Sections: TopAppBar (font_download + ETHEREAL AI + info) → Trust Badge → Hero (gradient headline + search portal + ⚡ Free AI Diagnosis CTA) → Market Pulse (horizontal scroll cards) → Trending AI Analysis (left-accent cards) → Footer
+- Diagnostic modal: Full-screen glass overlay with AI Diagnosis loading → result state
 - Loading sequence: Progress bar animation (25%→55%→85%→100%) with status text
 - Scroll-triggered FAB (fixed bottom CTA appears after 70% scroll)
 - Google Analytics integration via backend API
 - Redirect system `/r/[id]` for WhatsApp CTA
+- CTA text: "Get Free Report via WhatsApp"
 - Footer links to /privacy, /terms, /contact (all complete pages)
+- Glassmorphism: bg-white/[0.05] + backdrop-blur-[16px] + ghost borders (white/[0.05])
+- Floating glow orbs: secondary-container/15, primary-container/10, primary/5 (fixed, blurred)
+- Decorative glass cards: animate-float, float-delayed, float-slow
 
 ## Font Performance Optimization
-- **Self-hosted woff2 fonts** — no Google CDN dependency (eliminates 3 DNS+TLS+HTTP round trips)
-- **Font files**: `frontend/public/fonts/` (8 woff2 files, ~735KB total)
+- **Self-hosted woff2 fonts** — no Google CDN dependency
+- **Font files**: `frontend/public/fonts/` (9 woff2 files)
   - Space Grotesk: 4 weights (400/500/600/700), ~105KB
-  - Inter: 3 weights (400/500/600), ~325KB
+  - Manrope: 4 weights (300/400/500/600), ~119KB
   - Material Symbols Outlined: 1 weight (400), ~309KB
-- **Preload hints** in `layout.tsx <head>` for critical fonts (same-origin, instant availability)
-- **@font-face declarations** in `globals.css` with font-display: swap (text) / block (icons)
+- **Preload hints** in `layout.tsx <head>` for critical fonts
+- **@font-face declarations** in `globals.css` with font-display: swap/block
 - **font-feature-settings**: 'rlig' 1, 'liga' 1 on `.material-symbols-outlined` for icon ligatures
-- **Static font** — FILL axis not supported (outlined icons only; removed fontVariationSettings FILL 1)
-- **@fontsource packages removed** — replaced by self-hosted woff2 files
 
 ## Key Files
 - `frontend/src/app/page.tsx` — Main landing page
@@ -47,10 +49,10 @@ AI-powered US stock sentiment analysis platform. Frontend built with Stitch "ayu
 - `init.sql` — Database schema
 
 ## Stitch Project Reference
-- **Project**: ayuan2 (ID: 1673477709255042816)
-- **Design System**: Terminal Sovereign
-- **Theme**: DARK, FIDELITY, customColor #00FFA3
-- **Font**: SPACE_GROTESK (headline + label), INTER (body)
+- **Project**: ayuan1 (ID: 5711603179151818050)
+- **Design System**: Ethereal Intelligence
+- **Theme**: DARK, VIBRANT, customColor #00F2FF
+- **Font**: SPACE_GROTESK (headline + label), MANROPE (body)
 - **API Key**: Set `STITCH_API_KEY` env var for Stitch CLI access
 
 ## Commands
