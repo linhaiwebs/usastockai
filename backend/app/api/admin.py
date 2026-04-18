@@ -13,6 +13,7 @@ from ..models.google_analytics import GoogleAnalytics
 from ..models.ai_setting import AISetting
 from ..core.database import get_db
 from ..core.redis import get_redis
+from ..services.ai_service import invalidate_settings_cache
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 import redis.asyncio as redis
@@ -455,6 +456,9 @@ async def update_ai_setting(
 
     # Invalidate Redis cache so next request loads fresh data
     await redis_client.delete(AI_SETTINGS_CACHE_KEY)
+
+    # Invalidate in-memory cache in ai_service so SSE streams pick up new value immediately
+    invalidate_settings_cache()
 
     return {
         "id": setting.id,
