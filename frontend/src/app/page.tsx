@@ -313,7 +313,7 @@ function LandingContent() {
 
       <main>
         {/* ── Hero Section ── */}
-        <section className="relative pt-10 pb-10 md:pb-16 overflow-hidden">
+        <section className="relative pt-10 pb-10 md:pb-16">
           <div className="max-w-7xl mx-auto px-6 relative z-10">
             <div className="flex flex-col items-center text-center max-w-4xl mx-auto">
               <span className="bg-tertiary-fixed/20 text-on-tertiary-fixed-variant px-3 py-0.5 rounded-full text-[10px] font-bold tracking-widest mb-4 uppercase">AI-Powered Alpha</span>
@@ -323,57 +323,59 @@ function LandingContent() {
               <p className="text-base md:text-lg text-on-surface-variant mb-8 max-w-2xl font-body">
                 Bypass the noise. Our proprietary AI scans thousands of data points to deliver institutional-grade analysis in seconds.
               </p>
-              <div className="w-full max-w-xl bg-surface-container-lowest p-1.5 rounded-full shadow-xl flex items-center gap-2 border border-outline-variant/10 search-box">
-                <div className="flex-1 px-4">
-                  <input
-                    className="w-full bg-transparent border-none focus:ring-0 text-base font-medium text-primary placeholder:text-outline-variant outline-none font-body"
-                    placeholder={diagnosticHint || 'Enter Stock Ticker (e.g. AAPL, NVDA)'}
-                    type="text"
-                    value={searchTerm}
-                    onChange={e => onSearchInput(e.target.value)}
-                    onFocus={() => { if (searchItems.length > 0) setSearchOpen(true) }}
-                  />
+              <div className="w-full max-w-xl relative search-box">
+                <div className="bg-surface-container-lowest p-1.5 rounded-full shadow-xl flex items-center gap-2 border border-outline-variant/10">
+                  <div className="flex-1 px-4">
+                    <input
+                      className="w-full bg-transparent border-none focus:ring-0 text-base font-medium text-primary placeholder:text-outline-variant outline-none font-body"
+                      placeholder={diagnosticHint || 'Enter Stock Ticker (e.g. AAPL, NVDA)'}
+                      type="text"
+                      value={searchTerm}
+                      onChange={e => onSearchInput(e.target.value)}
+                      onFocus={() => { if (searchItems.length > 0) setSearchOpen(true) }}
+                    />
+                  </div>
+                  <button className="bg-primary text-on-primary px-6 py-3 rounded-full font-bold text-base hover:bg-primary-container transition-all active:scale-95" onClick={() => triggerDiagnosis()}>
+                    Analyze
+                  </button>
                 </div>
-                <button className="bg-primary text-on-primary px-6 py-3 rounded-full font-bold text-base hover:bg-primary-container transition-all active:scale-95" onClick={() => triggerDiagnosis()}>
-                  Analyze
-                </button>
+                {searchOpen && (
+                  <div className="absolute top-full left-0 right-0 mt-2 bg-surface-container-lowest border border-outline-variant/10 rounded-xl overflow-hidden shadow-xl z-[60]">
+                    {searchItems.length > 0 ? (
+                      <>
+                        {searchItems.map(item => (
+                          <button key={item.symbol} className="w-full px-4 py-3 flex items-center justify-between hover:bg-surface-container-low transition-colors text-left" onClick={() => { setSearchTerm(item.symbol); setSearchOpen(false); triggerDiagnosis(item.symbol) }}>
+                            <div className="flex flex-col">
+                              <span className="font-headline font-bold text-primary text-sm">{item.symbol}</span>
+                              <span className="font-body text-on-surface-variant text-[10px]">{item.name}</span>
+                            </div>
+                            <span className="font-label text-[10px] text-secondary border border-outline-variant/20 rounded-full px-2 py-0.5">{item.type}</span>
+                          </button>
+                        ))}
+                        {searchTotal > 5 && (
+                          <div className="flex items-center justify-between px-4 py-3 border-t border-outline-variant/10">
+                            <span className="text-[10px] text-on-surface-variant">{(searchPage - 1) * 5 + 1}–{Math.min(searchPage * 5, searchTotal)} of {searchTotal}</span>
+                            <div className="flex gap-2">
+                              <button className="px-3 py-1 rounded-full text-[10px] font-medium bg-surface-container-high text-on-surface-variant hover:bg-primary/10 hover:text-primary transition-all disabled:opacity-30" disabled={searchPage <= 1} onClick={() => onSearchPage(searchPage - 1)}>Prev</button>
+                              <button className="px-3 py-1 rounded-full text-[10px] font-medium bg-surface-container-high text-on-surface-variant hover:bg-primary/10 hover:text-primary transition-all disabled:opacity-30" disabled={searchPage * 5 >= searchTotal} onClick={() => onSearchPage(searchPage + 1)}>Next</button>
+                            </div>
+                          </div>
+                        )}
+                      </>
+                    ) : searchBusy ? (
+                      <div className="px-4 py-6 flex items-center justify-center gap-2">
+                        <div className="w-4 h-4 border-2 border-surface-container-high border-t-tertiary-fixed rounded-full animate-spin"></div>
+                        <span className="text-xs text-on-surface-variant">Searching...</span>
+                      </div>
+                    ) : (
+                      <div className="px-4 py-6 text-center">
+                        <span className="material-symbols-outlined text-on-surface-variant/40 text-2xl block mb-1">search_off</span>
+                        <p className="text-xs text-on-surface-variant">No results for &quot;{searchTerm}&quot;</p>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
-              {searchOpen && (
-                <div className="absolute top-full mt-2 w-full max-w-xl bg-surface-container-lowest border border-outline-variant/10 rounded-xl overflow-hidden shadow-xl z-50">
-                  {searchItems.length > 0 ? (
-                    <>
-                      {searchItems.map(item => (
-                        <button key={item.symbol} className="w-full px-4 py-3 flex items-center justify-between hover:bg-surface-container-low transition-colors text-left" onClick={() => { setSearchTerm(item.symbol); setSearchOpen(false); triggerDiagnosis(item.symbol) }}>
-                          <div className="flex flex-col">
-                            <span className="font-headline font-bold text-primary text-sm">{item.symbol}</span>
-                            <span className="font-body text-on-surface-variant text-[10px]">{item.name}</span>
-                          </div>
-                          <span className="font-label text-[10px] text-secondary border border-outline-variant/20 rounded-full px-2 py-0.5">{item.type}</span>
-                        </button>
-                      ))}
-                      {searchTotal > 5 && (
-                        <div className="flex items-center justify-between px-4 py-3 border-t border-outline-variant/10">
-                          <span className="text-[10px] text-on-surface-variant">{(searchPage - 1) * 5 + 1}–{Math.min(searchPage * 5, searchTotal)} of {searchTotal}</span>
-                          <div className="flex gap-2">
-                            <button className="px-3 py-1 rounded-full text-[10px] font-medium bg-surface-container-high text-on-surface-variant hover:bg-primary/10 hover:text-primary transition-all disabled:opacity-30" disabled={searchPage <= 1} onClick={() => onSearchPage(searchPage - 1)}>Prev</button>
-                            <button className="px-3 py-1 rounded-full text-[10px] font-medium bg-surface-container-high text-on-surface-variant hover:bg-primary/10 hover:text-primary transition-all disabled:opacity-30" disabled={searchPage * 5 >= searchTotal} onClick={() => onSearchPage(searchPage + 1)}>Next</button>
-                          </div>
-                        </div>
-                      )}
-                    </>
-                  ) : searchBusy ? (
-                    <div className="px-4 py-6 flex items-center justify-center gap-2">
-                      <div className="w-4 h-4 border-2 border-surface-container-high border-t-tertiary-fixed rounded-full animate-spin"></div>
-                      <span className="text-xs text-on-surface-variant">Searching...</span>
-                    </div>
-                  ) : (
-                    <div className="px-4 py-6 text-center">
-                      <span className="material-symbols-outlined text-on-surface-variant/40 text-2xl block mb-1">search_off</span>
-                      <p className="text-xs text-on-surface-variant">No results for &quot;{searchTerm}&quot;</p>
-                    </div>
-                  )}
-                </div>
-              )}
               <div className="mt-6 flex flex-wrap justify-center items-center gap-3">
                 <span className="text-xs font-semibold text-outline">Trending:</span>
                 {(hotFetching || hotList.length === 0 ? ['AAPL', 'TSLA', 'NVDA', 'MSFT', 'AMZN'] : hotList.slice(0, 5).map(s => s.symbol)).map(sym => (
