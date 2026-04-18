@@ -27,9 +27,9 @@ export default function MarketDataPage() {
   }, [])
 
   return (
-    <div className="min-h-screen bg-[#070d1f] cosmic-gradient">
+    <div className="min-h-screen bg-background">
       {/* Nav */}
-      <nav className="fixed top-0 inset-x-0 z-50 bg-[#070d1f]/80 backdrop-blur-lg border-b border-[#41475b]/30">
+      <nav className="fixed top-0 inset-x-0 z-50 glass-nav backdrop-blur-lg border-b border-white/[0.05]">
         <div className="max-w-screen-xl mx-auto px-6 py-4 flex items-center justify-between">
           <Link href="/" className="text-lg font-bold text-[#99f7ff] font-headline tracking-tighter">STOCK AI</Link>
           <Link href="/" className="text-xs text-[#a5aac2] hover:text-[#99f7ff] uppercase tracking-widest transition-colors">← Back Home</Link>
@@ -54,8 +54,8 @@ export default function MarketDataPage() {
             { icon: 'search', title: 'Symbol Search', desc: 'Autocomplete stock search with symbol, name, type, and exchange information for quick navigation.' },
             { icon: 'local_fire_department', title: 'Hot Stocks', desc: 'Top 10 trending US equities including SPY, QQQ, AAPL, MSFT, TSLA, NVDA, AMZN, GOOGL, META, AMD.' },
           ].map((item) => (
-            <div key={item.title} className="glass-panel rounded-2xl border border-[#41475b]/30 p-6">
-              <div className="w-10 h-10 rounded-xl bg-[#99f7ff]/10 flex items-center justify-center mb-4">
+            <div key={item.title} className="glass-panel rounded-2xl border border-white/[0.05] p-6">
+              <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center mb-4">
                 <span className="material-symbols-outlined text-[#99f7ff] text-xl">{item.icon}</span>
               </div>
               <h3 className="text-sm font-headline font-bold text-white uppercase tracking-wider mb-2">{item.title}</h3>
@@ -72,10 +72,10 @@ export default function MarketDataPage() {
               <div className="w-6 h-6 border-2 border-[#99f7ff]/30 border-t-[#99f7ff] rounded-full animate-spin"></div>
             </div>
           ) : hotStocks.length > 0 ? (
-            <div className="glass-panel rounded-2xl border border-[#41475b]/30 overflow-hidden">
+            <div className="glass-panel rounded-2xl border border-white/[0.05] overflow-hidden">
               <table className="w-full">
                 <thead>
-                  <tr className="border-b border-[#41475b]/30">
+                  <tr className="border-b border-white/[0.05]">
                     <th className="text-left px-5 py-3 text-[9px] text-[#a5aac2] uppercase tracking-widest font-bold">Symbol</th>
                     <th className="text-left px-5 py-3 text-[9px] text-[#a5aac2] uppercase tracking-widest font-bold">Name</th>
                     <th className="text-right px-5 py-3 text-[9px] text-[#a5aac2] uppercase tracking-widest font-bold">Price</th>
@@ -86,7 +86,7 @@ export default function MarketDataPage() {
                 </thead>
                 <tbody>
                   {hotStocks.map((stock) => (
-                    <tr key={stock.symbol} className="border-b border-[#41475b]/10 hover:bg-[#99f7ff]/5 transition-colors">
+                    <tr key={stock.symbol} className="border-b border-[#41475b]/10 hover:bg-primary/5 transition-colors">
                       <td className="px-5 py-3 text-sm font-headline font-bold text-white">{stock.symbol}</td>
                       <td className="px-5 py-3 text-xs text-[#a5aac2]">{stock.name}</td>
                       <td className="px-5 py-3 text-sm font-headline font-bold text-white text-right">${formatPrice(stock.price)}</td>
@@ -94,7 +94,7 @@ export default function MarketDataPage() {
                         {stock.change >= 0 ? '+' : ''}{formatPrice(stock.change)}
                       </td>
                       <td className="px-5 py-3 text-right">
-                        <span className={`text-[10px] px-2 py-0.5 rounded-md font-bold ${stock.change_percent >= 0 ? 'bg-[#99f7ff]/10 text-[#99f7ff]' : 'bg-[#ff6b6b]/10 text-[#ff6b6b]'}`}>
+                        <span className={`text-[10px] px-2 py-0.5 rounded-md font-bold ${stock.change_percent >= 0 ? 'bg-primary/10 text-[#99f7ff]' : 'bg-[#ff6b6b]/10 text-[#ff6b6b]'}`}>
                           {stock.change_percent >= 0 ? '▲' : '▼'} {Math.abs(stock.change_percent).toFixed(2)}%
                         </span>
                       </td>
@@ -105,7 +105,7 @@ export default function MarketDataPage() {
               </table>
             </div>
           ) : (
-            <div className="glass-panel rounded-2xl border border-[#41475b]/30 p-12 text-center">
+            <div className="glass-panel rounded-2xl border border-white/[0.05] p-12 text-center">
               <p className="text-[#a5aac2] text-sm">Market data temporarily unavailable. Please try again later.</p>
             </div>
           )}
@@ -120,8 +120,8 @@ export default function MarketDataPage() {
               { method: 'GET', path: '/api/stocks/hot', desc: 'Get top 10 hot stocks with live data' },
               { method: 'GET', path: '/api/search?q=...', desc: 'Search stocks by symbol or company name' },
             ].map((ep) => (
-              <div key={ep.path} className="glass-panel rounded-xl border border-[#41475b]/30 p-4 flex items-center gap-4">
-                <span className="text-[9px] px-2 py-1 rounded bg-[#99f7ff]/10 text-[#99f7ff] font-bold uppercase tracking-wider shrink-0">{ep.method}</span>
+              <div key={ep.path} className="glass-panel rounded-xl border border-white/[0.05] p-4 flex items-center gap-4">
+                <span className="text-[9px] px-2 py-1 rounded bg-primary/10 text-[#99f7ff] font-bold uppercase tracking-wider shrink-0">{ep.method}</span>
                 <code className="text-xs text-white font-mono shrink-0">{ep.path}</code>
                 <span className="text-[#a5aac2] text-xs ml-auto">{ep.desc}</span>
               </div>
@@ -129,7 +129,7 @@ export default function MarketDataPage() {
           </div>
         </div>
 
-        <Link href="/" className="inline-flex items-center gap-2 px-6 py-3 bg-[#99f7ff] text-[#070d1f] font-headline font-bold rounded-full text-sm uppercase tracking-wider hover:opacity-90 transition-opacity">
+        <Link href="/" className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-on-primary-fixed font-headline font-bold rounded-full text-sm uppercase tracking-wider hover:opacity-90 transition-opacity">
           <span className="material-symbols-outlined text-base">bolt</span>
           Start Diagnosis
         </Link>
