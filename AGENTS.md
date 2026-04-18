@@ -1,21 +1,21 @@
 # Planet Discovery — USA Stock AI Diagnostic System
 
 ## Project Overview
-AI-powered US stock sentiment analysis platform. Frontend built with Stitch "ayuan2" project theme (Ethereal Intelligence — Ethereal AI Deep Space design system).
+AI-powered US stock sentiment analysis platform. Frontend built with Stitch "huihui2" project theme (Luminescent Ledger — Indigo-Purple Dark design system).
 
 ## Architecture
 - **Frontend**: Next.js 14 (App Router) + TailwindCSS + TypeScript
 - **Backend**: FastAPI (Python) + SQLAlchemy + MySQL
 - **AI Model**: Qwen2.5-7B-Instruct (via vLLM)
-- **Design System**: Ethereal Intelligence Dark Theme (#99f7ff primary/cyan, #ac89ff secondary/purple, #d674ff tertiary/magenta, #0a0e18 deep navy background)
+- **Design System**: Luminescent Ledger Dark Theme (#a3a6ff primary/indigo, #c180ff secondary/purple, #ffa5d9 tertiary/pink, #0b0e14 deep navy background)
 
-## Frontend Design — Ethereal Intelligence (Ethereal AI)
-- Dark mode with `#99F7FF` Electric Cyan accent, `#AC89FF` Ethereal Purple secondary, `#D674FF` Nebula Magenta tertiary
-- Background: `#0A0E18` Deep Navy, Surface: `#0A0E18`
-- Fonts: Space Grotesk (headlines + labels), Manrope (body), Material Symbols Outlined (icons)
-- Brand: ETHEREAL AI (uppercase tracking, cyan color)
-- Key CSS: `.text-gradient`, `.glass-surface`, `.glass-bar`, `.deep-glow`, `.glow-dot`
-- Sections: TopAppBar (font_download + ETHEREAL AI + info) → Trust Badge → Hero (gradient headline + search portal + ⚡ Free AI Diagnosis CTA) → Market Pulse (horizontal scroll cards) → Trending AI Analysis (left-accent cards) → Footer
+## Frontend Design — Luminescent Ledger (huihui2)
+- Dark mode with `#A3A6FF` Lavender Indigo accent, `#C180FF` Ethereal Purple secondary, `#FFA5D9` Nebula Pink tertiary
+- Background: `#0B0E14` Deep Navy, Surface: `#0B0E14`
+- Fonts: Inter (headlines, body, labels), Material Symbols Outlined (icons)
+- Brand: Luminescent Ledger (gradient from primary-dim to secondary)
+- Key CSS: `.text-gradient`, `.glass-surface`, `.glass-bar`
+- Sections: TopAppBar (avatar + Luminescent Ledger + notifications) → Hero (gradient headline + search portal + Start AI Diagnosis CTA) → Hot Stocks (2x2 grid) → Data Sources (pills) → Core Features (2x2 cards) → Bottom CTA → Footer
 - Diagnostic panel: Full-screen glass overlay with AI Diagnosis loading → report state
 - Loading sequence: Progress bar animation (25%→55%→85%→100%) with status text
 - Scroll-triggered CTA (fixed bottom button appears after 70% scroll)
@@ -23,15 +23,12 @@ AI-powered US stock sentiment analysis platform. Frontend built with Stitch "ayu
 - Redirect system `/r/[id]` for WhatsApp CTA
 - CTA text: "Get the report for free via WhatsApp"
 - Footer links to /privacy, /terms, /contact (all complete pages)
-- Glassmorphism: bg-white/[0.05] + backdrop-blur-[16px] + ghost borders (white/[0.05])
-- Floating glow orbs: secondary-container/15, primary-container/10, primary/5 (fixed, blurred)
-- Decorative glass cards: animate-float, float-delayed, float-slow
+- Glassmorphism: bg-surface-container/80 + backdrop-blur-[16px] + ghost borders (outline-variant/15)
 
 ## Font Performance Optimization
 - **Self-hosted woff2 fonts** — no Google CDN dependency
-- **Font files**: `frontend/public/fonts/` (9 woff2 files)
-  - Space Grotesk: 4 weights (400/500/600/700), ~105KB
-  - Manrope: 4 weights (300/400/500/600), ~119KB
+- **Font files**: `frontend/public/fonts/` (6 woff2 files)
+  - Inter: 5 weights (400/500/600/700/800)
   - Material Symbols Outlined: 1 weight (400), ~309KB
 - **Preload hints** in `layout.tsx <head>` for critical fonts
 - **@font-face declarations** in `globals.css` with font-display: swap/block
@@ -50,10 +47,10 @@ AI-powered US stock sentiment analysis platform. Frontend built with Stitch "ayu
 - `init.sql` — Database schema
 
 ## Stitch Project Reference
-- **Project**: ayuan2 (ID: 5711603179151818050)
-- **Design System**: Ethereal Intelligence
-- **Theme**: DARK, VIBRANT, customColor #00F2FF
-- **Font**: SPACE_GROTESK (headline + label), MANROPE (body)
+- **Project**: huihui2 (ID: 766944256798124710)
+- **Design System**: Luminescent Ledger
+- **Theme**: DARK, customColor #0d7cf2
+- **Font**: INTER (headline, body, label)
 - **API Key**: Set `STITCH_API_KEY` env var for Stitch CLI access
 
 ## Commands
