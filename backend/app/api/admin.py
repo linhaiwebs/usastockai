@@ -456,6 +456,11 @@ async def update_ai_setting(
     # Invalidate Redis cache so next request loads fresh data
     await redis_client.delete(AI_SETTINGS_CACHE_KEY)
 
+    # Invalidate in-memory settings cache in ai_service so SSE streams
+    # pick up the new value immediately (e.g. diagnostic_placeholder_text)
+    from ..services.ai_service import invalidate_settings_cache
+    invalidate_settings_cache()
+
     return {
         "id": setting.id,
         "key": setting.key,
