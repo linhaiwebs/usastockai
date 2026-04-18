@@ -5,12 +5,14 @@ import Link from 'next/link'
 export default function TermsPage() {
   return (
     <div className="min-h-screen bg-background text-on-background">
-      <header className="glass-bar border-b border-white/[0.05] px-6 py-4 flex items-center justify-between">
-        <Link href="/" className="text-primary font-headline font-bold tracking-[0.2em] uppercase text-sm">ETHEREAL AI</Link>
-        <Link href="/" className="text-on-surface-variant hover:text-primary transition-colors text-xs font-headline">← Back</Link>
+      <header className="bg-background/80 backdrop-blur-xl sticky top-0 z-50 shadow-sm border-b border-outline-variant/10 px-6 py-3 max-w-7xl mx-auto">
+        <div className="flex items-center justify-between">
+          <Link href="/" className="text-primary font-headline font-black tracking-tighter text-xl">SOVEREIGN</Link>
+          <Link href="/" className="text-on-surface-variant hover:text-primary transition-colors text-xs">← Back</Link>
+        </div>
       </header>
-      <main className="max-w-2xl mx-auto px-6 py-12">
-        <h1 className="text-3xl font-headline font-bold text-gradient mb-8">Terms of Service</h1>
+      <main className="max-w-3xl mx-auto px-6 py-12">
+        <h1 className="text-3xl font-headline font-bold text-primary mb-8">Terms of Service</h1>
         <div className="space-y-6 font-body text-on-surface-variant leading-relaxed text-sm">
           <section>
             <h2 className="font-headline font-bold text-on-surface text-lg mb-3">1. Acceptance of Terms</h2>
