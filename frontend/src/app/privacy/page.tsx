@@ -5,11 +5,11 @@ import Link from 'next/link'
 export default function PrivacyPage() {
   return (
     <div className="min-h-screen bg-background text-on-background">
-      <header className="glass-bar border-b border-white/[0.05] px-6 py-4 flex items-center justify-between">
-        <Link href="/" className="text-primary font-headline font-bold tracking-[0.2em] uppercase text-sm">ETHEREAL AI</Link>
+      <header className="glass-bar border-b border-outline-variant/15 px-6 py-4 flex items-center justify-between max-w-md mx-auto">
+        <Link href="/" className="text-primary font-headline font-bold tracking-tight text-sm">Luminescent Ledger</Link>
         <Link href="/" className="text-on-surface-variant hover:text-primary transition-colors text-xs font-headline">← Back</Link>
       </header>
-      <main className="max-w-2xl mx-auto px-6 py-12">
+      <main className="max-w-md mx-auto px-6 py-12">
         <h1 className="text-3xl font-headline font-bold text-gradient mb-8">Privacy Policy</h1>
         <div className="space-y-6 font-body text-on-surface-variant leading-relaxed text-sm">
           <section>

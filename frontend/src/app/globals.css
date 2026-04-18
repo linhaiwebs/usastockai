@@ -3,66 +3,45 @@
 @tailwind utilities;
 
 /* ═════════════════════════════════════════════════════
-   Ethereal Intelligence — Stitch ayuan2 Design System
-   AI Stock Diagnosis · Deep Space · Cyan-Purple Glass
+   Luminescent Ledger — Stitch huihui2 Design System
+   AI Stock Diagnosis · Purple-Indigo · Glass Dark
    ═════════════════════════════════════════════════════ */
 
 /* ── Self-Hosted Font Faces ── */
 @font-face {
-  font-family: 'Space Grotesk';
+  font-family: 'Inter';
   font-style: normal;
   font-weight: 400;
   font-display: swap;
-  src: url('/fonts/space-grotesk-400.woff2') format('woff2');
+  src: url('/fonts/inter-400.woff2') format('woff2');
 }
 @font-face {
-  font-family: 'Space Grotesk';
+  font-family: 'Inter';
   font-style: normal;
   font-weight: 500;
   font-display: swap;
-  src: url('/fonts/space-grotesk-500.woff2') format('woff2');
+  src: url('/fonts/inter-500.woff2') format('woff2');
 }
 @font-face {
-  font-family: 'Space Grotesk';
+  font-family: 'Inter';
   font-style: normal;
   font-weight: 600;
   font-display: swap;
-  src: url('/fonts/space-grotesk-600.woff2') format('woff2');
+  src: url('/fonts/inter-600.woff2') format('woff2');
 }
 @font-face {
-  font-family: 'Space Grotesk';
+  font-family: 'Inter';
   font-style: normal;
   font-weight: 700;
   font-display: swap;
-  src: url('/fonts/space-grotesk-700.woff2') format('woff2');
+  src: url('/fonts/inter-700.woff2') format('woff2');
 }
 @font-face {
-  font-family: 'Manrope';
+  font-family: 'Inter';
   font-style: normal;
-  font-weight: 300;
+  font-weight: 800;
   font-display: swap;
-  src: url('/fonts/manrope-300.woff2') format('woff2');
-}
-@font-face {
-  font-family: 'Manrope';
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: url('/fonts/manrope-400.woff2') format('woff2');
-}
-@font-face {
-  font-family: 'Manrope';
-  font-style: normal;
-  font-weight: 500;
-  font-display: swap;
-  src: url('/fonts/manrope-500.woff2') format('woff2');
-}
-@font-face {
-  font-family: 'Manrope';
-  font-style: normal;
-  font-weight: 600;
-  font-display: swap;
-  src: url('/fonts/manrope-600.woff2') format('woff2');
+  src: url('/fonts/inter-800.woff2') format('woff2');
 }
 @font-face {
   font-family: 'Material Symbols Outlined';
@@ -73,47 +52,37 @@
 }
 
 body {
-  background-color: #0a0e18;
-  color: #e5e7f6;
-  font-family: 'Manrope', sans-serif;
+  background-color: #0b0e14;
+  color: #ecedf6;
+  font-family: 'Inter', sans-serif;
   overflow-x: hidden;
 }
 
 ::selection {
-  background-color: rgba(153, 247, 255, 0.3);
-  color: #99f7ff;
+  background-color: rgba(163, 166, 255, 0.3);
+  color: #a3a6ff;
 }
 
 /* ── Glass Surfaces ── */
 .glass-surface {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(22, 26, 33, 0.8);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(69, 72, 79, 0.15);
 }
 
 .glass-bar {
-  background: rgba(11, 15, 25, 0.6);
+  background: rgba(11, 14, 20, 0.8);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
 }
 
-/* ── Glow Effects ── */
-.deep-glow {
-  box-shadow: 0 0 40px rgba(112, 0, 255, 0.15);
-}
-
-.glow-dot {
-  animation: glow-dot 2s infinite;
-}
-
-/* ── Gradient Text (Cyan→Purple) ── */
+/* ── Gradient Text (Indigo→Purple) ── */
 .text-gradient {
-  background: linear-gradient(to right, #99f7ff, #ac89ff, #874cff);
+  background: linear-gradient(to right, #6063ee, #c180ff);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  filter: drop-shadow(0 0 20px rgba(153, 247, 255, 0.3));
 }
 
 /* ── Scrollbar Hidden ── */
@@ -138,7 +107,7 @@ body {
 .diag-mask {
   position: fixed;
   inset: 0;
-  background: rgba(10, 14, 24, 0.9);
+  background: rgba(11, 14, 20, 0.9);
   backdrop-filter: blur(24px);
   z-index: 90;
   opacity: 0;
@@ -191,15 +160,15 @@ body {
 /* ── CTA Button Breathing Animation ── */
 #whatsapp-cta.pulse-active {
   position: relative;
-  background: #99f7ff !important;
-  color: #004145 !important;
+  background: #a3a6ff !important;
+  color: #0f00a4 !important;
   border: none !important;
   animation: breathe 2.5s ease-in-out infinite, pop-in 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards !important;
   filter: grayscale(0) !important;
   opacity: 1 !important;
   overflow: hidden;
   z-index: 1;
-  box-shadow: 0 0 20px rgba(153, 247, 255, 0.3);
+  box-shadow: 0 0 20px rgba(163, 166, 255, 0.3);
 }
 
 #whatsapp-cta.pulse-active::before {
@@ -207,7 +176,7 @@ body {
   position: absolute;
   inset: -2px;
   border-radius: 14px;
-  background: conic-gradient(from 0deg, #99f7ff, #ac89ff, #00f1fe, #99f7ff, #99f7ff);
+  background: conic-gradient(from 0deg, #a3a6ff, #c180ff, #6063ee, #a3a6ff);
   z-index: -2;
   animation: spin-border 3s linear infinite;
 }
@@ -217,18 +186,18 @@ body {
   position: absolute;
   inset: 2px;
   border-radius: 12px;
-  background: #99f7ff;
+  background: #a3a6ff;
   z-index: -1;
 }
 
 /* ── Animations ── */
 @keyframes breathe {
   0%, 100% {
-    box-shadow: 0 0 15px rgba(153, 247, 255, 0.3), 0 0 30px rgba(153, 247, 255, 0.1);
+    box-shadow: 0 0 15px rgba(163, 166, 255, 0.3), 0 0 30px rgba(163, 166, 255, 0.1);
     transform: scale(1);
   }
   50% {
-    box-shadow: 0 0 25px rgba(153, 247, 255, 0.5), 0 0 50px rgba(172, 137, 255, 0.2), 0 0 80px rgba(112, 0, 255, 0.1);
+    box-shadow: 0 0 25px rgba(163, 166, 255, 0.5), 0 0 50px rgba(193, 128, 255, 0.2), 0 0 80px rgba(96, 99, 238, 0.1);
     transform: scale(1.02);
   }
 }
@@ -236,17 +205,6 @@ body {
 @keyframes spin-border {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
-}
-
-@keyframes glow-dot {
-  0% { box-shadow: 0 0 0 0 rgba(153, 247, 255, 0.4); }
-  70% { box-shadow: 0 0 0 6px rgba(153, 247, 255, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(153, 247, 255, 0); }
-}
-
-@keyframes float {
-  0%, 100% { transform: translateY(0) rotate(var(--rotate, 6deg)); }
-  50% { transform: translateY(-20px) rotate(var(--rotate, 6deg)); }
 }
 
 @keyframes pulse-glow {
@@ -257,14 +215,4 @@ body {
 @keyframes pop-in {
   0% { opacity: 0.3; transform: scale(0.98); }
   100% { opacity: 1; transform: scale(1); }
-}
-
-@keyframes marquee-scroll {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
-}
-
-@keyframes progress-fill {
-  0% { width: 0%; }
-  100% { width: 100%; }
 }
