@@ -23,6 +23,18 @@ AI-powered US stock sentiment analysis platform. Frontend built with Stitch "ayu
 - Redirect system `/r/[id]` for WhatsApp CTA
 - Footer links to /privacy, /terms, /contact (all complete pages)
 
+## Font Performance Optimization
+- **Self-hosted woff2 fonts** — no Google CDN dependency (eliminates 3 DNS+TLS+HTTP round trips)
+- **Font files**: `frontend/public/fonts/` (8 woff2 files, ~735KB total)
+  - Space Grotesk: 4 weights (400/500/600/700), ~105KB
+  - Inter: 3 weights (400/500/600), ~325KB
+  - Material Symbols Outlined: 1 weight (400), ~309KB
+- **Preload hints** in `layout.tsx <head>` for critical fonts (same-origin, instant availability)
+- **@font-face declarations** in `globals.css` with font-display: swap (text) / block (icons)
+- **font-feature-settings**: 'rlig' 1, 'liga' 1 on `.material-symbols-outlined` for icon ligatures
+- **Static font** — FILL axis not supported (outlined icons only; removed fontVariationSettings FILL 1)
+- **@fontsource packages removed** — replaced by self-hosted woff2 files
+
 ## Key Files
 - `frontend/src/app/page.tsx` — Main landing page
 - `frontend/src/app/privacy/page.tsx` — Privacy policy page
