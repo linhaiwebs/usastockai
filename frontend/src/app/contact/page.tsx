@@ -5,8 +5,8 @@ import Link from 'next/link'
 export default function ContactPage() {
   return (
     <div className="min-h-screen bg-background text-on-background">
-      <header className="glass-bar border-b border-white/[0.05] px-6 py-4 flex items-center justify-between">
-        <Link href="/" className="text-primary font-headline font-bold tracking-[0.2em] uppercase text-sm">ETHEREAL AI</Link>
+      <header className="glass-bar border-b border-outline-variant/20 px-6 py-4 flex items-center justify-between max-w-screen-2xl mx-auto">
+        <Link href="/" className="text-primary font-headline font-extrabold tracking-tighter text-sm">InsightLedger</Link>
         <Link href="/" className="text-on-surface-variant hover:text-primary transition-colors text-xs font-headline">← Back</Link>
       </header>
       <main className="max-w-2xl mx-auto px-6 py-12">
@@ -16,12 +16,12 @@ export default function ContactPage() {
             <h2 className="font-headline font-bold text-on-surface text-lg mb-3">Get in Touch</h2>
             <p>Have questions about our AI stock diagnosis platform? Need technical support? We are here to help.</p>
           </section>
-          <section className="glass-surface rounded-xl p-6 space-y-4">
+          <section className="glass-panel rounded-2xl p-6 space-y-4 border border-outline-variant/20">
             <div className="flex items-center gap-3">
               <span className="material-symbols-outlined text-primary">mail</span>
               <div>
                 <p className="font-headline text-xs text-on-surface-variant uppercase tracking-widest mb-1">Email</p>
-                <p className="text-on-surface">support@ethereal-ai.com</p>
+                <p className="text-on-surface">support@insightledger.com</p>
               </div>
             </div>
             <div className="flex items-center gap-3">
@@ -32,7 +32,7 @@ export default function ContactPage() {
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <span className="material-symbols-outlined text-primary">schedule</span>
+              <span className="material-symbols-outlined text-primary-dim">schedule</span>
               <div>
                 <p className="font-headline text-xs text-on-surface-variant uppercase tracking-widest mb-1">Response Time</p>
                 <p className="text-on-surface">Within 24 hours on business days</p>
