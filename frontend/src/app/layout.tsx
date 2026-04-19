@@ -5,8 +5,8 @@ import GATracker from '../components/GATracker'
 const VERSION = process.env.NEXT_BUILD_VER || `b${Date.now()}`
 
 export const metadata: Metadata = {
-  title: 'AI Stock Diagnosis | Real-Time Market Intelligence',
-  description: 'Advanced AI-powered stock diagnostics. Decode hidden market patterns and quantify risk with institutional-grade analysis.',
+  title: 'AI Stock Analysis | Market Sentiment Tool',
+  description: 'AI-powered stock sentiment and risk overview tool. Explore market patterns and trends with algorithmic analysis.',
   other: { 'x-ver': VERSION },
 }
 

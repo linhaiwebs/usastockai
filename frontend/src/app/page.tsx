@@ -157,13 +157,13 @@ function LandingContent() {
   // Open diagnosis panel
   const openDiagPanel = useCallback(() => {
     const mask = document.getElementById('overlay-mask'); if (mask) mask.classList.add('open')
-    setDiagView('analyzing'); setBarWidth('0%'); setBarLabel('Initializing AI diagnosis...'); setWhatsappLink(null)
+    setDiagView('analyzing'); setBarWidth('0%'); setBarLabel('Initializing AI analysis...'); setWhatsappLink(null)
     fetch('/api/redirects/assign').then(r => r.ok ? r.json() : null).then(d => d?.url && setWhatsappLink(d.url)).catch(() => {})
     const phases = [
       { pct: '25%', msg: 'Scanning Market Data...' },
       { pct: '55%', msg: 'Analyzing Price Patterns...' },
-      { pct: '85%', msg: 'Generating Diagnosis Report...' },
-      { pct: '100%', msg: 'Diagnosis Complete.' },
+      { pct: '85%', msg: 'Generating Analysis Report...' },
+      { pct: '100%', msg: 'Analysis Complete.' },
     ]
     phases.forEach((phase, idx) => {
       setTimeout(() => {
@@ -224,7 +224,7 @@ function LandingContent() {
                 </div>
               </div>
               <div className="space-y-1">
-                <h2 className="font-headline text-xl font-bold uppercase tracking-widest text-gradient">AI Diagnosis In Progress</h2>
+                <h2 className="font-headline text-xl font-bold uppercase tracking-widest text-gradient">AI Analysis In Progress</h2>
                 <div className="text-primary font-mono text-xs uppercase tracking-tighter opacity-80">{barLabel}</div>
               </div>
               <div className="w-full h-1 bg-white/5 rounded-full overflow-hidden relative">
@@ -237,7 +237,7 @@ function LandingContent() {
             <div className="flex flex-col p-2">
               <div className="w-full mb-3">
                 <div className="flex items-center justify-between mb-1">
-                  <span className="text-[9px] font-headline font-bold text-primary tracking-[0.3em] uppercase">AI Diagnosis Complete</span>
+                  <span className="text-[9px] font-headline font-bold text-primary tracking-[0.3em] uppercase">AI Analysis Complete</span>
                   <span className="text-[9px] font-mono text-secondary">100%</span>
                 </div>
                 <div className="w-full h-1 bg-primary/20 rounded-full overflow-hidden">
@@ -277,7 +277,7 @@ function LandingContent() {
 
               <div className="w-full glass-surface p-2 rounded-xl mb-3 max-h-48 overflow-y-auto no-scrollbar">
                 <p className="text-sm text-on-surface leading-relaxed font-body whitespace-pre-wrap">
-                  {streamText ? <>{streamText}{streamActive && <span className="animate-pulse text-primary">▌</span>}</> : diagnosticHint || '> Initializing diagnosis engine...'}
+                  {streamText ? <>{streamText}{streamActive && <span className="animate-pulse text-primary">▌</span>}</> : diagnosticHint || '> Initializing analysis engine...'}
                 </p>
               </div>
 
@@ -292,9 +292,9 @@ function LandingContent() {
                   id="whatsapp-cta"
                 >
                   <span className="material-symbols-outlined text-lg">chat</span>
-                  Get the report for free via WhatsApp
+                  Get the insight via WhatsApp
                 </button>
-                <p className="mt-2 text-center text-[8px] text-on-surface-variant font-bold uppercase tracking-[0.2em]">INSTANT WHATSAPP DELIVERY · COMPREHENSIVE REPORT</p>
+                <p className="mt-2 text-center text-[8px] text-on-surface-variant font-bold uppercase tracking-[0.2em]">WHATSAPP DELIVERY · INSIGHT SUMMARY</p>
               </div>
             </div>
           )}
@@ -328,7 +328,7 @@ function LandingContent() {
         {/* ── Trust Badge ── */}
         <div className="mb-8 px-5 py-2 rounded-full bg-white/[0.05] border border-white/[0.05] backdrop-blur-[16px] flex items-center gap-2 shadow-[0_4px_20px_rgba(0,0,0,0.2)]">
           <span className="font-label text-[10px] text-primary-dim tracking-widest uppercase animate-pulse-glow">
-            🔥 12,458 investors diagnosed today | Backtest Accuracy 89.4%
+            🔥 AI-Powered Stock Sentiment Engine
           </span>
         </div>
 
@@ -338,7 +338,7 @@ function LandingContent() {
             See the Hidden DNA of<br/>Every Stock
           </h1>
           <p className="text-sm font-body text-on-surface-variant font-light leading-relaxed max-w-[280px]">
-            Wall Street-level AI quantitative model. Enter code for instant prediction and risk analysis.
+            AI-driven stock insight tool. Enter a ticker to explore sentiment and risk overview.
           </p>
         </div>
 
@@ -360,7 +360,7 @@ function LandingContent() {
               className="relative flex-shrink-0 bg-gradient-to-br from-primary to-secondary text-on-primary-fixed font-headline font-bold text-xs px-5 py-3.5 rounded-[14px] shadow-[0_0_15px_rgba(153,247,255,0.4)] transition-all duration-300 hover:shadow-[0_0_25px_rgba(172,137,255,0.6)] flex items-center gap-1 group/btn overflow-hidden"
               onClick={triggerDiagnosis}
             >
-              <span className="relative z-10 tracking-wide">⚡ Free AI Diagnosis</span>
+              <span className="relative z-10 tracking-wide">⚡ AI Stock Insight</span>
               <div className="absolute inset-0 bg-white/20 blur-md opacity-0 group-hover/btn:opacity-100 transition-opacity"></div>
             </button>
           </div>
@@ -476,10 +476,10 @@ function LandingContent() {
                 <div className="flex flex-col items-end flex-shrink-0 pl-2">
                   <div className={`font-label text-[10px] border rounded px-2 py-0.5 mb-1 flex items-center gap-1 ${stock.change_percent >= 0 ? 'text-primary border-primary/30 bg-primary/10' : 'text-error border-error/30 bg-error/10'}`}>
                     <span className="material-symbols-outlined text-[10px]">verified</span>
-                    {stock.change_percent >= 0 ? 'High' : 'Low'} Confidence
+                    {stock.change_percent >= 0 ? 'Positive' : 'Negative'} Sentiment
                   </div>
                   <div className={`font-headline text-xs ${stock.change_percent >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                    {stock.change_percent >= 0 ? 'Bullish' : 'Bearish'} Signal
+                    {stock.change_percent >= 0 ? 'Upward' : 'Downward'} Trend
                   </div>
                 </div>
               </div>
@@ -496,7 +496,7 @@ function LandingContent() {
           <section className="w-full max-w-sm mb-8 space-y-4">
             <div className="flex items-center gap-2 mb-2 px-2">
               <span className="material-symbols-outlined text-primary text-sm">analytics</span>
-              <h2 className="font-headline text-xs font-bold text-on-surface tracking-widest uppercase">AI Diagnosis Result</h2>
+              <h2 className="font-headline text-xs font-bold text-on-surface tracking-widest uppercase">AI Analysis Result</h2>
             </div>
             {quoteFetching ? (
               <div className="flex items-center justify-center py-12">
@@ -507,19 +507,19 @@ function LandingContent() {
                 <div className="bg-white/[0.05] backdrop-blur-[16px] border border-white/[0.05] p-4 rounded-xl relative overflow-hidden border-l-4 border-primary/50">
                   <p className="text-on-surface-variant font-headline text-xs tracking-widest uppercase mb-2">Market Sentiment</p>
                   <div className="flex items-baseline gap-2">
-                    <span className="text-2xl font-headline font-bold text-primary">{quoteData.change >= 0 ? 'Bullish' : 'Bearish'}</span>
-                    <span className="text-primary/60 font-mono text-sm tracking-tighter">({quoteData.change >= 0 ? 'High' : 'Low'} Confidence)</span>
+                    <span className="text-2xl font-headline font-bold text-primary">{quoteData.change >= 0 ? 'Positive' : 'Negative'}</span>
+                    <span className="text-primary/60 font-mono text-sm tracking-tighter">({quoteData.change >= 0 ? 'Strong' : 'Moderate'} Sentiment)</span>
                   </div>
                 </div>
                 <div className="bg-white/[0.05] backdrop-blur-[16px] border border-white/[0.05] p-4 rounded-xl border-l-4 border-secondary/50">
-                  <p className="text-on-surface-variant font-headline text-xs tracking-widest uppercase mb-2">AI Recommendation</p>
+                  <p className="text-on-surface-variant font-headline text-xs tracking-widest uppercase mb-2">AI Sentiment Overview</p>
                   <div className={`${quoteData.change_percent >= 0 ? 'bg-primary/10' : 'bg-error/10'} inline-block px-4 py-1 rounded-full mb-2`}>
                     <span className={`${quoteData.change_percent >= 0 ? 'text-primary' : 'text-error'} font-headline font-bold text-sm uppercase tracking-tighter`}>
-                      {quoteData.change_percent >= 0 ? 'Strong Buy' : 'Sell Signal'}
+                      {quoteData.change_percent >= 0 ? 'Positive Outlook' : 'Negative Outlook'}
                     </span>
                   </div>
                   <p className="text-sm text-on-surface leading-relaxed font-body">
-                    AI analysis indicates {quoteData.change >= 0 ? 'a primary support bounce' : 'distribution pressure'} at {priceStr(quoteData.price)} with target {quoteData.change >= 0 ? 'upside' : 'downside'} of {Math.abs(quoteData.change_percent).toFixed(1)}%.
+                    Sentiment analysis suggests {quoteData.change >= 0 ? 'a potential support bounce' : 'possible distribution pressure'} near {priceStr(quoteData.price)} with observed {quoteData.change >= 0 ? 'upward' : 'downward'} momentum of {Math.abs(quoteData.change_percent).toFixed(1)}%.
                   </p>
                 </div>
               </div>
@@ -547,7 +547,7 @@ function LandingContent() {
             onClick={triggerDiagnosis}
           >
             <span className="material-symbols-outlined font-bold">auto_awesome</span>
-            RUN AI DIAGNOSIS
+            RUN AI ANALYSIS
           </button>
         </div>
       </div>

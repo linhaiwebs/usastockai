@@ -14,11 +14,11 @@ export default function PrivacyPage() {
         <div className="space-y-6 font-body text-on-surface-variant leading-relaxed text-sm">
           <section>
             <h2 className="font-headline font-bold text-on-surface text-lg mb-3">1. Information We Collect</h2>
-            <p>We collect information you provide directly, such as stock symbols entered for AI diagnosis and any data submitted through contact forms. We also automatically collect usage data including page views, interaction patterns, and device information to improve our AI analysis services.</p>
+            <p>We collect information you provide directly, such as stock symbols entered for AI analysis and any data submitted through contact forms. We also automatically collect usage data including page views, interaction patterns, and device information to improve our AI analysis services.</p>
           </section>
           <section>
             <h2 className="font-headline font-bold text-on-surface text-lg mb-3">2. How We Use Your Data</h2>
-            <p>Your data is used to deliver AI-powered stock analysis, improve diagnostic accuracy, and personalize your experience. We may use aggregated, anonymized data to train and refine our quantitative models.</p>
+            <p>Your data is used to deliver AI-powered stock analysis, improve model accuracy, and personalize your experience. We may use aggregated, anonymized data to train and refine our quantitative models.</p>
           </section>
           <section>
             <h2 className="font-headline font-bold text-on-surface text-lg mb-3">3. Data Sharing</h2>

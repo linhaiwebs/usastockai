@@ -14,15 +14,15 @@ export default function TermsPage() {
         <div className="space-y-6 font-body text-on-surface-variant leading-relaxed text-sm">
           <section>
             <h2 className="font-headline font-bold text-on-surface text-lg mb-3">1. Acceptance of Terms</h2>
-            <p>By accessing and using this AI Stock Diagnosis platform, you agree to be bound by these Terms of Service. If you do not agree with any part of these terms, you must discontinue use of the platform immediately.</p>
+            <p>By accessing and using this AI Stock Analysis platform, you agree to be bound by these Terms of Service. If you do not agree with any part of these terms, you must discontinue use of the platform immediately.</p>
           </section>
           <section>
             <h2 className="font-headline font-bold text-on-surface text-lg mb-3">2. Service Description</h2>
-            <p>This platform provides AI-powered stock diagnosis and quantitative analysis tools. Our services generate predictions and risk assessments based on algorithmic models and publicly available market data.</p>
+            <p>This platform provides AI-powered stock sentiment analysis and quantitative overview tools. Our services generate sentiment indicators and risk overviews based on algorithmic models and publicly available market data.</p>
           </section>
           <section>
             <h2 className="font-headline font-bold text-on-surface text-lg mb-3">3. Disclaimer</h2>
-            <p>All AI-generated analysis is for informational purposes only and does not constitute financial advice, investment recommendations, or solicitation to buy or sell securities. Past performance and AI predictions do not guarantee future results.</p>
+            <p>All AI-generated analysis is for informational purposes only and does not constitute financial advice, investment recommendations, or solicitation to buy or sell securities. Past performance and AI sentiment indicators do not guarantee future results.</p>
           </section>
           <section>
             <h2 className="font-headline font-bold text-on-surface text-lg mb-3">4. User Responsibility</h2>
