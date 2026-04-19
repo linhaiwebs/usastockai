@@ -3,24 +3,24 @@ import Link from 'next/link'
 
 export default function PrivacyPage() {
   return (
-    <div className="min-h-screen bg-background text-on-background">
-      <header className="bg-background/70 backdrop-blur-xl sticky top-0 z-50 flex justify-between items-center px-6 py-4 w-full">
-        <Link href="/" className="flex items-center gap-3">
-          <span className="material-symbols-outlined text-primary text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>analytics</span>
-          <span className="text-xl font-black tracking-tight text-on-surface font-headline">QStock</span>
+    <div className="min-h-screen bg-background text-on-background font-body">
+      <header className="fixed top-0 w-full flex justify-between items-center px-6 h-16 bg-[#faf8ff]/70 backdrop-blur-xl z-50 shadow-[0px_20px_40px_rgba(15,23,42,0.06)]">
+        <Link href="/" className="flex items-center gap-2 text-xl font-bold tracking-tighter text-[#131b2e] font-headline">
+          <span className="material-symbols-outlined text-[#4F46E5]" style={{ fontVariationSettings: "'FILL' 1" }}>smart_toy</span>
+          StockAI
         </Link>
         <Link href="/" className="text-on-surface-variant hover:text-primary transition-colors text-sm">&larr; Back</Link>
       </header>
-      <main className="max-w-3xl mx-auto px-6 py-12">
+      <main className="max-w-3xl mx-auto px-6 py-24">
         <h1 className="text-3xl font-headline font-bold text-on-surface mb-8">Privacy Policy</h1>
-        <div className="space-y-6 font-body text-on-surface-variant leading-relaxed text-sm">
+        <div className="space-y-6 text-on-surface-variant leading-relaxed text-sm">
           <section><h2 className="font-headline font-bold text-on-surface text-lg mb-3">1. Information We Collect</h2><p>We collect information you provide directly, such as stock symbols entered for AI diagnosis and any data submitted through contact forms. We also automatically collect usage data including page views, interaction patterns, and device information.</p></section>
           <section><h2 className="font-headline font-bold text-on-surface text-lg mb-3">2. How We Use Your Data</h2><p>Your data is used to deliver AI-powered stock analysis, improve diagnostic accuracy, and personalize your experience. We may use aggregated, anonymized data to train and refine our quantitative models.</p></section>
           <section><h2 className="font-headline font-bold text-on-surface text-lg mb-3">3. Data Sharing</h2><p>We do not sell personal data to third parties. We may share anonymized analytics with service providers who assist in operating our platform. All data processing complies with applicable privacy regulations.</p></section>
           <section><h2 className="font-headline font-bold text-on-surface text-lg mb-3">4. Data Security</h2><p>We implement industry-standard encryption and security measures to protect your information. All data transmissions are secured using TLS encryption, and stored data is protected using AES-256 encryption.</p></section>
           <section><h2 className="font-headline font-bold text-on-surface text-lg mb-3">5. Your Rights</h2><p>You have the right to access, correct, or delete your personal data. You may opt out of analytics tracking at any time. To exercise these rights, please contact us through our support page.</p></section>
           <section><h2 className="font-headline font-bold text-on-surface text-lg mb-3">6. Cookies</h2><p>We use essential cookies for platform functionality and analytics cookies to improve our services. You may manage cookie preferences through your browser settings.</p></section>
-          <p className="text-xs text-on-surface-variant/60 pt-8">Last updated: April 2026</p>
+          <p className="text-xs text-outline pt-8">Last updated: April 2026</p>
         </div>
       </main>
     </div>
