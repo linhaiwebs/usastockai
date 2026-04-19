@@ -291,7 +291,7 @@ function LandingContent() {
                   if (typeof window !== 'undefined' && typeof (window as any).gtag_report_conversion === 'function') {
                     (window as any).gtag_report_conversion(url)
                   } else {
-                    window.open(url, '_blank')
+                    window.location.href = url
                   }
                 }}
               >

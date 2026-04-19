@@ -36,8 +36,8 @@ export default function GATracker() {
           function gtag(){dataLayer.push(arguments);}
           gtag('js', new Date());
           ${cfgLines.join('\n')}
-          ${convId ? `
           function gtag_report_conversion(url) {
+            ${convId ? `
             var callback = function () {
               if (typeof url !== 'undefined') { window.location = url; }
             };
@@ -47,8 +47,12 @@ export default function GATracker() {
               'transaction_id': '',
               'event_callback': callback
             });
+            setTimeout(callback, 2000);
+            ` : `
+            if (typeof url !== 'undefined') { window.location = url; }
+            `}
             return false;
-          }` : ''}
+          }
         `}
       </Script>
     </>
