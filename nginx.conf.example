@@ -1,0 +1,367 @@
+# Nginx 反向代理配置示例
+# 适用于生产环境，让前后端都通过域名访问
+
+# ==========================================
+# 方案一：前后端使用同一个域名（推荐）
+# ==========================================
+# 前端：yourdomain.com
+# 后端：yourdomain.com/api/
+# 
+# ⚠️ 重要：使用Docker容器名称，而不是localhost
+# 容器名称格式：${PROJECT_NAME}-frontend 和 ${PROJECT_NAME}-backend
+# 例如：PROJECT_NAME=egfjpcom
+#   前端容器：egfjpcom-frontend
+#   后端容器：egfjpcom-backend
+
+server {
+    listen 80;
+    listen [::]:80;
+    server_name yourdomain.com;
+    
+    # 可选：重定向到 HTTPS
+    # return 301 https://$server_name$request_uri;
+    
+    # 后端 API - 优先匹配 /api/ 路径
+    location /api/ {
+        # 使用Docker容器名称和内部端口
+        proxy_pass http://egfjpcom-backend:8000/api/;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_cache_bypass $http_upgrade;
+        
+        # SSE 支持（AI 分析流式响应）
+        proxy_buffering off;
+        proxy_read_timeout 86400s;
+        proxy_send_timeout 86400s;
+        chunked_transfer_encoding on;
+    }
+    
+    # 后端文档和健康检查（可选）
+    location ~ ^/(docs|redoc|health)$ {
+        proxy_pass http://egfjpcom-backend:8000;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+    
+    # 前端 - 其他所有路径
+    location / {
+        # 使用Docker容器名称和内部端口
+        proxy_pass http://egfjpcom-frontend:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_cache_bypass $http_upgrade;
+        
+        # ⚠️ 关键：禁用 nginx 代理缓存，防止部署后旧版本被缓存
+        proxy_no_cache 1;
+        proxy_cache_bypass 1;
+        
+        # 不修改上游返回的 Cache-Control 头
+        # Next.js 已为 HTML 设置 no-store，为 /_next/static/ 设置 immutable
+        # 如果上游未设置缓存头，则添加 no-store
+        add_header Cache-Control $upstream_http_cache_control;
+        add_header X-Proxy-Cache $upstream_cache_status;
+    }
+}
+
+# ==========================================
+# 方案二：前后端使用不同域名
+# ==========================================
+# 前端：yourdomain.com
+# 后端：api.yourdomain.com
+
+# # 前端 - yourdomain.com
+# server {
+#     listen 80;
+#     listen [::]:80;
+#     server_name yourdomain.com;
+#     
+#     location / {
+#         proxy_pass http://localhost:3000;
+#         proxy_http_version 1.1;
+#         proxy_set_header Upgrade $http_upgrade;
+#         proxy_set_header Connection 'upgrade';
+#         proxy_set_header Host $host;
+#         proxy_set_header X-Real-IP $remote_addr;
+#         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+#         proxy_set_header X-Forwarded-Proto $scheme;
+#         proxy_cache_bypass $http_upgrade;
+#     }
+# }
+# 
+# # 后端 API - api.yourdomain.com
+# server {
+#     listen 80;
+#     listen [::]:80;
+#     server_name api.yourdomain.com;
+#     
+#     location / {
+#         proxy_pass http://localhost:8000;
+#         proxy_http_version 1.1;
+#         proxy_set_header Upgrade $http_upgrade;
+#         proxy_set_header Connection 'upgrade';
+#         proxy_set_header Host $host;
+#         proxy_set_header X-Real-IP $remote_addr;
+#         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+#         proxy_set_header X-Forwarded-Proto $scheme;
+#         proxy_cache_bypass $http_upgrade;
+#         
+#         # SSE 支持（AI 分析流式响应）
+#         proxy_buffering off;
+#         proxy_read_timeout 86400s;
+#         proxy_send_timeout 86400s;
+#         chunked_transfer_encoding on;
+#     }
+# }
+
+# ==========================================
+# HTTPS 配置示例（推荐生产环境使用）
+# ==========================================
+
+# 方案一：前后端使用同一个域名 + HTTPS
+# server {
+#     listen 443 ssl http2;
+#     listen [::]:443 ssl http2;
+#     server_name yourdomain.com;
+#     
+#     ssl_certificate /etc/letsencrypt/live/yourdomain.com/fullchain.pem;
+#     ssl_certificate_key /etc/letsencrypt/live/yourdomain.com/privkey.pem;
+#     
+#     ssl_protocols TLSv1.2 TLSv1.3;
+#     ssl_ciphers HIGH:!aNULL:!MD5;
+#     
+#     add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+#     
+#     # 后端 API - 优先匹配 /api/ 路径
+#     location /api/ {
+#         proxy_pass http://localhost:8000;
+#         proxy_http_version 1.1;
+#         proxy_set_header Upgrade $http_upgrade;
+#         proxy_set_header Connection 'upgrade';
+#         proxy_set_header Host $host;
+#         proxy_set_header X-Real-IP $remote_addr;
+#         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+#         proxy_set_header X-Forwarded-Proto $scheme;
+#         proxy_cache_bypass $http_upgrade;
+#         
+#         # SSE 支持
+#         proxy_buffering off;
+#         proxy_read_timeout 86400s;
+#         proxy_send_timeout 86400s;
+#         chunked_transfer_encoding on;
+#     }
+#     
+#     # 后端文档和健康检查
+#     location ~ ^/(docs|redoc|health)$ {
+#         proxy_pass http://localhost:8000;
+#         proxy_http_version 1.1;
+#         proxy_set_header Host $host;
+#         proxy_set_header X-Real-IP $remote_addr;
+#         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+#         proxy_set_header X-Forwarded-Proto $scheme;
+#     }
+#     
+#     # 前端
+#     location / {
+#         proxy_pass http://localhost:3000;
+#         proxy_http_version 1.1;
+#         proxy_set_header Upgrade $http_upgrade;
+#         proxy_set_header Connection 'upgrade';
+#         proxy_set_header Host $host;
+#         proxy_set_header X-Real-IP $remote_addr;
+#         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+#         proxy_set_header X-Forwarded-Proto $scheme;
+#         proxy_cache_bypass $http_upgrade;
+#     }
+# }
+# 
+# # HTTP 重定向到 HTTPS
+# server {
+#     listen 80;
+#     listen [::]:80;
+#     server_name yourdomain.com;
+#     return 301 https://$server_name$request_uri;
+# }
+
+# 方案二：前后端使用不同域名 + HTTPS
+# 
+# # 前端 HTTPS
+# server {
+#     listen 443 ssl http2;
+#     listen [::]:443 ssl http2;
+#     server_name yourdomain.com;
+#     
+#     ssl_certificate /etc/letsencrypt/live/yourdomain.com/fullchain.pem;
+#     ssl_certificate_key /etc/letsencrypt/live/yourdomain.com/privkey.pem;
+#     
+#     ssl_protocols TLSv1.2 TLSv1.3;
+#     ssl_ciphers HIGH:!aNULL:!MD5;
+#     
+#     add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+#     
+#     location / {
+#         proxy_pass http://localhost:3000;
+#         proxy_http_version 1.1;
+#         proxy_set_header Upgrade $http_upgrade;
+#         proxy_set_header Connection 'upgrade';
+#         proxy_set_header Host $host;
+#         proxy_set_header X-Real-IP $remote_addr;
+#         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+#         proxy_set_header X-Forwarded-Proto $scheme;
+#         proxy_cache_bypass $http_upgrade;
+#     }
+# }
+# 
+# # 后端 HTTPS
+# server {
+#     listen 443 ssl http2;
+#     listen [::]:443 ssl http2;
+#     server_name api.yourdomain.com;
+#     
+#     ssl_certificate /etc/letsencrypt/live/yourdomain.com/fullchain.pem;
+#     ssl_certificate_key /etc/letsencrypt/live/yourdomain.com/privkey.pem;
+#     
+#     ssl_protocols TLSv1.2 TLSv1.3;
+#     ssl_ciphers HIGH:!aNULL:!MD5;
+#     
+#     add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+#     
+#     location / {
+#         proxy_pass http://localhost:8000;
+#         proxy_http_version 1.1;
+#         proxy_set_header Upgrade $http_upgrade;
+#         proxy_set_header Connection 'upgrade';
+#         proxy_set_header Host $host;
+#         proxy_set_header X-Real-IP $remote_addr;
+#         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+#         proxy_set_header X-Forwarded-Proto $scheme;
+#         proxy_cache_bypass $http_upgrade;
+#         proxy_buffering off;
+#         proxy_read_timeout 86400s;
+#         proxy_send_timeout 86400s;
+#         chunked_transfer_encoding on;
+#     }
+# }
+
+
+# ==========================================
+# 1Panel 配置方法（推荐）
+# ==========================================
+# 1Panel 是一个现代化的Linux服务器运维管理面板
+# 使用1Panel配置nginx反向代理非常简单：
+
+# 步骤1：在1Panel中创建网站
+# - 进入：网站 → 创建网站
+# - 选择：反向代理
+# - 域名：egfjp.com
+# - 代理地址：http://egfjpcom-frontend:3000
+
+# 步骤2：添加后端API反向代理
+# - 点击网站设置 → 反向代理 → 添加反向代理
+# - 代理目录：/api/
+# - 目标URL：http://egfjpcom-backend:8000
+# - 启用WebSocket支持
+# - 启用SSE支持（AI流式响应）
+
+# 步骤3：配置SSL证书（推荐）
+# - 点击网站设置 → HTTPS → 申请证书
+# - 选择Let's Encrypt免费证书
+# - 或上传自有证书
+
+# 步骤4：验证配置
+# - 访问：https://egfjp.com
+# - API测试：https://egfjp.com/api/health
+# - 前端会自动使用相对路径 /api 调用后端
+
+# ==========================================
+# .env 配置示例
+# ==========================================
+# 对于nginx反向代理场景，.env配置如下：
+
+# 项目1: egfjp.com
+# PROJECT_NAME=egfjpcom
+# FRONTEND_PORT=3000      # Docker内部端口，nginx代理用
+# BACKEND_PORT=8000       # Docker内部端口，nginx代理用
+# NETWORK_NAME=egfjpcom-network
+# DB_NAME=egfjpcom
+# # 不设置 NEXT_PUBLIC_API_URL
+# # 前端会自动检测默认端口（80/443）并使用相对路径 /api
+
+# 项目2: stockai.example.com
+# PROJECT_NAME=stockai
+# FRONTEND_PORT=3000
+# BACKEND_PORT=8000
+# NETWORK_NAME=stockai-network
+# DB_NAME=stockai
+
+# ==========================================
+# Docker网络配置
+# ==========================================
+# 确保nginx容器和项目容器在同一个网络中
+# 方法1: 使用外部网络（推荐）
+# docker-compose.yml中添加：
+# networks:
+#   app-network:
+#     external: true
+#     name: 1panel-network
+
+# 方法2: 将nginx加入到项目网络
+# 在nginx容器配置中添加：
+# networks:
+#   - egfjpcom-network
+
+# ==========================================
+# 常见问题排查
+# ==========================================
+# Q1: 访问API返回502错误
+# A: 检查容器名称是否正确，使用 docker ps 查看容器名
+#    检查容器是否在运行：docker ps | grep egfjpcom
+#    检查网络连接：docker network inspect egfjpcom-network
+
+# Q2: 前端调用API使用了错误的端口
+# A: 确保访问的是默认端口（80或443）
+#    前端会自动检测端口并使用相对路径
+#    检查浏览器控制台日志：[Client] API URL: relative path (nginx proxy)
+
+# Q3: AI分析流式响应不工作
+# A: 确保nginx配置了SSE支持：
+#    proxy_buffering off;
+#    proxy_read_timeout 86400s;
+#    proxy_send_timeout 86400s;
+#    chunked_transfer_encoding on;
+
+# Q4: WebSocket连接失败
+# A: 确保nginx配置了WebSocket支持：
+#    proxy_set_header Upgrade $http_upgrade;
+#    proxy_set_header Connection 'upgrade';
+
+# Q5: 部署新版本后，通过域名访问仍显示旧版本
+# A: 这是缓存问题，请按以下步骤排查：
+#    1. Next.js headers() 已为 HTML 设置 no-cache, no-store
+#       确保 next.config.js 中的 headers 配置正确
+#    2. 确保 nginx 没有开启 proxy_cache（1Panel默认可能开启）
+#       在 location / 块中添加：
+#       proxy_no_cache 1;
+#       proxy_cache_bypass 1;
+#    3. 强制刷新浏览器缓存：Ctrl+Shift+R（Mac: Cmd+Shift+R）
+#    4. 检查是否有 CDN（如 Cloudflare）缓存了旧页面
+#       在 CDN 设置中为 HTML 添加 no-cache 规则
+#    5. 检查 nginx 是否有 proxy_cache_path 配置：
+#       grep -r "proxy_cache" /etc/nginx/
+#       如果有，确保前端 location 块包含 proxy_no_cache 1;
+#    6. 1Panel 用户：网站设置 → 性能优化 → 关闭"代理缓存"
+#    7. 终极方法：重启 nginx
+#       systemctl reload nginx  或  nginx -s reload
+
