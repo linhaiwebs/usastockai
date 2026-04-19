@@ -1,25 +1,25 @@
 # Planet Discovery — USA Stock AI Diagnostic System
 
 ## Project Overview
-AI-powered US stock sentiment analysis platform. Frontend built with Stitch "1:1 Scale Replica" project theme (MarketPulse AI — Neon Lime Dark design system).
+AI-powered US stock sentiment analysis platform. Frontend built with Stitch "阿东qstockl.com" project theme (QStock — The Analytical Luminary Light design system).
 
 ## Architecture
 - **Frontend**: Next.js 14 (App Router) + TailwindCSS + TypeScript
 - **Backend**: FastAPI (Python) + SQLAlchemy + MySQL
 - **AI Model**: Qwen2.5-7B-Instruct (via vLLM)
-- **Design System**: MarketPulse AI Dark Theme (#e2fe4c primary/neon-lime, #ff7351 error/red-CTA, #0e0e0e background/true-black)
+- **Design System**: QStock Light Theme (#493ee5 primary/electric-indigo, #635bff primary-container, #faf8ff background/cool-white)
 
-## Frontend Design — MarketPulse AI (1:1 Scale Replica)
-- DARK mode with `#E2FE4C` Neon Lime primary, `#E4E2E1` Warm White secondary, `#FF716B` Coral tertiary, `#B92902→#FF7351` Red gradient CTA
-- Background: `#0E0E0E` True Black, Surface: `#0E0E0E`, Surface Container High: `#201F1F`
-- Fonts: Manrope (headlines), Inter (body, labels), Material Symbols Outlined (icons)
-- Brand: MarketPulse AI (uppercase tracking-tighter, neon lime)
-- Key CSS: `.diag-mask`, `.diag-panel`, `.pulse-active`, `.no-scrollbar`
-- Sections: TopAppBar (analytics icon filled + MarketPulse AI + Beta badge) → Hero ("What's the news saying about your stock?" + AI scans subtitle) → Search Section (search icon + rounded input + "Scan Now" red gradient CTA + trending tickers $GME/$AMC/$TSLA/$BBBY) → Hot Stocks Carousel (snap-scroll cards with $symbol + trending badge) → Trusted Sources (Reuters/Bloomberg/CNBC/Benzinga) → Footer
-- Diagnosis panel: Dark card with MarketPulse color scheme
-  - Analyzing: neon lime spinner + progress bar + "Synthesizing Alpha..."
-  - Report: dark header with change% badge, Valuation/Sentiment/Risk 3-col grid, AI Executive Summary, WhatsApp green CTA (#25D366)
-- Scroll-triggered CTA: "SCAN NOW" red gradient button
+## Frontend Design — QStock (阿东qstockl.com)
+- LIGHT mode with `#493EE5` Electric Indigo primary, `#635BFF` Primary Container, `#006A2D` Tertiary (growth green), `#BA1A1A` Error
+- Background: `#FAF8FF` Cool Tinted White, Surface: `#FAF8FF`, Surface Container Low: `#F2F3FF`, Surface Container Highest: `#DAE2FD`
+- Fonts: Plus Jakarta Sans (headlines), Inter (body), Space Grotesk (labels), Material Symbols Outlined (icons)
+- Brand: QStock (tracking-tight, deep navy)
+- Key CSS: `.diag-mask`, `.diag-panel`, `.pulse-active`, `.no-scrollbar`, `.font-label`
+- Sections: TopAppBar (analytics icon + QStock + Beta badge) → Hero ("Intelligent Stock Analysis" + AI subtitle + trust badges) → Search Section (glassmorphic input + "Analyze with AI" indigo gradient CTA) → Trending Today (2x2 grid cards with symbol + price + trend badge) → Data Sources (dark navy banner: NASDAQ/NYSE/S&P 500/YAHOO!) → Features (4 items: Real-time Data, AI Analysis, Technical Charts, Risk Metrics) → Bottom CTA ("Connect with AI Agent") → Footer (dark navy)
+- Diagnosis panel: Light card with QStock color scheme
+  - Analyzing: indigo spinner + gradient progress bar + "Synthesizing Alpha..."
+  - Report: light header with change% badge, Valuation/Sentiment/Risk 3-col grid, AI Executive Summary, WhatsApp green CTA (#25D366)
+- Scroll-triggered CTA: "ANALYZE NOW" indigo gradient button
 - Google Analytics integration via backend API
 - Redirect system `/r/[id]` for WhatsApp CTA
 - CTA text: "Get the report for free via WhatsApp"
@@ -28,9 +28,10 @@ AI-powered US stock sentiment analysis platform. Frontend built with Stitch "1:1
 
 ## Font Performance Optimization
 - **Self-hosted woff2 fonts** — no Google CDN dependency
-- **Font files**: `frontend/public/fonts/` (10 woff2 files)
-  - Manrope: 6 weights (300/400/500/600/700/800)
+- **Font files**: `frontend/public/fonts/` (12 woff2 files)
+  - Plus Jakarta Sans: 5 weights (400/500/600/700/800)
   - Inter: 3 weights (400/500/600)
+  - Space Grotesk: 4 weights (400/500/600/700)
   - Material Symbols Outlined: 1 weight (400)
 - **Preload hints** in `layout.tsx <head>` for critical fonts
 
@@ -47,10 +48,10 @@ AI-powered US stock sentiment analysis platform. Frontend built with Stitch "1:1
 - `init.sql` — Database schema
 
 ## Stitch Project Reference
-- **Project**: 1:1 Scale Replica (ID: 7340148393844825097)
-- **Design System**: MarketPulse AI
-- **Theme**: DARK, customColor #E3FF4D
-- **Font**: MANROPE (headline), INTER (body, label)
+- **Project**: 阿东qstockl.com (ID: 8006256767682905895)
+- **Design System**: The Analytical Luminary
+- **Theme**: LIGHT, customColor #635BFF
+- **Font**: PLUS_JAKARTA_SANS (headline), INTER (body), SPACE_GROTESK (label)
 - **API Key**: Set `STITCH_API_KEY` env var for Stitch CLI access
 
 ## Commands
