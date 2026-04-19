@@ -4,12 +4,12 @@ import Link from 'next/link'
 export default function TermsPage() {
   return (
     <div className="min-h-screen bg-background text-on-background">
-      <header className="bg-background/70 backdrop-blur-xl sticky top-0 z-50 flex justify-between items-center px-6 py-4 w-full max-w-screen-2xl mx-auto">
+      <header className="bg-background/70 backdrop-blur-xl sticky top-0 z-50 flex justify-between items-center px-6 py-4 w-full">
         <Link href="/" className="flex items-center gap-3">
           <span className="material-symbols-outlined text-primary text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>analytics</span>
-          <span className="text-xl font-black text-primary uppercase tracking-tighter font-headline">MarketPulse AI</span>
+          <span className="text-xl font-black tracking-tight text-on-surface font-headline">QStock</span>
         </Link>
-        <Link href="/" className="text-on-surface-variant hover:text-primary transition-colors text-sm">← Back</Link>
+        <Link href="/" className="text-on-surface-variant hover:text-primary transition-colors text-sm">&larr; Back</Link>
       </header>
       <main className="max-w-3xl mx-auto px-6 py-12">
         <h1 className="text-3xl font-headline font-bold text-on-surface mb-8">Terms of Service</h1>

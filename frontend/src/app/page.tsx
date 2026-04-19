@@ -178,14 +178,23 @@ function LandingContent() {
 
   const activeTicker = codeParam && quoteData ? codeParam : searchTerm.trim() || 'AAPL'
 
+  const trendingStocks = hotFetching || hotList.length === 0
+    ? [
+        { symbol: 'SPY', name: 'S&P 500 ETF', price: 512.45, change_percent: 1.2 },
+        { symbol: 'QQQ', name: 'Nasdaq 100 ETF', price: 445.12, change_percent: 0.8 },
+        { symbol: 'AAPL', name: 'Apple Inc', price: 173.50, change_percent: -0.4 },
+        { symbol: 'MSFT', name: 'Microsoft Corp', price: 420.69, change_percent: 1.5 },
+      ]
+    : hotList.slice(0, 4).map(s => ({ symbol: s.symbol, name: s.name, price: s.price, change_percent: s.change_percent }))
+
   return (
     <>
       <div className="diag-mask" id="overlay-mask" onClick={closeDiagPanel}></div>
 
-      {/* ── Diagnosis Panel (MarketPulse Style) ── */}
+      {/* ── Diagnosis Panel (QStock Style) ── */}
       <div className={`diag-panel ${diagView !== 'hidden' ? 'open' : ''}`}>
         <div className="relative w-full max-w-lg">
-          <div className="bg-surface-container-high rounded-2xl border border-outline-variant/15 overflow-hidden shadow-2xl">
+          <div className="bg-surface-container-lowest rounded-2xl shadow-[0_24px_48px_rgba(19,27,46,0.12)] border border-outline-variant/15 overflow-hidden">
             <button className="absolute top-4 right-4 z-10 text-on-surface-variant hover:text-on-surface transition-colors" onClick={closeDiagPanel}>
               <span className="material-symbols-outlined">close</span>
             </button>
@@ -195,22 +204,22 @@ function LandingContent() {
                 <div className="w-12 h-12 border-4 border-surface-container-highest border-t-primary rounded-full animate-spin mb-4"></div>
                 <h3 className="text-lg font-bold text-on-surface font-headline">Synthesizing Alpha...</h3>
                 <p className="text-sm text-on-surface-variant mt-1">{barLabel}</p>
-                <div className="w-full mt-4 h-1 bg-surface-container-highest rounded-full overflow-hidden">
-                  <div className="h-full bg-primary transition-all duration-500 ease-out rounded-full" style={{ width: barWidth }}></div>
+                <div className="w-full mt-4 h-1.5 bg-surface-container-highest rounded-full overflow-hidden">
+                  <div className="h-full bg-gradient-to-r from-primary to-primary-container transition-all duration-500 ease-out rounded-full" style={{ width: barWidth }}></div>
                 </div>
               </div>
             )}
 
             {diagView === 'report' && (
               <>
-                <div className="bg-surface-container-highest p-6 relative">
+                <div className="bg-surface-container-low p-6 relative">
                   <div className="flex justify-between items-start">
                     <div>
                       <h2 className="text-3xl font-black text-primary font-headline">{diagQuote?.symbol || activeTicker}</h2>
                       <p className="text-on-surface-variant text-xs mt-1">{diagQuote?.name || 'Stock'} | Diagnosis Complete</p>
                     </div>
                     {diagQuote && (
-                      <div className={`px-3 py-1.5 rounded-lg text-sm font-black ${diagQuote.change_percent >= 0 ? 'bg-primary/10 text-primary' : 'bg-error/10 text-error'}`}>
+                      <div className={`px-3 py-1.5 rounded-lg text-sm font-black ${diagQuote.change_percent >= 0 ? 'bg-tertiary-fixed-dim/20 text-tertiary' : 'bg-error-container/50 text-error'}`}>
                         {diagQuote.change_percent >= 0 ? '+' : ''}{diagQuote.change_percent.toFixed(1)}%
                       </div>
                     )}
@@ -220,7 +229,7 @@ function LandingContent() {
                   {diagQuote && (
                     <>
                       <div className="mb-6">
-                        <h4 className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-2">AI Executive Summary</h4>
+                        <h4 className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-2 font-label">AI Executive Summary</h4>
                         <p className="text-on-surface text-sm font-medium leading-relaxed">
                           {diagQuote.change >= 0
                             ? `Strong fundamental resilience with ${diagQuote.change_percent.toFixed(1)}% momentum. AI-integration in the ecosystem provides significant medium-term tailwinds. Valuation justified by cash flow stability.`
@@ -229,30 +238,30 @@ function LandingContent() {
                       </div>
                       <div className="grid grid-cols-3 gap-3 mb-6">
                         <div className="bg-surface-container p-3 rounded-lg text-center">
-                          <span className="text-[9px] font-bold text-on-surface-variant uppercase block mb-1">Valuation</span>
+                          <span className="text-[9px] font-bold text-on-surface-variant uppercase block mb-1 font-label">Valuation</span>
                           <span className="text-on-surface font-bold text-sm">{diagQuote.pe_ratio ? (diagQuote.pe_ratio > 25 ? 'Premium' : 'Fair') : 'N/A'}</span>
                         </div>
                         <div className="bg-surface-container p-3 rounded-lg text-center">
-                          <span className="text-[9px] font-bold text-on-surface-variant uppercase block mb-1">Sentiment</span>
-                          <span className={`font-bold text-sm ${diagQuote.change >= 0 ? 'text-primary' : 'text-error'}`}>{diagQuote.change >= 0 ? 'Bullish' : 'Bearish'}</span>
+                          <span className="text-[9px] font-bold text-on-surface-variant uppercase block mb-1 font-label">Sentiment</span>
+                          <span className={`font-bold text-sm ${diagQuote.change >= 0 ? 'text-tertiary' : 'text-error'}`}>{diagQuote.change >= 0 ? 'Bullish' : 'Bearish'}</span>
                         </div>
                         <div className="bg-surface-container p-3 rounded-lg text-center">
-                          <span className="text-[9px] font-bold text-on-surface-variant uppercase block mb-1">Risk</span>
+                          <span className="text-[9px] font-bold text-on-surface-variant uppercase block mb-1 font-label">Risk</span>
                           <span className="text-on-surface font-bold text-sm">{diagQuote.change_percent >= -2 ? 'Low' : 'High'}</span>
                         </div>
                       </div>
                       <div className="grid grid-cols-2 gap-3 mb-6">
-                        <div><span className="text-[9px] font-bold text-on-surface-variant uppercase">Price</span><p className="font-bold text-sm">${priceStr(diagQuote.price)}</p></div>
-                        <div><span className="text-[9px] font-bold text-on-surface-variant uppercase">Market Cap</span><p className="font-bold text-sm">{diagQuote.market_cap ? `$${(diagQuote.market_cap / 1e9).toFixed(1)}B` : 'N/A'}</p></div>
-                        <div><span className="text-[9px] font-bold text-on-surface-variant uppercase">Volume</span><p className="font-bold text-sm">{diagQuote.volume?.toLocaleString() || 'N/A'}</p></div>
-                        <div><span className="text-[9px] font-bold text-on-surface-variant uppercase">P/E</span><p className="font-bold text-sm">{diagQuote.pe_ratio?.toFixed(1) || 'N/A'}</p></div>
+                        <div><span className="text-[9px] font-bold text-on-surface-variant uppercase font-label">Price</span><p className="font-bold text-sm">${priceStr(diagQuote.price)}</p></div>
+                        <div><span className="text-[9px] font-bold text-on-surface-variant uppercase font-label">Market Cap</span><p className="font-bold text-sm">{diagQuote.market_cap ? `$${(diagQuote.market_cap / 1e9).toFixed(1)}B` : 'N/A'}</p></div>
+                        <div><span className="text-[9px] font-bold text-on-surface-variant uppercase font-label">Volume</span><p className="font-bold text-sm">{diagQuote.volume?.toLocaleString() || 'N/A'}</p></div>
+                        <div><span className="text-[9px] font-bold text-on-surface-variant uppercase font-label">P/E</span><p className="font-bold text-sm">{diagQuote.pe_ratio?.toFixed(1) || 'N/A'}</p></div>
                       </div>
                     </>
                   )}
 
                   {streamText && (
                     <div className="mb-6">
-                      <h4 className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-2 flex items-center gap-1">
+                      <h4 className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-2 flex items-center gap-1 font-label">
                         <span className="material-symbols-outlined text-sm text-primary">psychology</span>AI Analysis
                       </h4>
                       <div className="text-sm text-on-surface font-medium leading-relaxed whitespace-pre-wrap">{streamText}</div>
@@ -262,7 +271,7 @@ function LandingContent() {
 
                   <button
                     id="whatsapp-cta"
-                    className={`flex items-center justify-center gap-3 py-3.5 rounded-full font-bold text-base transition-all active:scale-95 w-full ${diagView === 'report' ? 'pulse-active' : 'bg-surface-container-highest text-on-surface-variant'}`}
+                    className={`flex items-center justify-center gap-3 py-3.5 rounded-xl font-bold text-base transition-all active:scale-95 w-full font-label ${diagView === 'report' ? 'pulse-active' : 'bg-surface-container-highest text-on-surface-variant'}`}
                     onClick={() => {
                       const url = whatsappLink || defaultLink
                       if (typeof window !== 'undefined' && typeof (window as any).gtag_report_conversion === 'function') {
@@ -276,7 +285,7 @@ function LandingContent() {
                     Get the report for free via WhatsApp
                   </button>
                   <button className="w-full text-center mt-4 text-xs font-semibold text-on-surface-variant hover:text-on-surface transition-colors" onClick={closeDiagPanel}>
-                    Close Analysis
+                    Close
                   </button>
                 </div>
               </>
@@ -286,119 +295,113 @@ function LandingContent() {
       </div>
 
       {/* ── TopAppBar ── */}
-      <header className="bg-background/70 backdrop-blur-xl sticky top-0 z-50 flex justify-between items-center px-6 py-4 w-full max-w-screen-2xl mx-auto">
-        <div className="flex items-center gap-3">
+      <header className="bg-background/70 backdrop-blur-xl sticky top-0 z-50 flex justify-between items-center px-6 py-4 w-full">
+        <Link href="/" className="flex items-center gap-3">
           <span className="material-symbols-outlined text-primary text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>analytics</span>
-          <span className="text-xl font-black text-primary uppercase tracking-tighter font-headline">MarketPulse AI</span>
-        </div>
-        <div className="flex items-center gap-4">
-          <span className="bg-primary text-on-primary px-2 py-0.5 rounded-sm text-xs font-bold uppercase tracking-wide">Beta</span>
+          <span className="text-xl font-black tracking-tight text-on-surface font-headline">QStock</span>
+        </Link>
+        <div className="flex items-center gap-2">
+          <span className="bg-primary px-2 py-0.5 rounded text-[10px] font-bold text-on-primary font-label uppercase">Beta</span>
         </div>
       </header>
 
-      <main className="max-w-screen-xl mx-auto px-6 pt-6 pb-6">
-        {/* ── Hero ── */}
-        <section className="text-center max-w-3xl mx-auto mb-4">
-          <h1 className="font-headline text-5xl md:text-6xl font-extrabold tracking-tight mb-2 leading-tight">
-            What&apos;s the news saying about your stock?
+      {/* ── Main Content ── */}
+      <main className="flex-grow flex flex-col pt-6 pb-8 px-6">
+        {/* ── Hero Section ── */}
+        <section className="flex flex-col items-center text-center space-y-6 mb-8">
+          <h1 className="font-headline text-5xl font-black leading-tight tracking-tight text-on-surface">
+            Intelligent Stock<br/>Analysis
           </h1>
-          <p className="text-on-surface-variant text-lg md:text-xl font-medium">
-            AI scans 10,000+ articles and posts — in real time
+          <p className="font-body text-base text-on-surface-variant font-light max-w-sm">
+            Real-time market data powered by advanced AI algorithms for precise trading decisions.
           </p>
+          <div className="flex items-center justify-center gap-4 text-outline-variant py-2">
+            <span className="material-symbols-outlined text-3xl">verified_user</span>
+            <span className="material-symbols-outlined text-3xl">security</span>
+            <span className="material-symbols-outlined text-3xl">monitoring</span>
+          </div>
         </section>
 
-        {/* ── Search Section ── */}
-        <section className="max-w-2xl mx-auto mb-4">
-          <div className="flex flex-col gap-2">
-            <div className="relative search-box">
-              <div className="flex items-center bg-surface-container-highest rounded-full p-4 border border-outline-variant/15 focus-within:border-primary/50 transition-colors">
-                <span className="material-symbols-outlined text-on-surface-variant ml-2 mr-2">search</span>
-                <input
-                  className="flex-1 bg-transparent border-none focus:ring-0 text-on-surface placeholder-on-surface-variant text-lg outline-none font-body"
-                  placeholder={diagnosticHint || 'Enter ticker (e.g. AAPL)'}
-                  type="text"
-                  value={searchTerm}
-                  onChange={e => onSearchInput(e.target.value)}
-                  onFocus={() => { if (searchItems.length > 0) setSearchOpen(true) }}
-                />
-              </div>
-              {searchOpen && (
-                <div className="absolute top-full left-0 right-0 mt-2 bg-surface-container-highest border border-outline-variant/15 rounded-xl overflow-hidden shadow-xl z-[60]">
-                  {searchItems.length > 0 ? (
-                    <>
-                      {searchItems.map(item => (
-                        <button key={item.symbol} className="w-full px-4 py-3 flex items-center justify-between hover:bg-surface-container transition-colors text-left" onClick={() => { setSearchTerm(item.symbol); setSearchOpen(false); triggerDiagnosis(item.symbol) }}>
-                          <div className="flex flex-col">
-                            <span className="font-headline font-bold text-on-surface text-sm">${item.symbol}</span>
-                            <span className="font-body text-on-surface-variant text-[10px]">{item.name}</span>
-                          </div>
-                          <span className="text-[10px] text-on-surface-variant border border-outline-variant/20 rounded-full px-2 py-0.5">{item.type}</span>
-                        </button>
-                      ))}
-                      {searchTotal > 5 && (
-                        <div className="flex items-center justify-between px-4 py-3 border-t border-outline-variant/15">
-                          <span className="text-[10px] text-on-surface-variant">{(searchPage - 1) * 5 + 1}–{Math.min(searchPage * 5, searchTotal)} of {searchTotal}</span>
-                          <div className="flex gap-2">
-                            <button className="px-3 py-1 rounded-full text-[10px] font-medium bg-surface-container text-on-surface-variant hover:text-primary transition-all disabled:opacity-30" disabled={searchPage <= 1} onClick={() => onSearchPage(searchPage - 1)}>Prev</button>
-                            <button className="px-3 py-1 rounded-full text-[10px] font-medium bg-surface-container text-on-surface-variant hover:text-primary transition-all disabled:opacity-30" disabled={searchPage * 5 >= searchTotal} onClick={() => onSearchPage(searchPage + 1)}>Next</button>
-                          </div>
-                        </div>
-                      )}
-                    </>
-                  ) : searchBusy ? (
-                    <div className="px-4 py-6 flex items-center justify-center gap-2">
-                      <div className="w-4 h-4 border-2 border-surface-container border-t-primary rounded-full animate-spin"></div>
-                      <span className="text-xs text-on-surface-variant">Searching...</span>
-                    </div>
-                  ) : (
-                    <div className="px-4 py-6 text-center">
-                      <span className="material-symbols-outlined text-on-surface-variant/40 text-2xl block mb-1">search_off</span>
-                      <p className="text-xs text-on-surface-variant">No results for &quot;{searchTerm}&quot;</p>
-                    </div>
-                  )}
-                </div>
-              )}
+        {/* ── Search & Action ── */}
+        <section className="mb-8 w-full max-w-md mx-auto">
+          <div className="search-box relative">
+            <div className="bg-surface-container-low rounded-xl p-2 flex items-center shadow-[0_8px_32px_rgba(19,27,46,0.06)] border border-outline-variant/15 backdrop-blur-md">
+              <span className="material-symbols-outlined text-outline ml-3">search</span>
+              <input
+                className="bg-transparent border-none focus:ring-0 w-full text-on-surface font-body px-4 outline-none placeholder-on-surface-variant/60"
+                placeholder={diagnosticHint || 'Enter stock symbol (e.g. AAPL)'}
+                type="text"
+                value={searchTerm}
+                onChange={e => onSearchInput(e.target.value)}
+                onFocus={() => { if (searchItems.length > 0) setSearchOpen(true) }}
+                onKeyDown={e => { if (e.key === 'Enter') triggerDiagnosis() }}
+              />
             </div>
-            <button className="w-full bg-gradient-to-br from-error-container to-error text-on-error-container px-8 py-4 rounded-full font-bold uppercase tracking-wide hover:opacity-90 transition-opacity" onClick={() => triggerDiagnosis()}>
-              Scan Now
+
+            {/* Search Dropdown */}
+            {searchOpen && searchItems.length > 0 && (
+              <div className="absolute z-[60] left-0 right-0 top-full mt-2 bg-surface-container-lowest rounded-xl shadow-[0_12px_32px_rgba(19,27,46,0.12)] border border-outline-variant/15 overflow-hidden">
+                {searchItems.map(item => (
+                  <button
+                    key={item.symbol}
+                    className="w-full px-4 py-3 flex items-center justify-between hover:bg-surface-container-low transition-colors text-left"
+                    onClick={() => { setSearchTerm(item.symbol); setSearchOpen(false); triggerDiagnosis(item.symbol) }}
+                  >
+                    <div>
+                      <span className="font-label font-bold text-on-surface">${item.symbol}</span>
+                      <span className="text-xs text-on-surface-variant ml-2">{item.name}</span>
+                    </div>
+                    <span className="text-[10px] text-on-surface-variant font-label">{item.exchange}</span>
+                  </button>
+                ))}
+                {searchTotal > 5 && (
+                  <div className="flex justify-center gap-2 py-2 border-t border-outline-variant/15">
+                    {Array.from({ length: Math.ceil(searchTotal / 5) }, (_, i) => (
+                      <button key={i} className={`px-2.5 py-1 rounded text-xs font-label ${searchPage === i + 1 ? 'bg-primary text-on-primary' : 'text-on-surface-variant hover:bg-surface-container-low'}`} onClick={() => onSearchPage(i + 1)}>{i + 1}</button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+            {searchOpen && searchItems.length === 0 && searchBusy && (
+              <div className="absolute z-[60] left-0 right-0 top-full mt-2 bg-surface-container-lowest rounded-xl shadow-[0_12px_32px_rgba(19,27,46,0.12)] border border-outline-variant/15 p-4">
+                <div className="flex items-center justify-center gap-2">
+                  <div className="w-4 h-4 border-2 border-surface-container border-t-primary rounded-full animate-spin"></div>
+                  <span className="text-xs text-on-surface-variant">Searching...</span>
+                </div>
+              </div>
+            )}
+          </div>
+          <button className="w-full mt-4 bg-gradient-to-r from-primary to-primary-container text-on-primary font-label text-base py-4 rounded-xl shadow-[0_12px_24px_rgba(73,62,229,0.2)] active:scale-95 transition-transform flex items-center justify-center gap-2 font-bold tracking-wide" onClick={() => triggerDiagnosis()}>
+            Analyze with AI
+            <span className="material-symbols-outlined text-sm">arrow_forward</span>
+          </button>
+        </section>
+
+        {/* ── Trending Today ── */}
+        <section className="mb-8">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="font-headline text-xl font-bold text-on-surface tracking-tight">Trending Today</h2>
+            <button className="text-primary font-label text-sm font-bold flex items-center gap-1 hover:opacity-80">
+              View All <span className="material-symbols-outlined text-xs">chevron_right</span>
             </button>
           </div>
-          <div className="flex justify-center gap-3 mt-3">
-            {(hotFetching || hotList.length === 0 ? ['GME', 'AMC', 'TSLA', 'BBBY'] : hotList.slice(0, 4).map(s => s.symbol)).map(sym => (
-              <button key={sym} className="bg-surface-variant px-4 py-2 rounded-md text-primary font-medium hover:bg-surface-bright transition-colors text-sm" onClick={() => { setSearchTerm(sym); triggerDiagnosis(sym) }}>
-                ${sym}
-              </button>
-            ))}
-          </div>
-        </section>
-
-        {/* ── Hot Stocks Carousel ── */}
-        <section className="mb-4">
-          <h3 className="font-headline text-sm text-on-surface-variant uppercase tracking-widest mb-2">Hot Stocks</h3>
-          <div className="flex overflow-x-auto snap-x snap-mandatory gap-4 pb-4 -mx-6 px-6 no-scrollbar">
-            {(hotFetching || hotList.length === 0
-              ? [
-                  { symbol: 'NVDA', name: 'NVIDIA Corp', price: 822.43, change_percent: 4.2 },
-                  { symbol: 'AAPL', name: 'Apple Inc', price: 173.50, change_percent: -1.1 },
-                  { symbol: 'TSLA', name: 'Tesla Inc', price: 202.64, change_percent: 2.8 },
-                  { symbol: 'AMD', name: 'Advanced Micro Devices', price: 180.49, change_percent: 5.6 },
-                  { symbol: 'MSFT', name: 'Microsoft Corp', price: 402.18, change_percent: 0.9 },
-                ]
-              : hotList.slice(0, 8).map(s => ({ symbol: s.symbol, name: s.name, price: s.price, change_percent: s.change_percent }))
-            ).map(stock => (
-              <div key={stock.symbol} className="snap-center shrink-0 w-64 bg-surface-container-highest rounded-xl p-6 border border-outline-variant/15 flex flex-col justify-between hover:border-primary/50 transition-colors cursor-pointer" onClick={() => { setSearchTerm(stock.symbol); triggerDiagnosis(stock.symbol) }}>
-                <div className="flex justify-between items-start mb-6">
-                  <div className="flex flex-col">
-                    <span className="font-headline font-bold text-lg text-on-surface">${stock.symbol}</span>
-                    <span className="text-xs text-on-surface-variant">{stock.name}</span>
-                  </div>
-                  <div className={`flex items-center gap-1 px-2 py-1 rounded ${stock.change_percent >= 0 ? 'text-primary bg-primary/10' : 'text-error bg-error/10'}`}>
-                    <span className="material-symbols-outlined text-[16px]">{stock.change_percent >= 0 ? 'trending_up' : 'trending_down'}</span>
-                    <span className="text-xs font-bold">{stock.change_percent >= 0 ? '+' : ''}{stock.change_percent.toFixed(1)}%</span>
+          <div className="grid grid-cols-2 gap-4">
+            {trendingStocks.map(stock => (
+              <div
+                key={stock.symbol}
+                className="bg-surface-container-lowest p-5 rounded-xl shadow-[0_4px_20px_rgba(19,27,46,0.04)] border border-outline-variant/15 flex flex-col justify-between h-32 relative overflow-hidden group hover:bg-surface-container-low transition-colors cursor-pointer"
+                onClick={() => { setSearchTerm(stock.symbol); triggerDiagnosis(stock.symbol) }}
+              >
+                <div className="flex justify-between items-start">
+                  <span className="font-label font-bold text-lg text-on-surface">{stock.symbol}</span>
+                  <div className={`px-2 py-0.5 rounded text-[10px] font-bold flex items-center font-label ${stock.change_percent >= 0 ? 'bg-tertiary-fixed-dim/20 text-tertiary' : 'bg-error-container/50 text-error'}`}>
+                    <span className="material-symbols-outlined text-[10px] mr-0.5">{stock.change_percent >= 0 ? 'trending_up' : 'trending_down'}</span>
+                    {stock.change_percent >= 0 ? '+' : ''}{stock.change_percent.toFixed(1)}%
                   </div>
                 </div>
                 <div>
-                  <span className="font-headline text-2xl font-bold text-on-surface">${priceStr(stock.price)}</span>
+                  <span className="font-headline font-extrabold text-2xl text-on-surface">${priceStr(stock.price)}</span>
                 </div>
               </div>
             ))}
@@ -407,19 +410,19 @@ function LandingContent() {
 
         {/* ── Stock Data Module (code param) ── */}
         {codeParam && quoteData && (
-          <section className="mb-4">
-            <div className="bg-surface-container-highest rounded-xl p-6 border border-outline-variant/15">
+          <section className="mb-8">
+            <div className="bg-surface-container-lowest rounded-xl shadow-[0_4px_20px_rgba(19,27,46,0.04)] border border-outline-variant/15 p-5">
               <div className="flex justify-between items-start mb-4">
                 <div>
-                  <h3 className="font-headline font-bold text-lg text-on-surface">${quoteData.symbol}</h3>
+                  <h3 className="font-label font-bold text-lg text-on-surface">${quoteData.symbol}</h3>
                   <span className="text-xs text-on-surface-variant">{quoteData.name}</span>
                 </div>
-                <div className={`flex items-center gap-1 px-2 py-1 rounded ${quoteData.change_percent >= 0 ? 'text-primary bg-primary/10' : 'text-error bg-error/10'}`}>
-                  <span className="material-symbols-outlined text-[16px]">{quoteData.change_percent >= 0 ? 'trending_up' : 'trending_down'}</span>
-                  <span className="text-xs font-bold">{quoteData.change_percent >= 0 ? '+' : ''}{quoteData.change_percent.toFixed(1)}%</span>
+                <div className={`px-2 py-0.5 rounded text-[10px] font-bold flex items-center font-label ${quoteData.change_percent >= 0 ? 'bg-tertiary-fixed-dim/20 text-tertiary' : 'bg-error-container/50 text-error'}`}>
+                  <span className="material-symbols-outlined text-[10px] mr-0.5">{quoteData.change_percent >= 0 ? 'trending_up' : 'trending_down'}</span>
+                  {quoteData.change_percent >= 0 ? '+' : ''}{quoteData.change_percent.toFixed(1)}%
                 </div>
               </div>
-              <span className="font-headline text-2xl font-bold text-on-surface">${priceStr(quoteData.price)}</span>
+              <span className="font-headline font-extrabold text-2xl text-on-surface">${priceStr(quoteData.price)}</span>
               <p className="text-sm text-on-surface-variant mt-3">
                 {quoteData.change >= 0
                   ? `Strong fundamental resilience with ${quoteData.change_percent.toFixed(1)}% momentum. Valuation justified by cash flow stability.`
@@ -429,36 +432,68 @@ function LandingContent() {
           </section>
         )}
 
-        {/* ── Trusted Sources ── */}
-        <section className="border-t border-outline-variant/15 pt-4 text-center">
-          <h3 className="text-sm text-on-surface-variant uppercase tracking-widest mb-4">Scanning Top Tier Sources</h3>
-          <div className="flex flex-wrap justify-center items-center gap-x-12 gap-y-6 opacity-60">
-            {['Reuters', 'Bloomberg', 'CNBC', 'Benzinga'].map(src => (
-              <div key={src} className="flex items-center gap-2">
-                <span className="material-symbols-outlined text-primary text-sm">check_circle</span>
-                <span className="font-headline font-bold text-lg">{src}</span>
+        {/* ── Data Sources (Dark Navy Banner) ── */}
+        <section className="bg-on-surface w-full py-8 px-6 mb-8 relative overflow-hidden rounded-2xl -mx-6">
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent pointer-events-none"></div>
+          <h3 className="font-label text-xs tracking-[0.2em] uppercase text-center mb-8 font-bold relative z-10 text-white/60">Powered By Trusted Data Sources</h3>
+          <div className="grid grid-cols-2 gap-4 relative z-10">
+            {['NASDAQ', 'NYSE', 'S&P 500', 'YAHOO!'].map(src => (
+              <div key={src} className="bg-surface/5 border border-surface/10 rounded-lg p-4 flex items-center justify-center backdrop-blur-sm h-16">
+                <span className="font-headline font-bold text-white text-sm tracking-widest">{src}</span>
               </div>
             ))}
           </div>
         </section>
+
+        {/* ── Features List ── */}
+        <section className="mb-8">
+          <h2 className="font-headline text-2xl font-extrabold text-on-surface mb-8 tracking-tight">Why choose our platform</h2>
+          <ul className="space-y-6">
+            {[
+              { icon: 'bolt', title: 'Real-time Data', desc: 'Sub-millisecond latency on market updates ensuring you never miss a tick.' },
+              { icon: 'psychology', title: 'AI Analysis', desc: 'Predictive modeling trained on decades of market behavior.' },
+              { icon: 'monitoring', title: 'Technical Charts', desc: 'Advanced plotting tools with customizable indicators.' },
+              { icon: 'shield', title: 'Risk Metrics', desc: 'Comprehensive exposure analysis and portfolio stress testing.' },
+            ].map(feat => (
+              <li key={feat.icon} className="flex items-start gap-4">
+                <div className="mt-1 bg-primary/10 p-2 rounded-full flex-shrink-0">
+                  <span className="material-symbols-outlined text-primary text-sm">{feat.icon}</span>
+                </div>
+                <div>
+                  <h4 className="font-headline font-bold text-on-surface text-base mb-1">{feat.title}</h4>
+                  <p className="font-body text-sm text-on-surface-variant font-light leading-relaxed">{feat.desc}</p>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        {/* ── Bottom CTA ── */}
+        <section className="mb-8 w-full max-w-md mx-auto">
+          <button className="w-full bg-gradient-to-r from-primary to-primary-container text-on-primary font-label text-base py-5 rounded-xl shadow-[0_16px_32px_rgba(73,62,229,0.25)] active:scale-95 transition-transform flex items-center justify-center gap-2 font-bold tracking-wide" onClick={() => triggerDiagnosis()}>
+            Connect with AI Agent
+            <span className="material-symbols-outlined text-sm">arrow_forward</span>
+          </button>
+        </section>
       </main>
 
       {/* ── Footer ── */}
-      <footer className="bg-background py-4 flex flex-col md:flex-row justify-between items-center px-8 w-full max-w-screen-2xl mx-auto gap-4">
-        <div className="text-lg font-bold text-primary font-headline">MarketPulse AI</div>
-        <div className="text-sm text-on-surface-variant">&copy; 2026 MarketPulse AI. Editorial-grade market insights.</div>
-        <div className="flex gap-6">
-          <Link className="text-sm text-on-surface-variant hover:text-primary transition-colors" href="/privacy">Privacy Policy</Link>
-          <Link className="text-sm text-on-surface-variant hover:text-primary transition-colors" href="/terms">Terms of Service</Link>
+      <footer className="bg-[#131B2E] text-white w-full flex flex-col items-center gap-6 text-center p-12">
+        <div className="font-headline font-black text-white text-xl tracking-tight mb-2">QStock</div>
+        <p className="text-slate-400 text-xs font-light">&copy; 2026 QStock. Precision in Every Pulse.</p>
+        <div className="flex flex-wrap justify-center gap-6">
+          <Link className="text-slate-500 hover:text-primary-container transition-colors text-xs" href="/privacy">Privacy Policy</Link>
+          <Link className="text-slate-500 hover:text-primary-container transition-colors text-xs" href="/terms">Terms of Service</Link>
+          <Link className="text-slate-500 hover:text-primary-container transition-colors text-xs" href="/contact">Contact</Link>
         </div>
       </footer>
 
       {/* ── Sticky CTA ── */}
       <div className="fixed bottom-8 left-0 w-full px-6 z-[80]" id="scroll-cta">
-        <div className="max-w-2xl mx-auto">
-          <button className="w-full bg-gradient-to-br from-error-container to-error text-on-error-container font-bold py-4 rounded-full text-base uppercase tracking-wide shadow-xl hover:opacity-90 transition-all active:scale-95 flex items-center justify-center gap-2" onClick={() => triggerDiagnosis()}>
+        <div className="max-w-md mx-auto">
+          <button className="w-full bg-gradient-to-r from-primary to-primary-container text-on-primary font-label font-bold py-4 rounded-xl text-base shadow-[0_16px_32px_rgba(73,62,229,0.3)] hover:opacity-90 transition-all active:scale-95 flex items-center justify-center gap-2" onClick={() => triggerDiagnosis()}>
             <span className="material-symbols-outlined">radar</span>
-            SCAN NOW
+            ANALYZE NOW
           </button>
         </div>
       </div>
