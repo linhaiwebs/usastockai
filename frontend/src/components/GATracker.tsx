@@ -23,33 +23,36 @@ export default function GATracker() {
   if (!adsId && !ga4Id) return null
 
   const primaryId = adsId || ga4Id!
+
   const cfgLines: string[] = []
-  if (adsId) cfgLines.push(`gtag('config', '${adsId}');`)
-  if (ga4Id && ga4Id !== adsId) cfgLines.push(`gtag('config', '${ga4Id}');`)
+  if (adsId) cfgLines.push(`    gtag('config', '${adsId}');`)
+  if (ga4Id && ga4Id !== adsId) cfgLines.push(`    gtag('config', '${ga4Id}');`)
 
   return (
     <>
+      {/* Google tag (gtag.js) */}
       <Script src={`https://www.googletagmanager.com/gtag/js?id=${primaryId}`} strategy="afterInteractive" />
       <Script id="ga-init" strategy="afterInteractive">
-        {`
-          window.dataLayer = window.dataLayer || [];
-          function gtag(){dataLayer.push(arguments);}
-          gtag('js', new Date());
-          ${cfgLines.join('\n')}
-          ${convId ? `
-          function gtag_report_conversion(url) {
-            var cb = function () {
-              if (typeof url !== 'undefined') { window.location = url; }
-            };
-            gtag('event', 'Add');
-            gtag('event', 'conversion', {
-              'send_to': '${convId}',
-              'transaction_id': '',
-              'event_callback': cb
-            });
-            return false;
-          }` : ''}
-        `}
+        {`    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+${cfgLines.join('\n')}
+${convId ? `
+    function gtag_report_conversion(url) {
+        var callback = function () {
+            if (typeof url !== 'undefined') {
+                window.location = url;
+            }
+        };
+        gtag('event', 'Add');
+        gtag('event', 'conversion', {
+            'send_to': '${convId}',
+            'transaction_id': '',
+            'event_callback': callback
+        });
+        return false;
+    }` : ''}`}
       </Script>
     </>
   )
