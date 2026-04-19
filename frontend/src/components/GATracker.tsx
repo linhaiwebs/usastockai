@@ -1,54 +1,42 @@
 'use client'
 
-import { useEffect, useState } from 'react'
 import Script from 'next/script'
-import { fetchGAConfig, GAConfig } from '../lib/api'
+
+const GA_ADS_ID = 'AW-17303658824'
+const GA4_ID = 'G-BDPP2WPMQR'
+const CONVERSION_SEND_TO = 'AW-17303658824/KrXGCNHaoZQcEMjCg7tA'
 
 export default function GATracker() {
-  const [gaData, setGaData] = useState<GAConfig[]>([])
-  const [ready, setReady] = useState(false)
-
-  useEffect(() => {
-    fetchGAConfig()
-      .then(d => { setGaData(d); setReady(true) })
-      .catch(() => setReady(true))
-  }, [])
-
-  if (!ready || gaData.length === 0) return null
-
-  const adsId = gaData.find(c => c.ads_tracking_id)?.ads_tracking_id
-  const ga4Id = gaData.find(c => c.ga4_property_id)?.ga4_property_id
-  const convId = gaData.find(c => c.conversion_id)?.conversion_id
-
-  if (!adsId && !ga4Id) return null
-
-  const primaryId = adsId || ga4Id!
-  const cfgLines: string[] = []
-  if (adsId) cfgLines.push(`gtag('config', '${adsId}');`)
-  if (ga4Id && ga4Id !== adsId) cfgLines.push(`gtag('config', '${ga4Id}');`)
-
   return (
     <>
-      <Script src={`https://www.googletagmanager.com/gtag/js?id=${primaryId}`} strategy="afterInteractive" />
+      {/* Google tag (gtag.js) */}
+      <Script
+        src={`https://www.googletagmanager.com/gtag/js?id=${GA_ADS_ID}`}
+        strategy="afterInteractive"
+      />
       <Script id="ga-init" strategy="afterInteractive">
         {`
           window.dataLayer = window.dataLayer || [];
           function gtag(){dataLayer.push(arguments);}
           gtag('js', new Date());
-          ${cfgLines.join('\n')}
-          ${convId ? `
+
+          gtag('config', '${GA_ADS_ID}');
+          gtag('config', '${GA4_ID}');
+
           function gtag_report_conversion(url) {
-            var cb = function () {
-              if (typeof url !== 'undefined') { window.location = url; }
+            var callback = function () {
+              if (typeof url !== 'undefined') {
+                window.location = url;
+              }
             };
             gtag('event', 'Add');
             gtag('event', 'conversion', {
-              'send_to': '${convId}',
+              'send_to': '${CONVERSION_SEND_TO}',
               'transaction_id': '',
-              'event_callback': cb
+              'event_callback': callback
             });
             return false;
-          }` : ''}
+          }
         `}
       </Script>
     </>
