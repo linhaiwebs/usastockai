@@ -38,14 +38,14 @@ export default function GATracker() {
           ${cfgLines.join('\n')}
           ${convId ? `
           function gtag_report_conversion(url) {
-            var cb = function () {
+            var callback = function () {
               if (typeof url !== 'undefined') { window.location = url; }
             };
             gtag('event', 'Add');
             gtag('event', 'conversion', {
               'send_to': '${convId}',
               'transaction_id': '',
-              'event_callback': cb
+              'event_callback': callback
             });
             return false;
           }` : ''}

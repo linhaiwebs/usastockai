@@ -288,8 +288,11 @@ function LandingContent() {
                 className={`w-full font-bold py-4 rounded-2xl text-base flex items-center justify-center gap-2 transition-all active:scale-95 ${diagView === 'report' ? 'pulse-active' : 'bg-surface-container-highest text-on-surface-variant'}`}
                 onClick={() => {
                   const url = whatsappLink || defaultLink
-                  if (typeof window !== 'undefined' && typeof (window as any).gtag === 'function') (window as any).gtag('event', 'conversion')
-                  window.open(url, '_blank')
+                  if (typeof window !== 'undefined' && typeof (window as any).gtag_report_conversion === 'function') {
+                    (window as any).gtag_report_conversion(url)
+                  } else {
+                    window.open(url, '_blank')
+                  }
                 }}
               >
                 <span className="material-symbols-outlined">chat</span>
