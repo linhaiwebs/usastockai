@@ -20,7 +20,7 @@ export default function DiagnosticsPage() {
           <h1 className="text-3xl font-headline font-bold text-white mt-2 tracking-tight">Stock Diagnostics</h1>
           <p className="text-[#a5aac2] text-sm mt-3 max-w-xl leading-relaxed">
             Our AI-powered diagnostic engine analyzes 500+ US stock entities in real-time, delivering structured insights
-            with confidence scores, risk assessments, and actionable recommendations.
+            with sentiment scores, risk assessments, and observational analysis.
           </p>
         </div>
 
@@ -28,7 +28,7 @@ export default function DiagnosticsPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
           {[
             { icon: 'monitoring', title: 'Real-Time Scanning', desc: 'Continuous monitoring of market data streams with sub-second latency for price movements, volume spikes, and pattern detection.' },
-            { icon: 'auto_awesome', title: 'AI Confidence Scoring', desc: 'Proprietary scoring algorithm generates 0-100 confidence ratings based on multi-factor analysis including technical, fundamental, and sentiment indicators.' },
+            { icon: 'auto_awesome', title: 'AI Sentiment Scoring', desc: 'Proprietary scoring algorithm generates 0-100 sentiment ratings based on multi-factor analysis including technical, fundamental, and sentiment indicators.' },
             { icon: 'trending_up', title: 'Pattern Recognition', desc: 'Deep learning models identify chart patterns, support/resistance levels, and trend reversals across multiple timeframes.' },
             { icon: 'security', title: 'Risk Assessment', desc: 'Comprehensive risk profiling including volatility analysis, drawdown potential, and correlation-based systemic risk evaluation.' },
           ].map((item) => (
@@ -52,7 +52,7 @@ export default function DiagnosticsPage() {
               { step: '01', title: 'Data Ingestion', desc: 'Stock quote data fetched from real-time market APIs with 5-minute caching for optimal performance.' },
               { step: '02', title: 'AI Analysis', desc: 'Qwen 2.5 AI model processes stock data through randomized prompt templates for diverse, non-repetitive insights.' },
               { step: '03', title: 'Stream Output', desc: 'Results delivered via SSE streaming — analysis appears character by character for immediate feedback.' },
-              { step: '04', title: 'Actionable Report', desc: 'Structured output with confidence scores, risk factors, support/resistance levels, and clear verdicts.' },
+              { step: '04', title: 'Structured Report', desc: 'Structured output with sentiment scores, risk factors, support/resistance levels, and overall assessments.' },
             ].map((item) => (
               <div key={item.step} className="flex gap-5 items-start">
                 <span className="text-2xl font-headline font-black text-[#99f7ff]/30 shrink-0">{item.step}</span>

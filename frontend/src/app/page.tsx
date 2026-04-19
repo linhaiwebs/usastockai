@@ -317,7 +317,7 @@ function HomeContent() {
             See the Hidden DNA of<br/>Every Stock
           </h1>
           <p className="text-sm font-body text-on-surface-variant font-light leading-relaxed max-w-[280px]">
-            Wall Street-level AI quantitative model. Enter code for instant prediction and risk analysis.
+            Wall Street-level AI quantitative model. Enter code for instant analysis and risk assessment.
           </p>
         </div>
 
@@ -454,11 +454,11 @@ function HomeContent() {
                 </div>
                 <div className="flex flex-col items-end flex-shrink-0 pl-2">
                   <div className={`font-label text-[10px] border rounded px-2 py-0.5 mb-1 flex items-center gap-1 ${stock.change_percent >= 0 ? 'text-primary border-primary/30 bg-primary/10' : 'text-error border-error/30 bg-error/10'}`}>
-                    <span className="material-symbols-outlined text-[10px]">verified</span>
-                    {stock.change_percent >= 0 ? 'High' : 'Low'} Confidence
+                    <span className="material-symbols-outlined text-[10px]">trending_up</span>
+                    {stock.change_percent >= 0 ? 'Positive' : 'Negative'} Sentiment
                   </div>
                   <div className={`font-headline text-xs ${stock.change_percent >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                    {stock.change_percent >= 0 ? 'Bullish' : 'Bearish'} Signal
+                    {stock.change_percent >= 0 ? 'Up' : 'Down'} Trend
                   </div>
                 </div>
               </div>
@@ -486,19 +486,19 @@ function HomeContent() {
                 <div className="glass-card p-4 rounded-xl relative overflow-hidden border-l-4 border-primary/50">
                   <p className="text-on-surface-variant font-headline text-xs tracking-widest uppercase mb-2">Market Sentiment</p>
                   <div className="flex items-baseline gap-2">
-                    <span className="text-2xl font-headline font-bold text-primary">{stockData.change >= 0 ? 'Bullish' : 'Bearish'}</span>
-                    <span className="text-primary/60 font-mono text-sm tracking-tighter">({stockData.change >= 0 ? 'High' : 'Low'} Confidence)</span>
+                    <span className="text-2xl font-headline font-bold text-primary">{stockData.change >= 0 ? 'Positive' : 'Negative'}</span>
+                    <span className="text-primary/60 font-mono text-sm tracking-tighter">({stockData.change >= 0 ? 'Positive' : 'Negative'} Sentiment)</span>
                   </div>
                 </div>
                 <div className="glass-card p-4 rounded-xl border-l-4 border-secondary/50">
-                  <p className="text-on-surface-variant font-headline text-xs tracking-widest uppercase mb-2">AI Recommendation</p>
+                  <p className="text-on-surface-variant font-headline text-xs tracking-widest uppercase mb-2">AI Analysis</p>
                   <div className={`${stockData.change_percent >= 0 ? 'bg-primary/10' : 'bg-error/10'} inline-block px-4 py-1 rounded-full mb-2`}>
                     <span className={`${stockData.change_percent >= 0 ? 'text-primary' : 'text-error'} font-headline font-bold text-sm uppercase tracking-tighter`}>
-                      {stockData.change_percent >= 0 ? 'Strong Buy' : 'Sell Signal'}
+                      {stockData.change_percent >= 0 ? 'Positive Outlook' : 'Negative Outlook'}
                     </span>
                   </div>
                   <p className="text-sm text-on-surface leading-relaxed font-body">
-                    AI analysis indicates {stockData.change >= 0 ? 'a primary support bounce' : 'distribution pressure'} at {fmtPrice(stockData.price)} with target {stockData.change >= 0 ? 'upside' : 'downside'} of {Math.abs(stockData.change_percent).toFixed(1)}%.
+                    AI analysis observes {stockData.change >= 0 ? 'recent upward momentum' : 'recent downward pressure'} at {fmtPrice(stockData.price)} with recent change of {Math.abs(stockData.change_percent).toFixed(1)}%.
                   </p>
                 </div>
               </div>

@@ -47,14 +47,14 @@ def invalidate_settings_cache():
 
 # Default prompt fallbacks
 DEFAULT_STREAMING_SYSTEM = (
-    "You are a professional stock analyst AI. Provide concise, actionable analysis.\n\n"
+    "You are a professional stock analyst AI. Provide concise, structured analysis.\n\n"
     "Rules:\n"
     "1. Start directly with analysis - no introductions\n"
     "2. Maximum 15 lines total\n"
     "3. Use bullet points with emojis\n"
     "4. One sentence per bullet point\n"
     "5. Include key metrics when possible (P/E, growth %, etc.)\n"
-    "6. End with a clear verdict or action\n"
+    "6. End with an overall assessment\n"
     "7. NO disclaimers or headers"
 )
 
@@ -64,7 +64,7 @@ DEFAULT_STOCK_SYSTEM = (
     "You are a professional stock analyst. Provide concise, structured analysis in plain text.\n\n"
     "Rules:\n"
     "1. Use emojis for visual structure\n"
-    "2. Include specific numbers, percentages, and price levels\n"
+    "2. Include key metrics and recent data points\n"
     "3. Keep it under 15 lines\n"
     "4. No introductions, disclaimers, or filler words\n"
     "5. Output real analysis, not templates or placeholders"
@@ -89,13 +89,13 @@ DEFAULT_FORMAT_2 = (
     "Output this format:\n"
     "🔍 {symbol} Analysis\n\n"
     "🚀 Price: ${price} ({direction} {change_pct}%)\n\n"
-    "📈 Bullish Case:\n"
+    "📈 Positive Case:\n"
     "- Growth driver with specific numbers\n"
     "- Positive catalyst with timeline\n\n"
-    "📉 Bearish Case:\n"
+    "📉 Negative Case:\n"
     "- Risk factor with potential impact\n"
     "- Concern with supporting data\n\n"
-    "🎯 Verdict: X/100 - Buy/Hold/Sell\n"
+    "🎯 Verdict: X/100 - Positive/Mixed/Negative\n"
 )
 
 DEFAULT_FORMAT_3 = (
@@ -105,24 +105,24 @@ DEFAULT_FORMAT_3 = (
     "Price: ${price} {emoji}\n"
     "Change: {change}%\n"
     "Score: X/100\n"
-    "Trend: Bullish/Bearish/Neutral\n\n"
+    "Trend: Upward/Downward/Neutral\n\n"
     "🔑 Key Levels:\n"
     "- Support and resistance prices\n"
     "- Trend direction and strength\n"
     "- Volume or momentum signal\n\n"
-    "💡 Action: Entry $ | Target $ | Stop $\n"
+    "💡 Key Levels: Support $ | Resistance $ | Watch $\n"
 )
 
 DEFAULT_DIAGNOSTIC_PLACEHOLDER = (
     "> INITIATING AI STOCK DIAGNOSIS...\n"
     "SCANNING MARKET DATA [Multi-Source]\n"
-    "> Pattern correlation found: 0.984 confidence.\n"
+    "> Pattern correlation found: 0.984 correlation.\n"
     "> CALCULATING TREND VECTORS...\n"
-    "Trend Alpha: +4.2% [Confirmed]\n"
+    "Trend Alpha: +4.2% [Detected]\n"
     "> VOLUME ANALYSIS HEATMAP GENERATED.\n"
     "Key resistance detected at $235.10.\n"
     "System note: Volatility levels rising.\n"
-    "DIAGNOSIS SCORE: 94.2% Bullish bias."
+    "DIAGNOSIS SCORE: 94.2% Positive sentiment."
 )
 
 DEFAULT_FALLBACK_URL = "https://wa.me/1234567890"

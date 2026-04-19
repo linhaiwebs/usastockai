@@ -19,7 +19,7 @@ export default function AnalysisPage() {
           <span className="text-[10px] text-[#a5aac2] uppercase tracking-[0.3em] font-label">AI Engine / Analysis</span>
           <h1 className="text-3xl font-headline font-bold text-white mt-2 tracking-tight">AI Analysis</h1>
           <p className="text-[#a5aac2] text-sm mt-3 max-w-xl leading-relaxed">
-            Powered by Qwen 2.5-7B-Instruct via vLLM, our analysis engine generates structured, actionable
+            Powered by Qwen 2.5-7B-Instruct via vLLM, our analysis engine generates structured, observational
             stock diagnostics with randomized prompt templates for diverse and non-repetitive outputs.
           </p>
         </div>
@@ -65,14 +65,14 @@ export default function AnalysisPage() {
                 icon: 'leaderboard',
               },
               {
-                format: 'Format 2 — Bull/Bear Analysis',
-                desc: 'Balanced bull/bear case analysis with growth drivers, risk factors, and a final verdict with buy/hold/sell recommendation.',
+                format: 'Format 2 — Positive/Negative Analysis',
+                desc: 'Balanced bull/bear case analysis with growth drivers, risk factors, and a final assessment with positive/mixed/negative outlook.',
                 vars: '{symbol}, {price}, {direction}, {change_pct}',
                 icon: 'compare_arrows',
               },
               {
                 format: 'Format 3 — Technical View',
-                desc: 'Technical analysis focused format with price box, trend direction, key technical points, and entry/target/stop levels.',
+                desc: 'Technical analysis focused format with price box, trend direction, key technical points, and support/resistance/watch levels.',
                 vars: '{symbol}, {price}, {emoji}, {change}',
                 icon: 'candlestick_chart',
               },

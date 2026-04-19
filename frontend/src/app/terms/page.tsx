@@ -18,7 +18,7 @@ export default function TermsPage() {
           </section>
           <section>
             <h2 className="font-headline font-bold text-on-surface text-lg mb-3">2. Service Description</h2>
-            <p>Ethereal AI provides AI-powered stock diagnosis and quantitative analysis tools. Our services generate predictions and risk assessments based on algorithmic models and publicly available market data.</p>
+            <p>Ethereal AI provides AI-powered stock diagnosis and quantitative analysis tools. Our services generate analysis and risk assessments based on algorithmic models and publicly available market data.</p>
           </section>
           <section>
             <h2 className="font-headline font-bold text-on-surface text-lg mb-3">3. Disclaimer</h2>
