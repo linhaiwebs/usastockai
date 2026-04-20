@@ -1,0 +1,32 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ═════════════════════════════════════════════════════
+   AI Stock Diagnosis — STITCH (ID: 16666035203631841346)
+   Mobile Compact Layout — LIGHT + Pink/Green
+   ═════════════════════════════════════════════════════ */
+
+@font-face { font-family: 'Inter'; font-style: normal; font-weight: 400; font-display: swap; src: url('/fonts/inter-400.woff2') format('woff2'); }
+@font-face { font-family: 'Inter'; font-style: normal; font-weight: 500; font-display: swap; src: url('/fonts/inter-500.woff2') format('woff2'); }
+@font-face { font-family: 'Inter'; font-style: normal; font-weight: 600; font-display: swap; src: url('/fonts/inter-600.woff2') format('woff2'); }
+@font-face { font-family: 'Material Symbols Outlined'; font-style: normal; font-weight: 400; font-display: block; src: url('/fonts/material-symbols-outlined.woff2') format('woff2'); }
+
+body { font-family: 'Inter', system-ui, sans-serif; background-color: #f9fafb; color: #111827; }
+::selection { background-color: #f472b6; color: #ffffff; }
+
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+.material-symbols-outlined { font-family: 'Material Symbols Outlined' !important; font-weight: 400 !important; font-style: normal !important; font-size: 24px; line-height: 1; letter-spacing: normal; text-transform: none; display: inline-block; white-space: nowrap; word-wrap: normal; direction: ltr; -webkit-font-smoothing: antialiased; font-feature-settings: 'rlig' 1, 'liga' 1 !important; font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+
+/* ── Hero gradient ── */
+.bg-gradient-hero { background: linear-gradient(to bottom, #ffffff 0%, #fef2f2 100%); }
+
+/* ── Modal ── */
+.diag-modal { position: fixed; inset: 0; z-index: 100; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; padding: 1rem; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
+.diag-modal.open { opacity: 1; pointer-events: auto; }
+
+/* ── WhatsApp CTA ── */
+#whatsapp-cta.pulse-active { animation: wa-glow 2.5s ease-in-out infinite; }
+@keyframes wa-glow { 0%, 100% { box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3); } 50% { box-shadow: 0 4px 24px rgba(37, 211, 102, 0.6); } }
