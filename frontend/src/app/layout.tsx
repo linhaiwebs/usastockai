@@ -3,8 +3,8 @@ import './globals.css'
 import GoogleAnalytics from '../components/GoogleAnalytics'
 
 export const metadata: Metadata = {
-  title: 'AVANT_ANALYST | AI Stock Diagnosis',
-  description: 'Raw AI stock diagnosis for US market intelligence. Uncover financial DNA patterns with brutal precision.',
+  title: 'STOCK_DIAGNOSTIC | AI Predictive Prism',
+  description: 'AI-driven stock diagnostics for smarter US market intelligence. Uncover financial DNA patterns with predictive analysis.',
 }
 
 export const viewport: Viewport = {
