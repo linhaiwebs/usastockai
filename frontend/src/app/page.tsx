@@ -205,6 +205,14 @@ function HomeContent() {
     if (isAnalyzingRef.current) return
     isAnalyzingRef.current = true
     const symbol = stockCode && stockData ? stockCode : searchInput.trim() || 'AAPL'
+    // Fetch stock data if we don't have it for the current symbol
+    if (symbol && (!stockData || stockData.symbol !== symbol.toUpperCase())) {
+      setStockLoading(true)
+      getStockQuote(symbol)
+        .then(data => setStockData(data))
+        .catch(() => setStockData(null))
+        .finally(() => setStockLoading(false))
+    }
     startAnalysisStream(symbol); openModal()
     isAnalyzingRef.current = false
   }, [openModal, stockCode, stockData, searchInput, startAnalysisStream])
@@ -317,10 +325,10 @@ function HomeContent() {
                       {analysisContent}{isStreaming && <span className="animate-pulse text-primary">▌</span>}
                     </p>
                   ) : (
-                    <div className="flex items-start gap-4">
-                      <div className="mt-1 w-2 h-2 rounded-full bg-secondary shrink-0"></div>
-                      <p className="text-on-surface leading-relaxed font-body">{placeholderText || 'AI is preparing your diagnostic report...'}</p>
-                    </div>
+                    <p className="text-on-surface leading-relaxed font-body whitespace-pre-wrap">
+                      {placeholderText || 'AI is preparing your diagnostic report...'}
+                      {isStreaming && <span className="animate-pulse text-primary">▌</span>}
+                    </p>
                   )}
                 </div>
               </div>
