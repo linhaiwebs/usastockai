@@ -3,47 +3,42 @@ import Link from 'next/link'
 
 export default function ContactPage() {
   return (
-    <div className="min-h-screen bg-background text-on-background font-body flex flex-col">
-      <header className="bg-black w-full sticky top-0 z-50 flex justify-between items-center px-6 py-4">
-        <Link href="/" className="flex items-center gap-2">
-          <span className="material-symbols-outlined text-primary" style={{ fontVariationSettings: "'FILL' 1" }}>analytics</span>
-          <h1 className="text-xl font-bold text-primary tracking-tighter font-headline uppercase">AVANT_ANALYST</h1>
-        </Link>
-        <Link href="/" className="font-label text-[10px] text-white/40 uppercase tracking-widest hover:text-primary transition-colors">&larr; BACK</Link>
+    <div className="min-h-screen bg-gray-50 text-gray-900 font-sans">
+      <header className="bg-white px-3 pt-6 pb-4 border-b border-gray-100">
+        <div className="max-w-sm mx-auto flex justify-between items-center">
+          <Link href="/" className="font-bold text-pink-500 text-sm">AI Stock Diagnosis</Link>
+          <Link href="/" className="text-[10px] text-gray-500 hover:text-gray-900 transition">&larr; Back</Link>
+        </div>
       </header>
-      <main className="flex-1 max-w-3xl mx-auto px-6 py-12">
-        <h1 className="font-headline text-4xl font-extrabold text-primary tracking-tighter uppercase mb-8">CONNECT_DEPT</h1>
-        <div className="space-y-6 text-on-surface-variant leading-relaxed text-sm">
-          <section className="bg-surface-container/60 p-6 border-l-4 border-primary">
-            <h2 className="font-headline font-bold text-on-surface text-lg mb-3 uppercase tracking-tight">Get in Touch</h2>
+      <main className="max-w-sm mx-auto px-3 py-8">
+        <h1 className="text-2xl font-extrabold text-gray-900 mb-6">Contact &amp; Support</h1>
+        <div className="space-y-4 text-gray-600 text-xs leading-relaxed">
+          <section className="bg-white rounded-2xl p-4 shadow-soft border border-gray-100">
+            <h2 className="font-bold text-gray-900 text-sm mb-2">Get in Touch</h2>
             <p>Have questions about our AI stock diagnosis platform? Need technical support? We are here to help.</p>
           </section>
-          <section className="bg-surface-container-lowest brutalist-border p-6 space-y-4">
-            <div className="flex items-center gap-3">
-              <span className="material-symbols-outlined text-primary">mail</span>
+          <section className="bg-white rounded-2xl p-4 shadow-soft border border-gray-100 space-y-3">
+            <div className="flex items-center gap-2.5">
+              <span className="material-symbols-outlined text-pink-500 text-base">mail</span>
               <div>
-                <p className="font-label text-[10px] text-white/40 uppercase tracking-widest mb-1">EMAIL</p>
-                <p className="text-on-surface">support@avantanalyst.com</p>
+                <p className="text-[10px] text-gray-500">Email</p>
+                <p className="text-gray-900 font-medium">support@aistockdiagnosis.com</p>
               </div>
             </div>
-            <div className="flex items-center gap-3">
-              <span className="material-symbols-outlined text-tertiary">forum</span>
+            <div className="flex items-center gap-2.5">
+              <span className="material-symbols-outlined text-green-600 text-base">forum</span>
               <div>
-                <p className="font-label text-[10px] text-white/40 uppercase tracking-widest mb-1">WHATSAPP</p>
-                <p className="text-on-surface">Available for instant support and free AI stock reports</p>
+                <p className="text-[10px] text-gray-500">WhatsApp</p>
+                <p className="text-gray-900 font-medium">Available for instant support</p>
               </div>
             </div>
-            <div className="flex items-center gap-3">
-              <span className="material-symbols-outlined text-secondary">schedule</span>
+            <div className="flex items-center gap-2.5">
+              <span className="material-symbols-outlined text-gray-500 text-base">schedule</span>
               <div>
-                <p className="font-label text-[10px] text-white/40 uppercase tracking-widest mb-1">RESPONSE_TIME</p>
-                <p className="text-on-surface">Within 24 hours on business days</p>
+                <p className="text-[10px] text-gray-500">Response Time</p>
+                <p className="text-gray-900 font-medium">Within 24 hours on business days</p>
               </div>
             </div>
-          </section>
-          <section className="bg-surface-container/60 p-6 border-l-4 border-secondary">
-            <h2 className="font-headline font-bold text-on-surface text-lg mb-3 uppercase tracking-tight">Technical Support</h2>
-            <p>If you encounter issues with the AI diagnosis engine or any other feature, please include your browser version and a description of the problem when contacting us.</p>
           </section>
         </div>
       </main>

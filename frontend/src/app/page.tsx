@@ -3,7 +3,7 @@
 import { useEffect, useRef, useCallback, useState, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
-import { fetchStockQuote, fetchSearchResults, StockInfo, StockSearchResult, StockSearchResponse } from '../lib/api'
+import { fetchStockQuote, fetchSearchResults, fetchHotStocks, StockInfo, StockSearchResult, StockSearchResponse } from '../lib/api'
 
 function priceStr(val: number): string {
   return val.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
@@ -25,6 +25,7 @@ function LandingContent() {
   const [searchBusy, setSearchBusy] = useState(false)
   const [searchOpen, setSearchOpen] = useState(false)
 
+  const [hotList, setHotList] = useState<StockInfo[]>([])
   const [diagQuote, setDiagQuote] = useState<StockInfo | null>(null)
   const [streamText, setStreamText] = useState('')
   const [streamActive, setStreamActive] = useState(false)
@@ -41,6 +42,12 @@ function LandingContent() {
   useEffect(() => { if (codeParam) setSearchTerm(codeParam.toUpperCase()) }, [codeParam])
 
   useEffect(() => {
+    let cancelled = false
+    fetchHotStocks().then(d => { if (!cancelled) setHotList(d.slice(0, 4)) }).catch(() => {}).finally(() => {})
+    return () => { cancelled = true }
+  }, [])
+
+  useEffect(() => {
     fetch('/api/config/public').then(r => r.json()).then(cfg => {
       const items = cfg.settings || []
       const fb = items.find((x: { key: string }) => x.key === 'fallback_redirect_url')
@@ -50,13 +57,14 @@ function LandingContent() {
     }).catch(() => {})
   }, [])
 
-  // ── Real-time search ──
+  // ── Close search on outside click ──
   useEffect(() => {
     const handler = (e: MouseEvent) => { if (!(e.target as HTMLElement).closest('.search-box')) setSearchOpen(false) }
     document.addEventListener('mousedown', handler)
     return () => document.removeEventListener('mousedown', handler)
   }, [])
 
+  // ── Real-time search ──
   const executeSearch = useCallback((q: string, pg: number = 1) => {
     if (timerRef.current) { clearTimeout(timerRef.current); timerRef.current = null }
     if (searchAbortRef.current) { searchAbortRef.current.abort(); searchAbortRef.current = null }
@@ -75,7 +83,6 @@ function LandingContent() {
   }, [])
 
   const onSearchInput = useCallback((v: string) => { setSearchTerm(v); executeSearch(v, 1) }, [executeSearch])
-  const onSearchPage = useCallback((p: number) => { executeSearch(searchTerm, p) }, [executeSearch, searchTerm])
 
   // ── SSE Analysis ──
   const beginAnalysis = useCallback((ticker: string) => {
@@ -136,311 +143,370 @@ function LandingContent() {
     }
   }, [whatsappLink, defaultLink])
 
-  const activeTicker = searchTerm.trim() || 'AAPL'
+  const activeTicker = diagQuote?.symbol || searchTerm.trim() || 'AAPL'
   const isBullish = diagQuote ? diagQuote.change >= 0 : true
 
   return (
     <>
-      {/* ── Noise Overlay ── */}
-      <div className="noise-overlay fixed inset-0 z-0"></div>
-
       {/* ══════════ LOADING MODAL ══════════ */}
       <div className={`diag-modal ${modalState === 'loading' ? 'open' : ''}`}>
-        <div className="w-full max-w-sm brutalist-border p-8 bg-black flex flex-col items-center gap-6 loading-pulse">
-          <span className="material-symbols-outlined text-5xl text-primary animate-spin">sync</span>
+        <div className="w-full max-w-sm bg-white rounded-2xl p-6 shadow-soft border border-gray-100 flex flex-col items-center gap-4">
+          <div className="w-10 h-10 border-3 border-gray-200 border-t-pink-500 rounded-full animate-spin"></div>
           <div className="text-center">
-            <h3 className="font-headline text-2xl font-black text-primary tracking-tighter uppercase mb-2">SCANNING_MARKET</h3>
-            <p className="font-label text-[10px] text-white/60 tracking-widest uppercase">FETCHING DATA... CALIBRATING AI...</p>
+            <h3 className="font-bold text-gray-900 text-base mb-1">Scanning Market...</h3>
+            <p className="text-xs text-gray-500">Fetching data &amp; calibrating AI</p>
           </div>
-          <div className="w-full h-1 bg-surface-container overflow-hidden">
-            <div className="h-full bg-primary" style={{ width: '30%', animation: 'loading 2s ease-in-out infinite' }}></div>
+          <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
+            <div className="h-full bg-pink-400 rounded-full" style={{ width: '40%', animation: 'loading 1.5s ease-in-out infinite' }}></div>
           </div>
         </div>
       </div>
 
       {/* ══════════ RESULT MODAL ══════════ */}
       <div className={`diag-modal ${modalState === 'result' ? 'open' : ''}`}>
-        <div className="w-full max-w-md brutalist-border bg-black relative overflow-hidden">
+        <div className="w-full max-w-sm bg-white rounded-2xl shadow-soft border border-gray-100 overflow-hidden">
           {/* Header */}
-          <div className="bg-primary text-on-primary px-4 py-2 flex justify-between items-center">
-            <h3 className="font-headline text-sm font-black tracking-widest">DIAGNOSIS_RESULT.EXE</h3>
+          <div className="bg-pink-400 text-white px-4 py-2.5 flex justify-between items-center">
+            <h3 className="font-bold text-sm">Diagnosis Result</h3>
             <button className="hover:scale-110 transition-transform" onClick={closeModal}>
-              <span className="material-symbols-outlined text-xl">close</span>
+              <span className="material-symbols-outlined text-lg">close</span>
             </button>
           </div>
-          <div className="p-6 space-y-6">
+          <div className="p-4 space-y-4">
             {/* Ticker + Signal */}
-            <div className="flex items-center gap-4">
-              <div className="w-16 h-16 brutalist-border border-primary flex items-center justify-center shrink-0">
-                <span className="font-headline text-2xl font-bold text-primary">{diagQuote?.symbol || activeTicker}</span>
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-xl bg-pink-50 border border-pink-200 flex items-center justify-center shrink-0">
+                <span className="font-bold text-pink-500 text-lg">{activeTicker}</span>
               </div>
               <div>
-                <div className={`px-2 py-0.5 border text-[9px] font-bold w-fit mb-1 ${isBullish ? 'bg-primary/10 border-primary/40 text-primary' : 'bg-error/10 border-error/40 text-error'}`}>
-                  {isBullish ? 'SIGNAL_ACQUIRED' : 'RISK_DETECTED'}
+                <div className={`inline-block px-2 py-0.5 rounded-full text-[9px] font-bold mb-1 ${isBullish ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600'}`}>
+                  {isBullish ? 'SIGNAL ACQUIRED' : 'RISK DETECTED'}
                 </div>
-                <h4 className="font-headline text-xl font-bold uppercase tracking-tight">
-                  {isBullish ? 'BREAKOUT_CONFIRMED' : 'DISTRIBUTION_PRESSURE'}
-                </h4>
+                <h4 className="font-bold text-gray-900 text-sm">{isBullish ? 'Breakout Confirmed' : 'Distribution Pressure'}</h4>
               </div>
             </div>
 
             {/* AI Summary */}
-            <div className="bg-surface-container p-4 border-l-4 border-primary">
+            <div className="bg-gray-50 rounded-xl p-3 border-l-4 border-pink-400">
               {diagQuote ? (
-                <p className="font-body text-sm leading-relaxed text-white/90">
+                <p className="text-xs text-gray-700 leading-relaxed">
                   {isBullish
-                    ? `Historical data indicates strong fundamental resilience with ${diagQuote.change_percent.toFixed(1)}% momentum. AI recommends maintaining position or scaling on dips below the median trendline.`
-                    : `Distribution pressure detected with ${Math.abs(diagQuote.change_percent).toFixed(1)}% decline. Risk factors suggest downside exposure. Consider protective positioning.`}
+                    ? `Strong fundamental resilience with ${diagQuote.change_percent.toFixed(1)}% momentum. AI recommends maintaining position or scaling on dips.`
+                    : `Distribution pressure detected with ${Math.abs(diagQuote.change_percent).toFixed(1)}% decline. Consider protective positioning.`}
                 </p>
               ) : streamText ? (
-                <p className="font-body text-sm leading-relaxed text-white/90">{streamText}</p>
+                <p className="text-xs text-gray-700 leading-relaxed">{streamText}</p>
               ) : (
-                <p className="font-body text-sm leading-relaxed text-white/90">Analyzing market patterns...</p>
+                <p className="text-xs text-gray-500">Analyzing market patterns...</p>
               )}
             </div>
 
             {/* Metrics Grid */}
             {diagQuote && (
-              <div className="grid grid-cols-2 gap-4">
-                <div className="p-3 border border-white/10 bg-surface-container-low">
-                  <span className="block text-[10px] font-label text-white/40 uppercase mb-1">Price</span>
-                  <span className="text-primary font-headline text-lg font-bold">${priceStr(diagQuote.price)}</span>
+              <div className="grid grid-cols-2 gap-2">
+                <div className="bg-gray-50 rounded-lg p-2.5">
+                  <span className="block text-[10px] text-gray-500 mb-0.5">Price</span>
+                  <span className="font-bold text-gray-900 text-sm">${priceStr(diagQuote.price)}</span>
                 </div>
-                <div className="p-3 border border-white/10 bg-surface-container-low">
-                  <span className="block text-[10px] font-label text-white/40 uppercase mb-1">Change</span>
-                  <span className={`font-headline text-lg font-bold ${isBullish ? 'text-primary' : 'text-error'}`}>
+                <div className="bg-gray-50 rounded-lg p-2.5">
+                  <span className="block text-[10px] text-gray-500 mb-0.5">Change</span>
+                  <span className={`font-bold text-sm ${isBullish ? 'text-green-600' : 'text-red-600'}`}>
                     {diagQuote.change_percent >= 0 ? '+' : ''}{diagQuote.change_percent.toFixed(1)}%
                   </span>
                 </div>
-                <div className="p-3 border border-white/10 bg-surface-container-low">
-                  <span className="block text-[10px] font-label text-white/40 uppercase mb-1">Valuation</span>
-                  <span className="text-secondary font-headline text-lg font-bold">
-                    {diagQuote.pe_ratio ? (diagQuote.pe_ratio > 25 ? 'Premium' : 'Fair') : 'N/A'}
-                  </span>
+                <div className="bg-gray-50 rounded-lg p-2.5">
+                  <span className="block text-[10px] text-gray-500 mb-0.5">Valuation</span>
+                  <span className="font-bold text-gray-900 text-sm">{diagQuote.pe_ratio ? (diagQuote.pe_ratio > 25 ? 'Premium' : 'Fair') : 'N/A'}</span>
                 </div>
-                <div className="p-3 border border-white/10 bg-surface-container-low">
-                  <span className="block text-[10px] font-label text-white/40 uppercase mb-1">Sentiment</span>
-                  <span className={`font-headline text-lg font-bold ${isBullish ? 'text-primary' : 'text-error'}`}>
-                    {isBullish ? 'Bullish' : 'Bearish'}
-                  </span>
+                <div className="bg-gray-50 rounded-lg p-2.5">
+                  <span className="block text-[10px] text-gray-500 mb-0.5">Sentiment</span>
+                  <span className={`font-bold text-sm ${isBullish ? 'text-green-600' : 'text-red-600'}`}>{isBullish ? 'Bullish' : 'Bearish'}</span>
                 </div>
               </div>
             )}
 
-            {/* Stream text (live) */}
+            {/* Stream text */}
             {streamText && (
               <div>
-                <h5 className="font-label text-[10px] text-white/40 uppercase tracking-widest mb-2 flex items-center gap-1">
-                  <span className="material-symbols-outlined text-sm text-tertiary">psychology</span>AI_ANALYSIS_STREAM
-                </h5>
-                <div className="text-sm text-white/90 leading-relaxed whitespace-pre-wrap">{streamText}</div>
-                {streamActive && <div className="w-3 h-3 border-2 border-surface-container border-t-primary rounded-full animate-spin mt-2"></div>}
+                <p className="text-[10px] text-gray-500 font-medium mb-1 flex items-center gap-1">
+                  <span className="material-symbols-outlined text-xs text-pink-500">psychology</span>AI Analysis
+                </p>
+                <div className="text-xs text-gray-700 leading-relaxed whitespace-pre-wrap">{streamText}</div>
+                {streamActive && <div className="w-3 h-3 border-2 border-gray-200 border-t-pink-500 rounded-full animate-spin mt-1.5"></div>}
               </div>
             )}
 
             {/* WhatsApp CTA */}
             <button
               id="whatsapp-cta"
-              className="pulse-active w-full bg-[#25D366] text-white p-4 font-headline font-black text-center uppercase tracking-widest hover:brightness-110 transition-all flex items-center justify-center gap-3"
+              className="pulse-active w-full bg-[#25D366] text-white py-3 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 hover:brightness-110 transition-all"
               onClick={handleWhatsApp}
             >
               Get the report for free via WhatsApp
-              <span className="material-symbols-outlined text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>forum</span>
+              <span className="material-symbols-outlined text-lg" style={{ fontVariationSettings: "'FILL' 1" }}>forum</span>
             </button>
           </div>
-          <div className="scan-line !opacity-10"></div>
         </div>
       </div>
 
-      {/* ── TopAppBar ── */}
-      <header className="bg-black w-full sticky top-0 z-50 flex justify-between items-center px-6 py-4">
-        <div className="flex items-center gap-2">
-          <span className="material-symbols-outlined text-primary" style={{ fontVariationSettings: "'FILL' 1" }}>analytics</span>
-          <h1 className="text-xl md:text-2xl font-bold text-primary tracking-tighter font-headline uppercase">AVANT_ANALYST</h1>
+      {/* ══════════ HERO SECTION ══════════ */}
+      <header className="bg-gradient-hero px-3 pt-8 pb-6 text-center relative overflow-hidden">
+        {/* Decorative lines */}
+        <div className="absolute inset-0 z-0 opacity-20 pointer-events-none">
+          <div className="absolute top-10 left-10 w-1 h-32 bg-red-400 rounded-full"></div>
+          <div className="absolute top-20 right-10 w-1 h-24 bg-green-400 rounded-full"></div>
+          <div className="absolute top-40 left-20 w-1 h-16 bg-red-300 rounded-full"></div>
         </div>
-        <button className="text-primary active:scale-95 duration-100">
-          <span className="material-symbols-outlined">menu</span>
-        </button>
+        <div className="relative z-10 max-w-sm mx-auto">
+          <h1 className="text-3xl font-extrabold tracking-tight leading-tight mb-3 text-gray-900">
+            Stop <br /> guessing. <br />
+            <span className="text-pink-500">AI-powered <br /> stock <br /> diagnosis in <br /> seconds.</span>
+          </h1>
+          <p className="text-gray-600 text-xs mb-4 leading-relaxed">
+            Real-time market insights powered by advanced AI. Make smarter investment decisions with confidence.
+          </p>
+
+          {/* Feature Tags */}
+          <div className="flex flex-wrap justify-center gap-1.5 mb-5 text-[10px] text-gray-700">
+            {['10,000+ investors', 'Real-time NASDAQ', 'AI-powered'].map(tag => (
+              <span key={tag} className="flex items-center bg-gray-100 px-2 py-0.5 rounded-full">
+                <span className="material-symbols-outlined text-red-500 text-[10px] mr-1" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
+                {tag}
+              </span>
+            ))}
+          </div>
+
+          {/* Search Box */}
+          <div className="relative mb-3 search-box">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <span className="material-symbols-outlined text-gray-400 text-base">search</span>
+            </div>
+            <input
+              className="block w-full pl-9 pr-3 py-2 border border-gray-200 rounded-full leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500 text-xs shadow-sm"
+              placeholder={diagnosticHint || 'Search any stock symbol (AAPL, TSLA...)'}
+              type="text"
+              value={searchTerm}
+              onChange={e => onSearchInput(e.target.value.toUpperCase())}
+              onKeyDown={e => { if (e.key === 'Enter') triggerDiagnosis() }}
+              onFocus={() => { if (searchItems.length > 0) setSearchOpen(true) }}
+            />
+            {/* Search Dropdown */}
+            {searchOpen && searchItems.length > 0 && (
+              <div className="absolute z-[60] left-0 right-0 top-full mt-1 bg-white rounded-xl shadow-soft border border-gray-200 overflow-hidden">
+                {searchItems.map(item => (
+                  <button key={item.symbol} className="w-full px-3 py-2.5 flex items-center justify-between hover:bg-gray-50 transition-colors text-left" onClick={() => { setSearchTerm(item.symbol); setSearchOpen(false); triggerDiagnosis(item.symbol) }}>
+                    <div>
+                      <span className="font-bold text-xs text-pink-500">{item.symbol}</span>
+                      <span className="text-[11px] text-gray-600 ml-2">{item.name}</span>
+                    </div>
+                    <span className="text-[10px] text-gray-400">{item.exchange}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+            {searchOpen && searchItems.length === 0 && searchBusy && (
+              <div className="absolute z-[60] left-0 right-0 top-full mt-1 bg-white rounded-xl shadow-soft border border-gray-200 p-3">
+                <div className="flex items-center justify-center gap-2">
+                  <div className="w-3 h-3 border-2 border-gray-200 border-t-pink-500 rounded-full animate-spin"></div>
+                  <span className="text-[10px] text-gray-500">Scanning...</span>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* CTA Button */}
+          <button className="w-full bg-pink-400 hover:bg-pink-500 text-white font-semibold py-2.5 px-4 rounded-xl shadow-md transition duration-150 ease-in-out text-sm mb-2" onClick={() => triggerDiagnosis()}>
+            Diagnose with AI
+          </button>
+          <p className="text-[10px] text-gray-400 mt-1">For informational purposes only. Not financial advice.</p>
+        </div>
       </header>
 
-      {/* ── Main Content ── */}
-      <main className="flex-1 relative">
-        <div className="relative z-10 max-w-7xl mx-auto px-4 md:px-6 py-8 space-y-8">
-
-          {/* ── Compact Hero & Input ── */}
-          <section className="flex flex-col gap-6">
-            <div className="flex flex-col items-start">
-              <div className="bg-tertiary-container/10 backdrop-blur-xl px-2 py-1 mb-2 border-l-2 border-tertiary">
-                <p className="font-label text-tertiary text-[10px] tracking-widest uppercase">SYS: LIVE</p>
-              </div>
-              <h2 className="font-headline text-5xl md:text-7xl font-extrabold tracking-tighter leading-tight">
-                RAW_AI <span className="text-primary italic">DIAGNOSIS</span>
-              </h2>
-            </div>
-            <div className="w-full max-w-3xl relative search-box">
-              <div className="bg-surface-container-low p-6 brutalist-border flex flex-col md:flex-row items-stretch gap-4">
-                <div className="flex-1">
-                  <label className="block font-label text-primary/60 text-[10px] uppercase tracking-widest mb-1">INPUT_TICKER</label>
-                  <input
-                    className="w-full bg-transparent border-0 border-b border-outline focus:border-secondary focus:ring-0 text-3xl md:text-5xl font-headline font-bold text-white placeholder:text-white/10 p-0 uppercase outline-none"
-                    placeholder={diagnosticHint || 'AAPL...'}
-                    type="text"
-                    value={searchTerm}
-                    onChange={e => onSearchInput(e.target.value.toUpperCase())}
-                    onKeyDown={e => { if (e.key === 'Enter') triggerDiagnosis() }}
-                    onFocus={() => { if (searchItems.length > 0) setSearchOpen(true) }}
-                  />
+      <main>
+        {/* ══════════ INFO CARDS ══════════ */}
+        <section className="px-3 py-4">
+          <div className="max-w-sm mx-auto space-y-3">
+            {/* Free Diagnosis Card */}
+            <div className="bg-white rounded-2xl p-4 shadow-soft border border-gray-100">
+              <h3 className="font-bold text-gray-900 text-base mb-1.5 leading-tight">Free diagnosis — no credit card required</h3>
+              <p className="text-xs text-gray-600 mb-3">Start analyzing stocks today with our AI-powered tools</p>
+              <div className="bg-gray-50 rounded-xl p-2.5 flex items-center">
+                <div className="bg-red-50 p-1.5 rounded-full mr-2.5">
+                  <span className="material-symbols-outlined text-red-500 text-sm">bolt</span>
                 </div>
-                <button
-                  className="bg-primary text-on-primary px-8 py-4 font-headline font-bold text-lg uppercase tracking-tighter hover:bg-primary-fixed active:scale-95 transition-all flex items-center justify-center gap-2"
-                  onClick={() => triggerDiagnosis()}
-                >
-                  DIAGNOSE <span className="material-symbols-outlined text-xl">bolt</span>
+                <div className="text-xs font-medium text-gray-800">
+                  Today&apos;s free analysis remaining: <span className="text-red-500 font-bold">3</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Upgrade Card */}
+            <div className="bg-white rounded-2xl p-5 shadow-soft border border-gray-100 text-center relative overflow-hidden flex flex-col items-center justify-center min-h-[120px]">
+              <div className="absolute inset-0 bg-white/80 backdrop-blur-sm z-10"></div>
+              <div className="relative z-20 flex flex-col items-center">
+                <span className="material-symbols-outlined text-gray-700 text-2xl mb-1.5">lock</span>
+                <p className="font-semibold text-gray-800 mb-3 text-sm">Unlock advanced features</p>
+                <button className="bg-gray-900 text-white font-medium py-1.5 px-5 rounded-lg text-xs hover:bg-gray-800 transition" onClick={handleWhatsApp}>
+                  Upgrade to Pro — $9.99/mo
                 </button>
               </div>
-
-              {/* Search Dropdown */}
-              {searchOpen && searchItems.length > 0 && (
-                <div className="absolute z-[60] left-0 right-0 top-full mt-2 bg-surface-container-lowest brutalist-border overflow-hidden">
-                  {searchItems.map(item => (
-                    <button
-                      key={item.symbol}
-                      className="w-full px-4 py-3 flex items-center justify-between hover:bg-surface-container-low transition-colors text-left"
-                      onClick={() => { setSearchTerm(item.symbol); setSearchOpen(false); triggerDiagnosis(item.symbol) }}
-                    >
-                      <div>
-                        <span className="font-label font-bold text-primary">{item.symbol}</span>
-                        <span className="text-xs text-on-surface-variant ml-2">{item.name}</span>
-                      </div>
-                      <span className="text-[10px] text-on-surface-variant font-label">{item.exchange}</span>
-                    </button>
-                  ))}
-                  {searchTotal > 5 && (
-                    <div className="flex justify-center gap-2 py-2 border-t border-outline-variant">
-                      {Array.from({ length: Math.min(Math.ceil(searchTotal / 5), 5) }, (_, i) => (
-                        <button key={i} className={`px-2.5 py-1 text-xs font-label ${searchPage === i + 1 ? 'bg-primary text-on-primary' : 'text-on-surface-variant hover:bg-surface-container-low'}`} onClick={() => onSearchPage(i + 1)}>{i + 1}</button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
-              {searchOpen && searchItems.length === 0 && searchBusy && (
-                <div className="absolute z-[60] left-0 right-0 top-full mt-2 bg-surface-container-lowest brutalist-border p-4">
-                  <div className="flex items-center justify-center gap-2">
-                    <div className="w-4 h-4 border-2 border-surface-container border-t-primary rounded-full animate-spin"></div>
-                    <span className="text-xs text-on-surface-variant font-label uppercase">Scanning...</span>
-                  </div>
-                </div>
-              )}
             </div>
-          </section>
+          </div>
+        </section>
 
-          {/* ── Consolidated Diagnostic Report Area ── */}
-          <section className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-            {/* Main Verdict Column */}
-            <div className="lg:col-span-8 bg-surface-container/60 backdrop-blur-md p-6 brutalist-border border-primary relative overflow-hidden">
-              <div className="scan-line"></div>
-              <div className="flex items-center gap-3 mb-4">
-                <span className="material-symbols-outlined text-primary">verified</span>
-                <h4 className="font-headline text-xl font-bold uppercase tracking-tighter text-primary">
-                  {diagQuote
-                    ? `REPORT_SUMMARY: ${isBullish ? 'BULLISH_EXTREME' : 'BEARISH_SIGNAL'}`
-                    : 'REPORT_SUMMARY: AWAITING_INPUT'}
-                </h4>
+        {/* ══════════ TRENDING STOCKS ══════════ */}
+        <section className="px-3 py-6">
+          <div className="max-w-sm mx-auto">
+            <div className="flex justify-between items-end mb-4">
+              <div className="flex items-center">
+                <div className="w-2 h-2 bg-pink-500 rounded-full mr-2"></div>
+                <h2 className="text-xl font-bold text-gray-900 leading-tight">Trending <br />Today</h2>
               </div>
-              <p className="font-body text-lg md:text-xl leading-snug mb-6">
-                {diagQuote
-                  ? isBullish
-                    ? <>Unconventional <span className="text-primary font-bold">accumulation phase</span> detected. {diagQuote.change_percent.toFixed(1)}% momentum aligns with institutional flow patterns. AI confidence high.</>
-                    : <>Distribution <span className="text-error font-bold">pressure detected</span> with {Math.abs(diagQuote.change_percent).toFixed(1)}% decline. Risk factors suggest downside exposure. Protective positioning recommended.</>
-                  : <>Enter a stock symbol above and click <span className="text-primary font-bold">DIAGNOSE</span> to begin AI-powered analysis.</>}
-              </p>
-              {diagQuote && (
-                <div className="flex flex-wrap gap-2">
-                  <div className="px-3 py-1 bg-primary/10 border border-primary/20 text-primary text-[10px] font-label font-bold uppercase">
-                    CONFIDENCE: {Math.max(70, 100 - Math.abs(diagQuote.change_percent) * 5).toFixed(1)}%
+              <span className="text-[10px] text-gray-500 text-right">Auto-<br />updating</span>
+            </div>
+            <div className="grid grid-cols-2 gap-2.5">
+              {(hotList.length > 0 ? hotList : [
+                { symbol: 'SPY', name: 'S&P 500 ETF', price: 710.14, change: 8.48, change_percent: 1.21 },
+                { symbol: 'QQQ', name: 'Nasdaq 100 ETF', price: 648.85, change: 6.85, change_percent: 1.31 },
+                { symbol: 'AAPL', name: 'Apple Inc.', price: 270.23, change: 5.59, change_percent: 2.59 },
+                { symbol: 'MSFT', name: 'Microsoft Corp.', price: 422.79, change: 2.53, change_percent: 0.60 },
+              ]).map(stock => (
+                <div
+                  key={stock.symbol}
+                  className="bg-white p-2.5 rounded-xl shadow-sm border border-gray-100 flex flex-col justify-between h-16 cursor-pointer hover:bg-gray-50 transition-colors"
+                  onClick={() => { setSearchTerm(stock.symbol); triggerDiagnosis(stock.symbol) }}
+                >
+                  <div className="flex justify-between items-center">
+                    <span className="font-bold text-gray-800 text-xs">{stock.symbol}</span>
+                    <span className="font-semibold text-gray-900 text-xs">${priceStr(stock.price)}</span>
                   </div>
-                  <div className="px-3 py-1 bg-secondary/10 border border-secondary/20 text-secondary text-[10px] font-label font-bold uppercase">
-                    HORIZON: 14_DAYS
-                  </div>
-                  <div className={`px-3 py-1 border text-[10px] font-label font-bold uppercase ${Math.abs(diagQuote.change_percent) > 2 ? 'bg-tertiary/10 border-tertiary/20 text-tertiary' : 'bg-primary/10 border-primary/20 text-primary'}`}>
-                    RISK: {Math.abs(diagQuote.change_percent) > 2 ? 'HIGH' : 'LOW'}
+                  <div className={`text-[10px] font-medium flex items-center ${stock.change_percent >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                    {stock.change_percent >= 0 ? '↑' : '↓'} {stock.change_percent >= 0 ? '+' : ''}{stock.change_percent.toFixed(2)} ({stock.change_percent >= 0 ? '+' : ''}{stock.change_percent.toFixed(2)}%)
                   </div>
                 </div>
-              )}
+              ))}
             </div>
+            {/* Carousel Dots */}
+            <div className="flex justify-center mt-4 space-x-1">
+              <div className="w-4 h-1 bg-pink-500 rounded-full"></div>
+              <div className="w-1 h-1 bg-gray-300 rounded-full"></div>
+              <div className="w-1 h-1 bg-gray-300 rounded-full"></div>
+            </div>
+          </div>
+        </section>
 
-            {/* Side Data Points Column */}
-            <div className="lg:col-span-4 flex flex-col gap-4">
-              {/* Anomaly Alert */}
-              <div className={`p-4 flex gap-4 items-start ${diagQuote && !isBullish ? 'bg-error' : 'bg-tertiary'} text-white`}>
-                <span className="material-symbols-outlined text-2xl">warning</span>
-                <div>
-                  <h5 className="font-headline font-extrabold uppercase text-sm">ANOMALY_ALERT</h5>
-                  <p className="text-[11px] leading-tight mt-1">
-                    {diagQuote
-                      ? `${diagQuote.symbol} options delta suggests ${isBullish ? 'momentum continuation' : 'volatility spike'}. Prep for ${isBullish ? 'breakout' : 'friction'}.`
-                      : 'Awaiting diagnosis input for anomaly detection.'}
-                  </p>
+        {/* ══════════ TESTIMONIALS ══════════ */}
+        <section className="px-3 py-6 bg-white">
+          <div className="max-w-sm mx-auto text-center">
+            <h2 className="text-xl font-bold text-gray-900 mb-4">Trusted by thousands <br />of investors</h2>
+            <div className="bg-white rounded-2xl p-4 shadow-soft border border-gray-100 relative">
+              {/* Stars */}
+              <div className="flex justify-center space-x-1 mb-3">
+                {[...Array(5)].map((_, i) => (
+                  <span key={i} className="material-symbols-outlined text-pink-500 text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
+                ))}
+              </div>
+              <p className="text-xs text-gray-700 italic mb-4">
+                &ldquo;Love how fast I can analyze multiple stocks. The free tier is perfect for getting started.&rdquo;
+              </p>
+              <div className="flex items-center justify-between">
+                <button className="p-1.5 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors">
+                  <span className="material-symbols-outlined text-gray-600 text-base">chevron_left</span>
+                </button>
+                <div className="flex items-center text-left">
+                  <div className="w-8 h-8 bg-pink-100 rounded-full flex items-center justify-center mr-2.5">
+                    <span className="material-symbols-outlined text-pink-500 text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>person</span>
+                  </div>
+                  <div>
+                    <p className="font-bold text-xs text-gray-900">Emily R.</p>
+                    <p className="text-[10px] text-gray-500">Data Analyst • Texas</p>
+                  </div>
+                </div>
+                <button className="p-1.5 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors">
+                  <span className="material-symbols-outlined text-gray-600 text-base">chevron_right</span>
+                </button>
+              </div>
+              <div className="flex justify-center mt-5 space-x-1">
+                <div className="w-1 h-1 bg-gray-300 rounded-full"></div>
+                <div className="w-4 h-1 bg-pink-500 rounded-full"></div>
+                <div className="w-1 h-1 bg-gray-300 rounded-full"></div>
+                <div className="w-1 h-1 bg-gray-300 rounded-full"></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ══════════ COMPARISON TABLE ══════════ */}
+        <section className="px-3 py-6 bg-gray-50">
+          <div className="max-w-sm mx-auto text-center">
+            <h2 className="text-xl font-bold text-gray-900 mb-2">Why choose our <br />platform</h2>
+            <p className="text-xs text-gray-500 mb-6">See how we compare to traditional analysis tools</p>
+            <div className="bg-white rounded-2xl shadow-soft border border-gray-200 overflow-hidden text-left text-xs">
+              {/* Table Header */}
+              <div className="grid grid-cols-3 border-b border-gray-200 bg-gray-50">
+                <div className="p-3 font-semibold text-gray-900"></div>
+                <div className="p-3 font-bold text-gray-900 text-center leading-tight">Our <br />Platform</div>
+                <div className="p-3 font-medium text-gray-500 text-center leading-tight text-[11px]">Traditional <br />Tools</div>
+              </div>
+              {/* Rows - Our advantages */}
+              {[
+                { feature: 'AI-Powered Diagnosis', ours: true, theirs: false, highlight: true },
+                { feature: 'Real-time Market Sentiment', ours: true, theirs: false, highlight: true },
+                { feature: 'Risk Breakdown Analysis', ours: true, theirs: false, highlight: true },
+                { feature: 'Results in Seconds', ours: true, theirs: false, highlight: false },
+                { feature: 'Free Tier Available', ours: true, theirs: false, highlight: false },
+                { feature: 'Plain English Explanations', ours: true, theirs: false, highlight: false },
+              ].map((row, i) => (
+                <div key={i} className={`grid grid-cols-3 border-b border-gray-100 ${row.highlight ? 'bg-red-50/30' : ''}`}>
+                  <div className="p-3 text-gray-700 flex items-center">{row.feature}</div>
+                  <div className="p-3 flex justify-center items-center">
+                    <span className="material-symbols-outlined text-green-500 text-base" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
+                  </div>
+                  <div className="p-3 flex justify-center items-center">
+                    <div className="w-3 h-0.5 bg-gray-300 rounded-full"></div>
+                  </div>
+                </div>
+              ))}
+              {/* Rows - Shared negatives */}
+              {['Expensive Subscription', 'Complex Interface'].map((feature, i) => (
+                <div key={i} className="grid grid-cols-3 border-b border-gray-100">
+                  <div className="p-3 text-gray-700 flex items-center leading-tight">{feature}</div>
+                  <div className="p-3 flex justify-center items-center">
+                    <span className="material-symbols-outlined text-red-400 text-base" style={{ fontVariationSettings: "'FILL' 1" }}>cancel</span>
+                  </div>
+                  <div className="p-3 flex justify-center items-center">
+                    <span className="material-symbols-outlined text-red-400 text-base" style={{ fontVariationSettings: "'FILL' 1" }}>cancel</span>
+                  </div>
+                </div>
+              ))}
+              {/* Table Footer */}
+              <div className="grid grid-cols-3 bg-gray-900 text-white rounded-b-2xl">
+                <div className="p-3"></div>
+                <div className="p-3 text-center">
+                  <div className="font-bold text-xs leading-tight">Fast &amp; <br />Affordable</div>
+                  <div className="text-[9px] text-gray-300 mt-0.5">Free to start</div>
+                </div>
+                <div className="p-3 text-center">
+                  <div className="font-medium text-xs text-gray-300 leading-tight">Slow &amp; <br />Expensive</div>
+                  <div className="text-[9px] text-gray-400 mt-0.5">$50-200/mo</div>
                 </div>
               </div>
-              {/* Compact Data */}
-              {diagQuote && (
-                <div className="bg-surface-container-high p-4 border border-white/5 space-y-3">
-                  <h5 className="font-headline text-[10px] font-bold uppercase">MARKET_DATA.v7</h5>
-                  <div className="grid grid-cols-2 gap-2 text-xs">
-                    <div><span className="text-white/40 uppercase block text-[9px]">Mkt Cap</span><span className="font-bold">{diagQuote.market_cap ? `$${(diagQuote.market_cap / 1e9).toFixed(1)}B` : 'N/A'}</span></div>
-                    <div><span className="text-white/40 uppercase block text-[9px]">Volume</span><span className="font-bold">{diagQuote.volume?.toLocaleString() || 'N/A'}</span></div>
-                    <div><span className="text-white/40 uppercase block text-[9px]">P/E</span><span className="font-bold">{diagQuote.pe_ratio?.toFixed(1) || 'N/A'}</span></div>
-                    <div><span className="text-white/40 uppercase block text-[9px]">52W High</span><span className="font-bold">{diagQuote.fifty_two_week_high ? `$${priceStr(diagQuote.fifty_two_week_high)}` : 'N/A'}</span></div>
-                  </div>
-                </div>
-              )}
-              {/* Placeholder when no data */}
-              {!diagQuote && (
-                <div className="bg-surface-container-high relative aspect-[16/6] lg:flex-1 overflow-hidden border border-white/5 flex items-center justify-center">
-                  <div className="text-center">
-                    <span className="material-symbols-outlined text-4xl text-white/10">monitoring</span>
-                    <h5 className="font-headline text-[10px] font-bold uppercase text-white/20 mt-2">LIQUIDITY_MAP.v7</h5>
-                  </div>
-                </div>
-              )}
             </div>
-          </section>
-
-          {/* ── CTA Section ── */}
-          <section className="bg-primary p-8 md:p-12 relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-8">
-            <div className="max-w-xl text-center md:text-left relative z-10">
-              <h2 className="font-headline text-3xl md:text-5xl font-extrabold text-on-primary tracking-tighter leading-none mb-4">
-                FULL_TERMINAL_ACCESS
-              </h2>
-              <p className="font-body text-on-primary/80 text-sm md:text-base">
-                Join closed-beta. Direct line to AI operator.
-              </p>
-            </div>
-            <button
-              className="w-full md:w-auto inline-flex items-center justify-center gap-3 bg-black text-primary px-8 py-6 font-headline font-black text-xl uppercase tracking-widest hover:bg-surface-container-highest transition-all group shrink-0"
-              onClick={handleWhatsApp}
-            >
-              WHATSAPP
-              <span className="material-symbols-outlined text-2xl group-hover:translate-x-2 transition-transform">forum</span>
-            </button>
-            <div className="absolute -right-4 -bottom-4 w-32 h-32 opacity-5 pointer-events-none">
-              <span className="material-symbols-outlined text-[150px]">grid_view</span>
-            </div>
-          </section>
-        </div>
+          </div>
+        </section>
       </main>
 
-      {/* ── Footer ── */}
-      <footer className="bg-black border-t border-white/5 px-6 py-8 flex flex-col md:flex-row justify-between items-center gap-6">
-        <div className="text-primary font-bold font-headline text-sm tracking-tighter uppercase">AVANT_ANALYST_DEPT.</div>
-        <div className="flex flex-wrap justify-center gap-6">
-          <Link className="font-headline text-[10px] uppercase tracking-widest text-white/40 hover:text-primary transition-colors" href="/privacy">PRIVACY</Link>
-          <Link className="font-headline text-[10px] uppercase tracking-widest text-white/40 hover:text-primary transition-colors" href="/terms">TERMS</Link>
-          <Link className="font-headline text-[10px] uppercase tracking-widest text-tertiary hover:text-primary font-bold transition-colors" href="/contact">WHATSAPP_CONNECT</Link>
+      {/* ══════════ FOOTER ══════════ */}
+      <footer className="px-3 py-6 bg-white border-t border-gray-100 text-center">
+        <p className="text-[11px] text-gray-500 mb-1.5">&copy; 2026 AI Stock Analysis Platform</p>
+        <p className="text-[10px] text-gray-400 mb-3">For educational purposes only. Not financial advice.</p>
+        <div className="flex justify-center space-x-3 text-[11px] font-medium text-gray-600">
+          <Link className="hover:text-gray-900 transition" href="/privacy">Privacy</Link>
+          <span>&bull;</span>
+          <Link className="hover:text-gray-900 transition" href="/terms">Terms</Link>
+          <span>&bull;</span>
+          <Link className="hover:text-gray-900 transition" href="/contact">Contact</Link>
         </div>
-        <p className="font-headline text-[9px] uppercase tracking-widest text-white/20">&copy;2026</p>
       </footer>
     </>
   )
