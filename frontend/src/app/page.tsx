@@ -319,18 +319,9 @@ function HomeContent() {
               {/* Diagnosis Output */}
               <div className="w-full glass-card p-8 rounded-[2rem] border border-outline-variant/15 bg-surface-container-low/40 mb-8 max-h-52 overflow-y-auto hide-scroll">
                 <h4 className="text-primary font-headline text-lg mb-4">AI Diagnostic Insights</h4>
-                <div className="space-y-4">
-                  {analysisContent ? (
-                    <p className="text-on-surface leading-relaxed font-body whitespace-pre-wrap">
-                      {analysisContent}{isStreaming && <span className="animate-pulse text-primary">▌</span>}
-                    </p>
-                  ) : (
-                    <p className="text-on-surface leading-relaxed font-body whitespace-pre-wrap">
-                      {placeholderText || 'AI is preparing your diagnostic report...'}
-                      {isStreaming && <span className="animate-pulse text-primary">▌</span>}
-                    </p>
-                  )}
-                </div>
+                <p className="text-on-surface leading-relaxed font-body whitespace-pre-wrap">
+                  {placeholderText || 'AI is preparing your diagnostic report...'}
+                </p>
               </div>
 
               {/* CTA Buttons */}
@@ -401,14 +392,14 @@ function HomeContent() {
             </div>
 
             {/* Interaction Core — Glass Panel with Search */}
-            <div className="w-full max-w-2xl relative search-container">
+            <div className="w-full max-w-2xl search-container">
               <div className="glass-card rounded-[2rem] p-8 md:p-12 relative">
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent pointer-events-none rounded-[2rem]"></div>
                 <div className="relative z-10 space-y-8">
                   {/* Search Input */}
-                  <div className="space-y-2">
+                  <div className="space-y-2 relative">
                     <label className="block text-[10px] font-label font-bold text-on-surface-variant uppercase tracking-widest ml-4">Enter Stock Ticker</label>
-                    <div className="relative group/input">
+                    <div className="relative group/input" id="search-input-wrapper">
                       <input
                         className="w-full bg-surface-container-low border-none rounded-full py-6 px-10 text-2xl font-headline font-medium text-on-background placeholder:text-on-surface-variant/40 focus:ring-2 focus:ring-primary/50 transition-all outline-none"
                         placeholder="NVDA, AAPL, TSLA..."
@@ -424,6 +415,80 @@ function HomeContent() {
                         </span>
                       </div>
                     </div>
+
+                    {/* Search Results Dropdown — positioned relative to input */}
+                    {showDropdown && searchInput.trim() && (
+                      <div className="absolute top-full left-0 right-0 mt-1 glass-card rounded-2xl border border-outline-variant/15 shadow-2xl shadow-black/40 overflow-hidden z-[100]">
+                        {searchResults.length > 0 ? (
+                          <>
+                            {searchResults.map((item) => (
+                              <button
+                                key={item.symbol}
+                                className="w-full px-5 py-3.5 flex items-center gap-3 hover:bg-white/5 transition-colors text-left border-b border-outline-variant/10 last:border-b-0"
+                                onClick={() => {
+                                  setSearchInput(item.symbol)
+                                  setShowDropdown(false)
+                                  setStockLoading(true)
+                                  getStockQuote(item.symbol)
+                                    .then(data => setStockData(data))
+                                    .catch(() => setStockData(null))
+                                    .finally(() => setStockLoading(false))
+                                  startAnalysisStream(item.symbol)
+                                  openModal()
+                                }}
+                              >
+                                <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                                  <span className="font-headline text-xs font-bold text-primary">{item.symbol.slice(0, 2)}</span>
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-center gap-2">
+                                    <span className="font-headline font-semibold text-on-surface text-sm">{item.symbol}</span>
+                                    <span className="text-[9px] px-1.5 py-0.5 rounded-md bg-surface-container-high text-on-surface-variant font-medium uppercase">{item.type}</span>
+                                  </div>
+                                  <p className="text-xs text-on-surface-variant truncate mt-0.5">{item.name}</p>
+                                </div>
+                                <span className="text-[9px] text-on-surface-variant/70 uppercase tracking-wider shrink-0">{item.exchange}</span>
+                              </button>
+                            ))}
+
+                            {/* Pagination */}
+                            {searchTotal > 5 && (
+                              <div className="flex items-center justify-between px-5 py-3 border-t border-outline-variant/15 bg-surface-container-low/40">
+                                <span className="text-[10px] text-on-surface-variant">
+                                  {(searchPage - 1) * 5 + 1}–{Math.min(searchPage * 5, searchTotal)} of {searchTotal}
+                                </span>
+                                <div className="flex gap-2">
+                                  <button
+                                    className="px-3 py-1 rounded-lg text-[10px] font-medium bg-surface-container-high text-on-surface-variant hover:bg-primary/10 hover:text-primary transition-all disabled:opacity-30 disabled:pointer-events-none"
+                                    disabled={searchPage <= 1}
+                                    onClick={(e) => { e.stopPropagation(); handleSearchPage(searchPage - 1) }}
+                                  >
+                                    ← Prev
+                                  </button>
+                                  <button
+                                    className="px-3 py-1 rounded-lg text-[10px] font-medium bg-surface-container-high text-on-surface-variant hover:bg-primary/10 hover:text-primary transition-all disabled:opacity-30 disabled:pointer-events-none"
+                                    disabled={searchPage * 5 >= searchTotal}
+                                    onClick={(e) => { e.stopPropagation(); handleSearchPage(searchPage + 1) }}
+                                  >
+                                    Next →
+                                  </button>
+                                </div>
+                              </div>
+                            )}
+                          </>
+                        ) : searchLoading ? (
+                          <div className="px-5 py-6 flex items-center justify-center gap-2">
+                            <div className="w-4 h-4 border-2 border-primary/30 border-t-primary rounded-full animate-spin"></div>
+                            <span className="text-xs text-on-surface-variant">Searching...</span>
+                          </div>
+                        ) : (
+                          <div className="px-5 py-6 text-center">
+                            <span className="material-symbols-outlined text-on-surface-variant/40 text-2xl block mb-1">search_off</span>
+                            <p className="text-xs text-on-surface-variant">No results for &quot;{searchInput}&quot;</p>
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
 
                   {/* Diagnose Button */}
@@ -452,80 +517,6 @@ function HomeContent() {
                   </div>
                 </div>
               </div>
-
-              {/* Search Results Dropdown — outside glass-card to avoid overflow clipping */}
-              {showDropdown && searchInput.trim() && (
-                <div className="absolute top-full left-0 right-0 mt-2 glass-card rounded-2xl border border-outline-variant/15 shadow-2xl shadow-black/40 overflow-hidden z-[100]">
-                  {searchResults.length > 0 ? (
-                    <>
-                      {searchResults.map((item) => (
-                        <button
-                          key={item.symbol}
-                          className="w-full px-5 py-3.5 flex items-center gap-3 hover:bg-white/5 transition-colors text-left border-b border-outline-variant/10 last:border-b-0"
-                          onClick={() => {
-                            setSearchInput(item.symbol)
-                            setShowDropdown(false)
-                            setStockLoading(true)
-                            getStockQuote(item.symbol)
-                              .then(data => setStockData(data))
-                              .catch(() => setStockData(null))
-                              .finally(() => setStockLoading(false))
-                            startAnalysisStream(item.symbol)
-                            openModal()
-                          }}
-                        >
-                          <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-                            <span className="font-headline text-xs font-bold text-primary">{item.symbol.slice(0, 2)}</span>
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2">
-                              <span className="font-headline font-semibold text-on-surface text-sm">{item.symbol}</span>
-                              <span className="text-[9px] px-1.5 py-0.5 rounded-md bg-surface-container-high text-on-surface-variant font-medium uppercase">{item.type}</span>
-                            </div>
-                            <p className="text-xs text-on-surface-variant truncate mt-0.5">{item.name}</p>
-                          </div>
-                          <span className="text-[9px] text-on-surface-variant/70 uppercase tracking-wider shrink-0">{item.exchange}</span>
-                        </button>
-                      ))}
-
-                      {/* Pagination */}
-                      {searchTotal > 5 && (
-                        <div className="flex items-center justify-between px-5 py-3 border-t border-outline-variant/15 bg-surface-container-low/40">
-                          <span className="text-[10px] text-on-surface-variant">
-                            {(searchPage - 1) * 5 + 1}–{Math.min(searchPage * 5, searchTotal)} of {searchTotal}
-                          </span>
-                          <div className="flex gap-2">
-                            <button
-                              className="px-3 py-1 rounded-lg text-[10px] font-medium bg-surface-container-high text-on-surface-variant hover:bg-primary/10 hover:text-primary transition-all disabled:opacity-30 disabled:pointer-events-none"
-                              disabled={searchPage <= 1}
-                              onClick={(e) => { e.stopPropagation(); handleSearchPage(searchPage - 1) }}
-                            >
-                              ← Prev
-                            </button>
-                            <button
-                              className="px-3 py-1 rounded-lg text-[10px] font-medium bg-surface-container-high text-on-surface-variant hover:bg-primary/10 hover:text-primary transition-all disabled:opacity-30 disabled:pointer-events-none"
-                              disabled={searchPage * 5 >= searchTotal}
-                              onClick={(e) => { e.stopPropagation(); handleSearchPage(searchPage + 1) }}
-                            >
-                              Next →
-                            </button>
-                          </div>
-                        </div>
-                      )}
-                    </>
-                  ) : searchLoading ? (
-                    <div className="px-5 py-6 flex items-center justify-center gap-2">
-                      <div className="w-4 h-4 border-2 border-primary/30 border-t-primary rounded-full animate-spin"></div>
-                      <span className="text-xs text-on-surface-variant">Searching...</span>
-                    </div>
-                  ) : (
-                    <div className="px-5 py-6 text-center">
-                      <span className="material-symbols-outlined text-on-surface-variant/40 text-2xl block mb-1">search_off</span>
-                      <p className="text-xs text-on-surface-variant">No results for &quot;{searchInput}&quot;</p>
-                    </div>
-                  )}
-                </div>
-              )}
             </div>
           </div>
         </section>
