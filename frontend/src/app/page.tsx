@@ -3,7 +3,7 @@
 import { useEffect, useRef, useCallback, useState, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
-import { getStockQuote, getHotStocks, StockQuote } from '../lib/api'
+import { getStockQuote, getHotStocks, searchStocks, StockQuote, SearchResult, SearchResponse } from '../lib/api'
 
 function formatNumber(n: number): string {
   if (n >= 1e9) return (n / 1e9).toFixed(2) + 'B'
@@ -39,13 +39,21 @@ function HomeContent() {
   const [fallbackUrl, setFallbackUrl] = useState('https://wa.me/1234567890')
   const [placeholderText, setPlaceholderText] = useState('')
   const [currentDomain, setCurrentDomain] = useState('')
-  const [tickerInput, setTickerInput] = useState('')
+  const [searchInput, setSearchInput] = useState('')
+  const [searchResults, setSearchResults] = useState<SearchResult[]>([])
+  const [searchTotal, setSearchTotal] = useState(0)
+  const [searchPage, setSearchPage] = useState(1)
+  const [searchLoading, setSearchLoading] = useState(false)
+  const [showDropdown, setShowDropdown] = useState(false)
   const [modalState, setModalState] = useState<'closed' | 'loading' | 'result'>('closed')
 
+  const searchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const searchAbortRef = useRef<AbortController | null>(null)
   const streamControllerRef = useRef<AbortController | null>(null)
   const [progressWidth, setProgressWidth] = useState('0%')
   const [progressStatus, setProgressStatus] = useState('')
 
+  // Fetch stock data when code param changes
   useEffect(() => {
     if (!stockCode) { setStockData(null); return }
     let cancelled = false
@@ -57,6 +65,7 @@ function HomeContent() {
     return () => { cancelled = true }
   }, [stockCode])
 
+  // Fetch hot stocks on mount
   useEffect(() => {
     let cancelled = false
     setHotLoading(true)
@@ -67,6 +76,7 @@ function HomeContent() {
     return () => { cancelled = true }
   }, [])
 
+  // Load fallback URL and placeholder text from public config
   useEffect(() => {
     setCurrentDomain(window.location.hostname)
     fetch('/api/config/public')
@@ -81,17 +91,95 @@ function HomeContent() {
       .catch(() => {})
   }, [])
 
+  // ── Search: debounce + AbortController ──
+  const doSearch = useCallback((query: string, page: number = 1) => {
+    if (searchTimerRef.current) {
+      clearTimeout(searchTimerRef.current)
+      searchTimerRef.current = null
+    }
+    if (searchAbortRef.current) {
+      searchAbortRef.current.abort()
+      searchAbortRef.current = null
+    }
+
+    if (!query.trim()) {
+      setSearchResults([])
+      setSearchTotal(0)
+      setShowDropdown(false)
+      return
+    }
+
+    // Debounce: wait 300ms after user stops typing
+    searchTimerRef.current = setTimeout(() => {
+      const controller = new AbortController()
+      searchAbortRef.current = controller
+      setSearchLoading(true)
+      setSearchPage(page)
+
+      searchStocks(query, page, 5)
+        .then((data: SearchResponse) => {
+          if (controller.signal.aborted) return
+          setSearchResults(data.results || [])
+          setSearchTotal(data.total || 0)
+          setShowDropdown(true)
+        })
+        .catch((err) => {
+          if (err.name !== 'AbortError') {
+            setSearchResults([])
+            setSearchTotal(0)
+          }
+        })
+        .finally(() => {
+          if (!controller.signal.aborted) setSearchLoading(false)
+        })
+    }, 300)
+  }, [])
+
+  const handleSearchChange = useCallback((value: string) => {
+    setSearchInput(value)
+    doSearch(value, 1)
+  }, [doSearch])
+
+  const handleSearchPage = useCallback((newPage: number) => {
+    doSearch(searchInput, newPage)
+  }, [doSearch, searchInput])
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      const target = e.target as HTMLElement
+      if (!target.closest('.search-container')) {
+        setShowDropdown(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
+  // ── Analysis Stream ──
   const startAnalysisStream = useCallback((symbol: string) => {
-    if (streamControllerRef.current) streamControllerRef.current.abort()
+    if (streamControllerRef.current) {
+      streamControllerRef.current.abort()
+    }
     const controller = new AbortController()
     streamControllerRef.current = controller
+
     setIsStreaming(true)
     setAnalysisContent('')
+
     fetch(`/api/analyze/${encodeURIComponent(symbol)}`, { signal: controller.signal })
       .then(async (response) => {
-        if (!response.ok) { setAnalysisContent('❌ Stock not found or AI service unavailable.'); setIsStreaming(false); return }
+        if (!response.ok) {
+          setAnalysisContent('❌ Stock not found or AI service unavailable.')
+          setIsStreaming(false)
+          return
+        }
         const reader = response.body?.getReader()
-        if (!reader) { setAnalysisContent('❌ Stream read error.'); setIsStreaming(false); return }
+        if (!reader) {
+          setAnalysisContent('❌ Stream read error.')
+          setIsStreaming(false)
+          return
+        }
         const decoder = new TextDecoder()
         let fullText = ''
         while (true) {
@@ -99,14 +187,23 @@ function HomeContent() {
           if (done) break
           const chunk = decoder.decode(value, { stream: true })
           for (const line of chunk.split('\n')) {
-            if (line.startsWith('data: ')) { fullText += line.slice(6); setAnalysisContent(fullText) }
+            if (line.startsWith('data: ')) {
+              fullText += line.slice(6)
+              setAnalysisContent(fullText)
+            }
           }
         }
         setIsStreaming(false)
       })
-      .catch((err) => { if (err.name !== 'AbortError') setAnalysisContent('❌ AI analysis unavailable.'); setIsStreaming(false) })
+      .catch((err) => {
+        if (err.name !== 'AbortError') {
+          setAnalysisContent('❌ AI analysis unavailable. Please try again.')
+        }
+        setIsStreaming(false)
+      })
   }, [])
 
+  // ── Modal ──
   const openModal = useCallback(() => {
     const mask = document.getElementById('global-mask')
     if (mask) mask.classList.add('active')
@@ -133,8 +230,12 @@ function HomeContent() {
   }, [])
 
   const closeModal = useCallback(() => {
-    if (streamControllerRef.current) { streamControllerRef.current.abort(); streamControllerRef.current = null }
-    setIsStreaming(false); setModalState('closed')
+    if (streamControllerRef.current) {
+      streamControllerRef.current.abort()
+      streamControllerRef.current = null
+    }
+    setIsStreaming(false)
+    setModalState('closed')
     const mask = document.getElementById('global-mask')
     if (mask) mask.classList.remove('active')
   }, [])
@@ -142,11 +243,13 @@ function HomeContent() {
   const handlePrimaryClick = useCallback(() => {
     if (isAnalyzingRef.current) return
     isAnalyzingRef.current = true
-    const symbol = stockCode && stockData ? stockCode : tickerInput.trim() || 'AAPL'
-    startAnalysisStream(symbol); openModal()
+    const symbol = stockCode && stockData ? stockCode : searchInput.trim() || 'AAPL'
+    startAnalysisStream(symbol)
+    openModal()
     isAnalyzingRef.current = false
-  }, [openModal, stockCode, stockData, tickerInput, startAnalysisStream])
+  }, [openModal, stockCode, stockData, searchInput, startAnalysisStream])
 
+  // Scroll-triggered FAB
   useEffect(() => {
     const onScroll = () => {
       const cta = document.getElementById('sticky-cta')
@@ -158,7 +261,7 @@ function HomeContent() {
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
-  const activeSymbol = stockCode && stockData ? stockCode : tickerInput.trim() || 'AAPL'
+  const activeSymbol = stockCode && stockData ? stockCode : searchInput.trim() || 'AAPL'
 
   return (
     <>
@@ -168,7 +271,7 @@ function HomeContent() {
       <div className={`modal-container ${modalState !== 'closed' ? 'active' : ''}`}>
         <div className="fixed inset-0 bg-black/90 backdrop-blur-sm" onClick={closeModal}></div>
 
-        <div className="relative w-full max-w-sm brutalist-border bg-black relative overflow-hidden">
+        <div className="relative w-full max-w-sm brutalist-border bg-black overflow-hidden">
           {/* Header bar */}
           <div className="bg-primary text-on-primary px-3 py-1.5 flex justify-between items-center">
             <h3 className="font-headline text-xs font-black tracking-widest">DIAGNOSIS_RESULT.EXE</h3>
@@ -191,7 +294,7 @@ function HomeContent() {
             </div>
           )}
 
-          {/* RESULT — Compact */}
+          {/* RESULT */}
           {modalState === 'result' && (
             <div className="p-4 space-y-3">
               <div className="flex items-center gap-3">
@@ -200,29 +303,53 @@ function HomeContent() {
                 </div>
                 <div>
                   <div className="px-1.5 py-0.5 bg-primary/10 border border-primary/40 text-primary text-[8px] font-bold w-fit mb-0.5">SIGNAL_ACQUIRED</div>
-                  <h4 className="font-headline text-sm font-bold uppercase tracking-tight">{stockData ? (stockData.change_percent >= 0 ? 'BREAKOUT_CONFIRMED' : 'DISTRIBUTION_DETECTED') : 'AI_VERDICT_READY'}</h4>
+                  <h4 className="font-headline text-sm font-bold uppercase tracking-tight">
+                    {stockData ? `${stockData.name || activeSymbol} — $${formatPrice(stockData.price)}` : activeSymbol}
+                  </h4>
                 </div>
               </div>
 
-              <div className="bg-surface-container p-3 border-l-2 border-primary">
-                <p className="font-body text-xs leading-relaxed text-white/90">
+              {/* Stock Data Grid — above diagnosis output */}
+              {stockData && (
+                <div className="grid grid-cols-3 gap-1.5">
+                  <div className="p-1.5 border border-white/10 bg-surface-container-low">
+                    <span className="block text-[7px] font-label text-white/40 uppercase">Change</span>
+                    <span className={`font-headline text-xs font-bold ${stockData.change_percent >= 0 ? 'text-primary' : 'text-error'}`}>
+                      {stockData.change_percent >= 0 ? '+' : ''}{stockData.change_percent.toFixed(2)}%
+                    </span>
+                  </div>
+                  <div className="p-1.5 border border-white/10 bg-surface-container-low">
+                    <span className="block text-[7px] font-label text-white/40 uppercase">Volume</span>
+                    <span className="text-secondary font-headline text-xs font-bold">{formatNumber(stockData.volume)}</span>
+                  </div>
+                  <div className="p-1.5 border border-white/10 bg-surface-container-low">
+                    <span className="block text-[7px] font-label text-white/40 uppercase">Mkt_Cap</span>
+                    <span className="text-tertiary font-headline text-xs font-bold">{stockData.market_cap ? formatNumber(stockData.market_cap) : '—'}</span>
+                  </div>
+                  <div className="p-1.5 border border-white/10 bg-surface-container-low">
+                    <span className="block text-[7px] font-label text-white/40 uppercase">Open</span>
+                    <span className="text-white/80 font-headline text-xs font-bold">{stockData.open != null ? '$' + formatPrice(stockData.open) : '—'}</span>
+                  </div>
+                  <div className="p-1.5 border border-white/10 bg-surface-container-low">
+                    <span className="block text-[7px] font-label text-white/40 uppercase">Day_High</span>
+                    <span className="text-white/80 font-headline text-xs font-bold">{stockData.day_high != null ? '$' + formatPrice(stockData.day_high) : '—'}</span>
+                  </div>
+                  <div className="p-1.5 border border-white/10 bg-surface-container-low">
+                    <span className="block text-[7px] font-label text-white/40 uppercase">Day_Low</span>
+                    <span className="text-white/80 font-headline text-xs font-bold">{stockData.day_low != null ? '$' + formatPrice(stockData.day_low) : '—'}</span>
+                  </div>
+                </div>
+              )}
+
+              {/* Diagnosis Output */}
+              <div className="bg-surface-container p-3 border-l-2 border-primary max-h-60 overflow-y-auto">
+                <p className="font-body text-xs leading-relaxed text-white/90 whitespace-pre-wrap">
                   {analysisContent ? (
                     <>{analysisContent}{isStreaming && <span className="animate-pulse text-primary">▌</span>}</>
                   ) : (
                     placeholderText || 'AI is preparing your diagnosis report...'
                   )}
                 </p>
-              </div>
-
-              <div className="grid grid-cols-2 gap-2">
-                <div className="p-2 border border-white/10 bg-surface-container-low">
-                  <span className="block text-[8px] font-label text-white/40 uppercase">Signal_Strength</span>
-                  <span className="text-primary font-headline text-sm font-bold">{stockData ? (stockData.change_percent >= 0 ? 'BULLISH' : 'BEARISH') : 'PENDING'}</span>
-                </div>
-                <div className="p-2 border border-white/10 bg-surface-container-low">
-                  <span className="block text-[8px] font-label text-white/40 uppercase">Timeframe</span>
-                  <span className="text-secondary font-headline text-sm font-bold">SHORT_TERM</span>
-                </div>
               </div>
 
               <button
@@ -274,18 +401,22 @@ function HomeContent() {
                 RAW_AI <span className="text-primary italic">DIAGNOSIS</span>
               </h2>
             </div>
-            <div className="w-full max-w-3xl relative">
+            <div className="w-full max-w-3xl relative search-container">
               <div className="bg-surface-container-low p-4 brutalist-border flex flex-col md:flex-row items-stretch gap-3">
-                <div className="flex-1">
+                <div className="flex-1 relative">
                   <label className="block font-label text-primary/60 text-[10px] uppercase tracking-widest mb-1">INPUT_TICKER</label>
                   <input
                     className="w-full bg-transparent border-0 border-b border-outline focus:border-secondary focus:ring-0 text-2xl md:text-4xl font-headline font-bold text-white placeholder:text-white/10 p-0 uppercase outline-none"
                     placeholder="AAPL..."
                     type="text"
-                    value={tickerInput}
-                    onChange={(e) => setTickerInput(e.target.value.toUpperCase())}
-                    onKeyDown={(e) => { if (e.key === 'Enter' && tickerInput.trim()) handlePrimaryClick() }}
+                    value={searchInput}
+                    onChange={(e) => handleSearchChange(e.target.value.toUpperCase())}
+                    onFocus={() => { if (searchResults.length > 0) setShowDropdown(true) }}
+                    onKeyDown={(e) => { if (e.key === 'Enter' && searchInput.trim()) handlePrimaryClick() }}
                   />
+                  <span className="absolute right-0 top-1/2 material-symbols-outlined text-white/30 text-lg">
+                    {searchLoading ? 'hourglass_top' : 'search'}
+                  </span>
                 </div>
                 <button
                   className="bg-primary text-on-primary px-6 py-3 font-headline font-bold text-base uppercase tracking-tighter hover:bg-primary-fixed active:scale-95 transition-all flex items-center justify-center gap-2 shrink-0"
@@ -294,6 +425,81 @@ function HomeContent() {
                   DIAGNOSE <span className="material-symbols-outlined text-lg">bolt</span>
                 </button>
               </div>
+
+              {/* Search Results Dropdown */}
+              {showDropdown && searchInput.trim() && (
+                <div className="absolute top-full left-0 right-0 mt-2 bg-surface-container border border-white/10 shadow-2xl shadow-black/40 overflow-hidden z-50">
+                  {searchResults.length > 0 ? (
+                    <>
+                      {searchResults.map((item) => (
+                        <button
+                          key={item.symbol}
+                          className="w-full px-4 py-3 flex items-center gap-3 hover:bg-white/5 transition-colors text-left border-b border-white/5 last:border-b-0"
+                          onClick={() => {
+                            setSearchInput(item.symbol)
+                            setShowDropdown(false)
+                            // Fetch stock data for selected symbol
+                            setStockLoading(true)
+                            getStockQuote(item.symbol)
+                              .then(data => setStockData(data))
+                              .catch(() => setStockData(null))
+                              .finally(() => setStockLoading(false))
+                            startAnalysisStream(item.symbol)
+                            openModal()
+                          }}
+                        >
+                          <div className="w-7 h-7 brutalist-border border-primary/30 flex items-center justify-center shrink-0">
+                            <span className="font-headline text-[9px] font-bold text-primary">{item.symbol.slice(0, 2)}</span>
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2">
+                              <span className="font-headline font-bold text-on-surface text-xs">{item.symbol}</span>
+                              <span className="text-[8px] px-1 py-0.5 bg-surface-container-high text-white/40 font-label uppercase">{item.type}</span>
+                            </div>
+                            <p className="text-[10px] text-white/40 truncate mt-0.5 font-body">{item.name}</p>
+                          </div>
+                          <span className="text-[8px] text-white/30 uppercase tracking-wider shrink-0 font-label">{item.exchange}</span>
+                        </button>
+                      ))}
+
+                      {/* Pagination */}
+                      {searchTotal > 5 && (
+                        <div className="flex items-center justify-between px-4 py-2 border-t border-white/5 bg-surface-container-low">
+                          <span className="text-[9px] text-white/40 font-label">
+                            {(searchPage - 1) * 5 + 1}–{Math.min(searchPage * 5, searchTotal)} of {searchTotal}
+                          </span>
+                          <div className="flex gap-2">
+                            <button
+                              className="px-2 py-0.5 text-[9px] font-bold bg-surface-container-high text-white/50 hover:bg-primary/10 hover:text-primary transition-all disabled:opacity-30 disabled:pointer-events-none font-label uppercase"
+                              disabled={searchPage <= 1}
+                              onClick={(e) => { e.stopPropagation(); handleSearchPage(searchPage - 1) }}
+                            >
+                              ← Prev
+                            </button>
+                            <button
+                              className="px-2 py-0.5 text-[9px] font-bold bg-surface-container-high text-white/50 hover:bg-primary/10 hover:text-primary transition-all disabled:opacity-30 disabled:pointer-events-none font-label uppercase"
+                              disabled={searchPage * 5 >= searchTotal}
+                              onClick={(e) => { e.stopPropagation(); handleSearchPage(searchPage + 1) }}
+                            >
+                              Next →
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </>
+                  ) : searchLoading ? (
+                    <div className="px-4 py-5 flex items-center justify-center gap-2">
+                      <div className="w-3 h-3 border border-primary/30 border-t-primary animate-spin"></div>
+                      <span className="text-[10px] text-white/40 font-body">Searching...</span>
+                    </div>
+                  ) : (
+                    <div className="px-4 py-5 text-center">
+                      <span className="material-symbols-outlined text-white/20 text-xl block mb-1">search_off</span>
+                      <p className="text-[10px] text-white/30 font-body">No results for &quot;{searchInput}&quot;</p>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </section>
 
@@ -323,37 +529,46 @@ function HomeContent() {
                 <div className="scan-line"></div>
                 <div className="flex items-center gap-2 mb-3">
                   <span className="material-symbols-outlined text-primary text-lg">verified</span>
-                  <h4 className="font-headline text-sm font-bold uppercase tracking-tighter text-primary">REPORT_SUMMARY: {stockData ? (stockData.change_percent >= 0 ? 'BULLISH_EXTREME' : 'BEARISH_PRESSURE') : 'LOADING...'}</h4>
+                  <h4 className="font-headline text-sm font-bold uppercase tracking-tighter text-primary">
+                    {stockData ? stockData.name || stockData.symbol : stockCode} — ${stockData ? formatPrice(stockData.price) : '...'}
+                  </h4>
                 </div>
                 {stockLoading ? (
                   <div className="flex justify-center py-8"><div className="w-4 h-4 border-2 border-primary/30 border-t-primary animate-spin"></div></div>
                 ) : stockData ? (
-                  <>
-                    <p className="font-body text-sm leading-snug mb-3">
-                      AI detects <span className="text-primary font-bold">{stockData.change >= 0 ? 'accumulation phase' : 'distribution pressure'}</span> at ${formatPrice(stockData.price)} with target {stockData.change >= 0 ? 'upside' : 'downside'} of {Math.abs(stockData.change_percent).toFixed(1)}%.
-                    </p>
-                    <div className="flex flex-wrap gap-2">
-                      <div className="px-2 py-0.5 bg-primary/10 border border-primary/20 text-primary text-[9px] font-label font-bold uppercase">CONFIDENCE: {(80 + Math.abs(stockData.change_percent) * 2).toFixed(1)}%</div>
-                      <div className="px-2 py-0.5 bg-secondary/10 border border-secondary/20 text-secondary text-[9px] font-label font-bold uppercase">HORIZON: 14_DAYS</div>
-                      <div className={`px-2 py-0.5 ${stockData.change_percent >= 0 ? 'bg-primary/10 border-primary/20 text-primary' : 'bg-error/10 border-error/20 text-error'} border text-[9px] font-label font-bold uppercase`}>RISK: {stockData.change_percent >= 0 ? 'MODERATE' : 'HIGH'}</div>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                    <div className="p-2 border border-white/10 bg-surface-container-low">
+                      <span className="block text-[8px] font-label text-white/40 uppercase">Price</span>
+                      <span className="text-primary font-headline text-sm font-bold">${formatPrice(stockData.price)}</span>
                     </div>
-                  </>
+                    <div className="p-2 border border-white/10 bg-surface-container-low">
+                      <span className="block text-[8px] font-label text-white/40 uppercase">Change</span>
+                      <span className={`font-headline text-sm font-bold ${stockData.change_percent >= 0 ? 'text-primary' : 'text-error'}`}>
+                        {stockData.change_percent >= 0 ? '+' : ''}{stockData.change_percent.toFixed(2)}%
+                      </span>
+                    </div>
+                    <div className="p-2 border border-white/10 bg-surface-container-low">
+                      <span className="block text-[8px] font-label text-white/40 uppercase">Volume</span>
+                      <span className="text-secondary font-headline text-sm font-bold">{formatNumber(stockData.volume)}</span>
+                    </div>
+                    <div className="p-2 border border-white/10 bg-surface-container-low">
+                      <span className="block text-[8px] font-label text-white/40 uppercase">Mkt_Cap</span>
+                      <span className="text-tertiary font-headline text-sm font-bold">{stockData.market_cap ? formatNumber(stockData.market_cap) : '—'}</span>
+                    </div>
+                  </div>
                 ) : null}
               </div>
               <div className="lg:col-span-4 flex flex-col gap-3">
-                <div className={`p-3 flex gap-3 items-start ${stockData && stockData.change_percent < 0 ? 'bg-error' : 'bg-tertiary'} text-on-tertiary`}>
-                  <span className="material-symbols-outlined text-lg">warning</span>
-                  <div>
-                    <h5 className="font-headline font-extrabold uppercase text-xs">ANOMALY_ALERT</h5>
-                    <p className="text-[10px] leading-tight mt-0.5">Options delta suggests {stockData && stockData.change_percent < 0 ? 'downside' : 'upside'} pressure. Monitor closely.</p>
-                  </div>
-                </div>
                 <div className="bg-surface-container-high p-3 border border-white/5 flex-1">
-                  <span className="block text-[8px] font-label text-white/40 uppercase mb-1">Price_Data</span>
+                  <span className="block text-[8px] font-label text-white/40 uppercase mb-1">Extended_Data</span>
                   {stockData ? (
                     <div className="grid grid-cols-2 gap-2">
-                      <div><span className="text-[8px] font-label text-white/40 uppercase">Volume</span><p className="text-xs font-bold text-primary">{formatNumber(stockData.volume)}</p></div>
-                      <div><span className="text-[8px] font-label text-white/40 uppercase">Mkt_Cap</span><p className="text-xs font-bold text-secondary">{stockData.market_cap ? formatNumber(stockData.market_cap) : '—'}</p></div>
+                      <div><span className="text-[8px] font-label text-white/40 uppercase">Open</span><p className="text-xs font-bold text-primary">{stockData.open != null ? '$' + formatPrice(stockData.open) : '—'}</p></div>
+                      <div><span className="text-[8px] font-label text-white/40 uppercase">Prev_Close</span><p className="text-xs font-bold text-secondary">{stockData.prev_close != null ? '$' + formatPrice(stockData.prev_close) : '—'}</p></div>
+                      <div><span className="text-[8px] font-label text-white/40 uppercase">Day_High</span><p className="text-xs font-bold text-white/80">{stockData.day_high != null ? '$' + formatPrice(stockData.day_high) : '—'}</p></div>
+                      <div><span className="text-[8px] font-label text-white/40 uppercase">Day_Low</span><p className="text-xs font-bold text-white/80">{stockData.day_low != null ? '$' + formatPrice(stockData.day_low) : '—'}</p></div>
+                      <div><span className="text-[8px] font-label text-white/40 uppercase">52W_High</span><p className="text-xs font-bold text-tertiary">{stockData.fifty_two_week_high != null ? '$' + formatPrice(stockData.fifty_two_week_high) : '—'}</p></div>
+                      <div><span className="text-[8px] font-label text-white/40 uppercase">52W_Low</span><p className="text-xs font-bold text-error">{stockData.fifty_two_week_low != null ? '$' + formatPrice(stockData.fifty_two_week_low) : '—'}</p></div>
                     </div>
                   ) : <p className="text-[10px] text-white/30">NO DATA</p>}
                 </div>
