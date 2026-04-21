@@ -1,0 +1,226 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ═══════════════════════════════════════════════════════
+   Fidex AI — Stitch ai.stockai888.com Design System
+   Light Purple · Material Design 3 · Manrope
+   ═══════════════════════════════════════════════════════ */
+
+/* ── Self-Hosted Fonts ── */
+@font-face {
+  font-family: 'Manrope';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/manrope-400.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Manrope';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('/fonts/manrope-500.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Manrope';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('/fonts/manrope-600.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Manrope';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/manrope-700.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Manrope';
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+  src: url('/fonts/manrope-800.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Material Symbols Outlined';
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  src: url('/fonts/material-symbols-outlined.woff2') format('woff2');
+}
+
+body {
+  background-color: #f9f5ff;
+  color: #2c2a51;
+  font-family: 'Manrope', sans-serif;
+  overflow-x: hidden;
+}
+
+::selection {
+  background-color: rgba(38, 71, 229, 0.2);
+  color: #2647e5;
+}
+
+/* ── Scrollbar ── */
+.hide-scroll::-webkit-scrollbar { display: none; }
+.hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #ddd9ff; border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: #aca8d7; }
+
+/* ── Sticky CTA ── */
+#sticky-cta {
+  transform: translateY(100%);
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+#sticky-cta.visible {
+  transform: translateY(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* ── Screen Mask ── */
+.screen-mask {
+  position: fixed;
+  inset: 0;
+  background: rgba(44, 42, 81, 0.5);
+  backdrop-filter: blur(8px);
+  z-index: 90;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+  overflow: hidden;
+}
+.screen-mask.active {
+  opacity: 1;
+  pointer-events: auto;
+  cursor: default;
+}
+
+/* ── Modal ── */
+.modal-container {
+  position: fixed;
+  inset: 0;
+  z-index: 110;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  overflow-y: auto;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+.modal-container.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* ── Material Symbols ── */
+.material-symbols-outlined {
+  font-family: 'Material Symbols Outlined' !important;
+  font-weight: 400 !important;
+  font-style: normal !important;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-smoothing: antialiased;
+  font-feature-settings: 'rlig' 1, 'liga' 1 !important;
+  font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+}
+
+/* ── Carousel ── */
+.carousel-container {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  gap: 0;
+  padding-bottom: 1rem;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.carousel-container::-webkit-scrollbar { display: none; }
+.carousel-item {
+  scroll-snap-align: center;
+  flex: 0 0 70%;
+  margin-right: -10%;
+  transition: transform 0.3s ease, z-index 0.3s ease;
+  position: relative;
+}
+.carousel-item:hover {
+  transform: translateY(-5px);
+  z-index: 10;
+}
+.carousel-item:last-child { margin-right: 0; }
+
+/* ── Loading Bar ── */
+.loading-bar-anim {
+  animation: loadingProgress 1.5s ease-in-out forwards;
+}
+
+/* ── Modal Conversion Button ── */
+#modal-submit-btn.animate-btn-activate {
+  position: relative;
+  background: #2647e5 !important;
+  color: #f3f1ff !important;
+  border: none !important;
+  animation: btn-breathe 2.5s ease-in-out infinite, btn-activate 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards !important;
+  filter: grayscale(0) !important;
+  opacity: 1 !important;
+  overflow: hidden;
+  z-index: 1;
+  box-shadow: 0 0 20px rgba(38, 71, 229, 0.3);
+}
+
+#modal-submit-btn.animate-btn-activate::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: 14px;
+  background: conic-gradient(from 0deg, #2647e5, #8899ff, #d1ccff, #2647e5, #2647e5);
+  z-index: -2;
+  animation: border-spin 3s linear infinite;
+}
+
+#modal-submit-btn.animate-btn-activate::after {
+  content: '';
+  position: absolute;
+  inset: 2px;
+  border-radius: 12px;
+  background: #2647e5;
+  z-index: -1;
+}
+
+/* ── Animations ── */
+@keyframes btn-breathe {
+  0%, 100% {
+    box-shadow: 0 0 15px rgba(38, 71, 229, 0.3), 0 0 30px rgba(38, 71, 229, 0.1);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 25px rgba(38, 71, 229, 0.5), 0 0 50px rgba(136, 153, 255, 0.2), 0 0 80px rgba(84, 77, 182, 0.1);
+    transform: scale(1.02);
+  }
+}
+
+@keyframes border-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes loadingProgress {
+  0% { width: 0%; }
+  100% { width: 100%; }
+}
