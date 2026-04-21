@@ -34,7 +34,6 @@ function HomeContent() {
   const [redirectUrl, setRedirectUrl] = useState<string | null>(null)
   const [fallbackUrl, setFallbackUrl] = useState('https://wa.me/1234567890')
   const [placeholderText, setPlaceholderText] = useState('')
-  const [currentDomain, setCurrentDomain] = useState('')
   const [query, setQuery] = useState('')
   const [results, setResults] = useState<SearchResult[]>([])
   const [resultTotal, setResultTotal] = useState(0)
@@ -72,7 +71,6 @@ function HomeContent() {
   }, [])
 
   useEffect(() => {
-    setCurrentDomain(window.location.hostname)
     fetch('/api/config/public').then(r => r.json()).then(data => {
       const s = data.settings || []
       const fb = s.find((x: { key: string }) => x.key === 'fallback_redirect_url')
@@ -172,7 +170,6 @@ function HomeContent() {
     startStream(sym); openModal(); isAnalyzingRef.current = false
   }, [openModal, tickerParam, stockData, query, startStream])
 
-  // ── Sticky CTA on scroll ──
   useEffect(() => {
     const onScroll = () => {
       const el = document.getElementById('sticky-cta')
@@ -192,8 +189,8 @@ function HomeContent() {
 
       {/* ── Diagnostic Modal ── */}
       <div className={`modal-container ${modalState !== 'closed' ? 'active' : ''}`}>
-        <div className="fixed inset-0 bg-[#2c2a51]/50 backdrop-blur-sm transition-all duration-300" onClick={closeModal}></div>
-        <div className="relative w-full max-w-sm bg-surface-container-lowest rounded-2xl shadow-[0_20px_60px_rgba(44,42,81,0.15)] p-6 transition-all duration-300 overflow-hidden">
+        <div className="fixed inset-0 bg-brand-dark/50 backdrop-blur-sm transition-all duration-300" onClick={closeModal}></div>
+        <div className="relative w-full max-w-sm bg-white rounded-[28px] shadow-2xl p-6 transition-all duration-300 overflow-hidden">
           <button className="absolute top-3 right-3 text-on-surface-variant hover:text-primary transition-colors z-20" onClick={closeModal}>
             <span className="material-symbols-outlined text-xl">close</span>
           </button>
@@ -202,17 +199,17 @@ function HomeContent() {
             <div className="flex flex-col items-center justify-center min-h-[280px] text-center space-y-6">
               <div className="relative w-20 h-20">
                 <div className="absolute inset-0 rounded-full border-2 border-primary/20 animate-ping"></div>
-                <div className="absolute inset-3 rounded-full border-2 border-secondary/40 animate-pulse"></div>
+                <div className="absolute inset-3 rounded-full border-2 border-brand-dark/40 animate-pulse"></div>
                 <div className="absolute inset-0 flex items-center justify-center">
                   <span className="material-symbols-outlined text-3xl text-primary animate-pulse">auto_awesome</span>
                 </div>
               </div>
               <div className="space-y-1">
-                <h2 className="font-headline text-lg font-bold text-on-surface">AI Diagnosis In Progress</h2>
-                <div className="text-primary font-headline text-xs font-semibold">{progressTxt}</div>
+                <h2 className="font-bold text-lg text-on-surface">AI Diagnosis In Progress</h2>
+                <div className="text-primary text-xs font-semibold">{progressTxt}</div>
               </div>
-              <div className="w-full h-1.5 bg-surface-container rounded-full overflow-hidden">
-                <div className="h-full bg-gradient-to-r from-primary to-secondary transition-all duration-500 ease-out rounded-full" style={{ width: progressW }}></div>
+              <div className="w-full h-1.5 bg-brand-gray rounded-full overflow-hidden">
+                <div className="h-full bg-gradient-to-r from-primary to-[#FF9A6C] transition-all duration-500 ease-out rounded-full" style={{ width: progressW }}></div>
               </div>
             </div>
           )}
@@ -221,20 +218,20 @@ function HomeContent() {
             <div className="flex flex-col">
               <div className="w-full mb-4">
                 <div className="flex items-center justify-between mb-1">
-                  <span className="text-[10px] font-headline font-bold text-primary tracking-[0.2em] uppercase">AI Diagnosis Complete</span>
-                  <span className="text-[10px] font-headline font-semibold text-secondary">100%</span>
+                  <span className="text-[10px] font-bold text-primary tracking-[0.2em] uppercase">AI Diagnosis Complete</span>
+                  <span className="text-[10px] font-bold text-on-surface-variant">100%</span>
                 </div>
-                <div className="w-full h-1 bg-surface-container rounded-full overflow-hidden">
+                <div className="w-full h-1 bg-brand-gray rounded-full overflow-hidden">
                   <div className="h-full bg-primary w-full"></div>
                 </div>
               </div>
 
               <div className="text-center mb-4">
-                <h2 className="font-headline text-2xl font-extrabold text-on-surface mb-2">{modalStock?.name || activeSym}</h2>
+                <h2 className="font-bold text-2xl text-on-surface mb-2">{modalStock?.name || activeSym}</h2>
                 {modalStock ? (
                   <div className="flex items-center justify-center gap-3">
-                    <span className="font-headline text-3xl font-extrabold text-primary">${fmtPrice(modalStock.price)}</span>
-                    <span className={`text-sm font-headline font-bold px-3 py-1 rounded-full ${modalStock.change_percent >= 0 ? 'text-green-600 bg-green-50' : 'text-error bg-red-50'}`}>
+                    <span className="font-bold text-3xl text-primary">${fmtPrice(modalStock.price)}</span>
+                    <span className={`text-sm font-bold px-3 py-1 rounded-full ${modalStock.change_percent >= 0 ? 'text-green-600 bg-green-50' : 'text-error bg-red-50'}`}>
                       {modalStock.change_percent >= 0 ? '+' : ''}{modalStock.change_percent.toFixed(2)}%
                     </span>
                   </div>
@@ -247,20 +244,20 @@ function HomeContent() {
               </div>
 
               {modalStock && (
-                <div className="bg-surface-container-low rounded-xl p-4 mb-4">
+                <div className="bg-brand-gray rounded-2xl p-4 mb-4">
                   <div className="grid grid-cols-3 gap-x-4 gap-y-3">
-                    <div><p className="text-[9px] text-on-surface-variant uppercase tracking-widest mb-0.5">Change</p><p className={`text-xs font-bold font-headline ${modalStock.change >= 0 ? 'text-green-600' : 'text-error'}`}>{modalStock.change >= 0 ? '+' : ''}{modalStock.change.toFixed(2)}</p></div>
-                    <div><p className="text-[9px] text-on-surface-variant uppercase tracking-widest mb-0.5">Volume</p><p className="text-xs font-bold text-on-surface font-headline">{fmtNum(modalStock.volume)}</p></div>
-                    <div><p className="text-[9px] text-on-surface-variant uppercase tracking-widest mb-0.5">Mkt Cap</p><p className="text-xs font-bold text-on-surface font-headline">{modalStock.market_cap ? fmtNum(modalStock.market_cap) : '—'}</p></div>
-                    <div><p className="text-[9px] text-on-surface-variant uppercase tracking-widest mb-0.5">P/E</p><p className="text-xs font-bold text-on-surface font-headline">{modalStock.pe_ratio != null ? modalStock.pe_ratio.toFixed(1) : '—'}</p></div>
-                    <div><p className="text-[9px] text-on-surface-variant uppercase tracking-widest mb-0.5">52W High</p><p className="text-xs font-bold text-on-surface font-headline">{modalStock.fifty_two_week_high != null ? '$' + fmtPrice(modalStock.fifty_two_week_high) : '—'}</p></div>
-                    <div><p className="text-[9px] text-on-surface-variant uppercase tracking-widest mb-0.5">EPS</p><p className="text-xs font-bold text-on-surface font-headline">{modalStock.eps != null ? modalStock.eps.toFixed(2) : '—'}</p></div>
+                    <div><p className="text-[9px] text-on-surface-variant uppercase tracking-widest mb-0.5">Change</p><p className={`text-xs font-bold ${modalStock.change >= 0 ? 'text-green-600' : 'text-error'}`}>{modalStock.change >= 0 ? '+' : ''}{modalStock.change.toFixed(2)}</p></div>
+                    <div><p className="text-[9px] text-on-surface-variant uppercase tracking-widest mb-0.5">Volume</p><p className="text-xs font-bold text-on-surface">{fmtNum(modalStock.volume)}</p></div>
+                    <div><p className="text-[9px] text-on-surface-variant uppercase tracking-widest mb-0.5">Mkt Cap</p><p className="text-xs font-bold text-on-surface">{modalStock.market_cap ? fmtNum(modalStock.market_cap) : '—'}</p></div>
+                    <div><p className="text-[9px] text-on-surface-variant uppercase tracking-widest mb-0.5">P/E</p><p className="text-xs font-bold text-on-surface">{modalStock.pe_ratio != null ? modalStock.pe_ratio.toFixed(1) : '—'}</p></div>
+                    <div><p className="text-[9px] text-on-surface-variant uppercase tracking-widest mb-0.5">52W High</p><p className="text-xs font-bold text-on-surface">{modalStock.fifty_two_week_high != null ? '$' + fmtPrice(modalStock.fifty_two_week_high) : '—'}</p></div>
+                    <div><p className="text-[9px] text-on-surface-variant uppercase tracking-widest mb-0.5">EPS</p><p className="text-xs font-bold text-on-surface">{modalStock.eps != null ? modalStock.eps.toFixed(2) : '—'}</p></div>
                   </div>
                 </div>
               )}
 
-              <div className="w-full bg-surface-container-low p-3 rounded-xl mb-4 max-h-48 overflow-y-auto no-scrollbar">
-                <p className="text-sm text-on-surface leading-relaxed font-body whitespace-pre-wrap">
+              <div className="w-full bg-brand-gray p-3 rounded-2xl mb-4 max-h-48 overflow-y-auto no-scrollbar">
+                <p className="text-sm text-on-surface leading-relaxed whitespace-pre-wrap">
                   {analysisContent ? <>{analysisContent}{isStreaming && <span className="animate-pulse text-primary">▌</span>}</> : placeholderText || '> Initializing diagnosis engine...'}
                 </p>
               </div>
@@ -272,7 +269,7 @@ function HomeContent() {
                     if (typeof window !== 'undefined' && typeof (window as any).gtag_report_conversion === 'function') (window as any).gtag_report_conversion(url)
                     else window.location.href = url
                   }}
-                  className="w-full inline-flex items-center justify-center gap-3 bg-[#25D366] text-white px-6 py-3.5 rounded-xl font-headline font-bold text-base tracking-tight hover:scale-[1.02] active:scale-95 transition-all shadow-lg shadow-green-500/20"
+                  className="w-full inline-flex items-center justify-center gap-3 bg-[#25D366] text-white px-6 py-3.5 rounded-xl font-bold text-base tracking-tight hover:scale-[1.02] active:scale-95 transition-all shadow-lg shadow-green-500/20"
                   id="modal-submit-btn"
                 >
                   <span className="material-symbols-outlined text-lg">chat</span>
@@ -285,197 +282,286 @@ function HomeContent() {
         </div>
       </div>
 
-      {/* ── TopAppBar ── */}
-      <header className="fixed top-0 left-0 w-full z-50 flex items-center px-4 h-16 bg-surface-container-lowest/80 backdrop-blur-xl shadow-sm">
-        <button className="p-2 -ml-2 text-primary hover:bg-surface-container transition-colors rounded-full active:scale-95">
-          <span className="material-symbols-outlined">arrow_back</span>
-        </button>
-        <h1 className="font-headline text-lg font-bold tracking-tight text-primary ml-2 flex-grow">Fidex AI</h1>
-      </header>
+      {/* ── Main Container ── */}
+      <div className="w-full max-w-[400px] mx-auto min-h-screen bg-white rounded-[40px] shadow-2xl relative overflow-hidden flex flex-col border-[8px] border-gray-100">
 
-      <main className="flex-grow flex flex-col pt-16 overflow-y-auto px-4 max-w-3xl mx-auto w-full pb-8">
-        {/* ── Welcome Section ── */}
-        <div className="flex flex-col items-center text-center mt-12 mb-8">
-          <div className="w-32 h-32 mb-6 rounded-full bg-surface-container-high flex items-center justify-center shadow-[0_12px_40px_rgba(44,42,81,0.06)]">
-            <span className="material-symbols-outlined text-5xl text-primary" style={{ fontVariationSettings: "'FILL' 1, 'wght' 300, 'GRAD' 0, 'opsz' 24" }}>smart_toy</span>
-          </div>
-          <h2 className="font-headline text-3xl font-extrabold text-on-surface mb-2 tracking-tight">AI Stock Diagnosis 👋</h2>
-          <p className="font-body text-on-surface-variant text-lg mb-6">
-            How can I help you analyze stocks?
-          </p>
+        {/* ── Scrollable Content ── */}
+        <main className="flex-1 overflow-y-auto no-scrollbar pb-28 px-4 space-y-4 bg-white rounded-t-[32px]">
 
-          {/* ── Search Input ── */}
-          <div className="w-full max-w-lg mx-auto flex items-center gap-3 search-portal">
-            <div className="relative flex-grow flex items-center bg-surface-container-lowest rounded-full shadow-[0_8px_30px_rgba(44,42,81,0.05)] border border-outline-variant/15 focus-within:border-primary focus-within:shadow-[0_8px_30px_rgba(38,71,229,0.1)] transition-all duration-300">
-              <input
-                autoComplete="off"
-                className="w-full bg-transparent border-none focus:ring-0 text-on-surface font-body text-base px-6 py-4 rounded-full placeholder:text-on-surface-variant/60"
-                placeholder="Enter stock code (e.g., AAPL)"
-                type="text"
-                value={query}
-                onChange={e => onQueryChange(e.target.value)}
-                onFocus={() => { if (results.length > 0) setDropdown(true) }}
-                onKeyDown={e => { if (e.key === 'Enter' && query.trim()) handleCTA() }}
-              />
+          {/* ── Header ── */}
+          <header className="flex justify-between items-center pt-4">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-full bg-orange-100 overflow-hidden border border-orange-200 p-0.5 flex items-center justify-center">
+                <span className="material-symbols-outlined text-primary text-2xl" style={{ fontVariationSettings: "'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}>smart_toy</span>
+              </div>
+              <div>
+                <h1 className="font-bold text-lg leading-tight tracking-tight text-on-surface">AI Stock Diagnosis</h1>
+                <p className="text-on-surface-variant text-sm">Real-Time Market Analysis</p>
+              </div>
             </div>
-            <button
-              className="flex-shrink-0 w-14 h-14 rounded-full bg-gradient-to-br from-primary to-primary-dim text-on-primary flex items-center justify-center shadow-[0_12px_40px_rgba(38,71,229,0.2)] hover:opacity-90 active:scale-95 transition-all duration-200"
-              onClick={handleCTA}
-            >
-              <span className="material-symbols-outlined text-2xl" style={{ fontVariationSettings: "'FILL' 1, 'wght' 300, 'GRAD' 0, 'opsz' 24" }}>send</span>
-            </button>
-          </div>
+            <div className="flex items-center gap-2 border border-gray-200 px-3 py-1.5 rounded-full bg-white shadow-sm">
+              <span className="w-2.5 h-2.5 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]"></span>
+              <span className="text-sm font-semibold text-gray-700">AI Online</span>
+            </div>
+          </header>
 
-          {/* Search Dropdown */}
-          {dropdown && query.trim() && (
-            <div className="absolute top-[280px] left-1/2 -translate-x-1/2 w-full max-w-lg mx-auto mt-2 rounded-2xl bg-surface-container-lowest border border-outline-variant/20 overflow-hidden shadow-[0_20px_50px_rgba(44,42,81,0.15)] z-20">
-              {results.length > 0 ? (
-                <>
-                  {results.map(item => (
-                    <button
-                      key={item.symbol}
-                      className="w-full px-4 py-3 flex justify-between items-center cursor-pointer hover:bg-surface-container transition-colors border-b border-outline-variant/10 last:border-b-0 text-left"
-                      onClick={() => { setQuery(item.symbol); setDropdown(false); startStream(item.symbol); openModal() }}
-                    >
-                      <div className="flex flex-col">
-                        <span className="font-headline font-bold text-primary text-sm">{item.symbol}</span>
-                        <span className="font-body text-on-surface-variant text-[10px]">{item.name}</span>
+          {/* ── Search Bar (Location Selector style) ── */}
+          <section className="search-portal">
+            <div className="w-full border border-gray-200 rounded-full py-2 px-3 flex items-center justify-between shadow-sm relative">
+              <div className="flex items-center gap-3 pl-2 flex-1 min-w-0">
+                <span className="material-symbols-outlined text-xl text-gray-700">search</span>
+                <input
+                  autoComplete="off"
+                  className="flex-1 min-w-0 bg-transparent border-none focus:ring-0 text-on-surface font-medium text-sm placeholder:text-on-surface-muted outline-none"
+                  placeholder="Enter stock code (e.g., AAPL)"
+                  type="text"
+                  value={query}
+                  onChange={e => onQueryChange(e.target.value)}
+                  onFocus={() => { if (results.length > 0) setDropdown(true) }}
+                  onKeyDown={e => { if (e.key === 'Enter' && query.trim()) handleCTA() }}
+                />
+              </div>
+              <button
+                className="w-10 h-10 bg-brand-dark rounded-full flex items-center justify-center text-white flex-shrink-0 active:scale-95 transition-transform"
+                onClick={handleCTA}
+              >
+                <span className="material-symbols-outlined text-lg">arrow_forward</span>
+              </button>
+            </div>
+
+            {/* Search Dropdown */}
+            {dropdown && query.trim() && (
+              <div className="absolute left-0 right-0 mt-2 mx-4 rounded-2xl bg-white border border-gray-200 overflow-hidden shadow-lg z-20">
+                {results.length > 0 ? (
+                  <>
+                    {results.map(item => (
+                      <button
+                        key={item.symbol}
+                        className="w-full px-4 py-3 flex justify-between items-center cursor-pointer hover:bg-brand-gray transition-colors border-b border-gray-100 last:border-b-0 text-left"
+                        onClick={() => { setQuery(item.symbol); setDropdown(false); startStream(item.symbol); openModal() }}
+                      >
+                        <div className="flex flex-col">
+                          <span className="font-bold text-primary text-sm">{item.symbol}</span>
+                          <span className="text-on-surface-variant text-[10px]">{item.name}</span>
+                        </div>
+                        <span className="text-[10px] text-on-surface-variant border border-gray-200 rounded-full px-2.5 py-0.5 bg-brand-gray">{item.type}</span>
+                      </button>
+                    ))}
+                    {resultTotal > 5 && (
+                      <div className="flex items-center justify-between px-4 py-3 border-t border-gray-100">
+                        <span className="text-[10px] text-on-surface-variant">{(resultPage - 1) * 5 + 1}–{Math.min(resultPage * 5, resultTotal)} of {resultTotal}</span>
+                        <div className="flex gap-2">
+                          <button className="px-3 py-1 rounded-lg text-[10px] font-medium bg-brand-gray text-on-surface-variant hover:bg-primary/10 hover:text-primary transition-all disabled:opacity-30" disabled={resultPage <= 1} onClick={() => onPageChange(resultPage - 1)}>← Prev</button>
+                          <button className="px-3 py-1 rounded-lg text-[10px] font-medium bg-brand-gray text-on-surface-variant hover:bg-primary/10 hover:text-primary transition-all disabled:opacity-30" disabled={resultPage * 5 >= resultTotal} onClick={() => onPageChange(resultPage + 1)}>Next →</button>
+                        </div>
                       </div>
-                      <span className="font-label text-[10px] text-secondary border border-outline-variant/30 rounded-full px-2.5 py-0.5 bg-surface-container">{item.type}</span>
-                    </button>
-                  ))}
-                  {resultTotal > 5 && (
-                    <div className="flex items-center justify-between px-4 py-3 border-t border-outline-variant/10">
-                      <span className="text-[10px] text-on-surface-variant">{(resultPage - 1) * 5 + 1}–{Math.min(resultPage * 5, resultTotal)} of {resultTotal}</span>
-                      <div className="flex gap-2">
-                        <button className="px-3 py-1 rounded-lg text-[10px] font-medium bg-surface-container text-on-surface-variant hover:bg-primary/10 hover:text-primary transition-all disabled:opacity-30" disabled={resultPage <= 1} onClick={() => onPageChange(resultPage - 1)}>← Prev</button>
-                        <button className="px-3 py-1 rounded-lg text-[10px] font-medium bg-surface-container text-on-surface-variant hover:bg-primary/10 hover:text-primary transition-all disabled:opacity-30" disabled={resultPage * 5 >= resultTotal} onClick={() => onPageChange(resultPage + 1)}>Next →</button>
-                      </div>
+                    )}
+                  </>
+                ) : searching ? (
+                  <div className="px-4 py-6 flex items-center justify-center gap-2">
+                    <div className="w-4 h-4 border-2 border-primary/30 border-t-primary rounded-full animate-spin"></div>
+                    <span className="text-xs text-on-surface-variant">Searching...</span>
+                  </div>
+                ) : (
+                  <div className="px-4 py-6 text-center">
+                    <span className="material-symbols-outlined text-on-surface-muted text-2xl block mb-1">search_off</span>
+                    <p className="text-xs text-on-surface-variant">No results for &quot;{query}&quot;</p>
+                  </div>
+                )}
+              </div>
+            )}
+          </section>
+
+          {/* ── AI Stock Analysis Dark Card ── */}
+          <section className="bg-brand-dark rounded-[28px] p-5 text-white relative overflow-hidden">
+            <div className="absolute -top-10 -right-10 w-40 h-40 bg-white/5 rounded-full blur-2xl"></div>
+            <div className="flex justify-between items-start mb-4 relative z-10">
+              <div className="flex gap-4">
+                <div className="w-12 h-12 rounded-full bg-[#F3D59D] flex items-center justify-center p-1">
+                  <div className="w-full h-full rounded-full border border-orange-300/50 flex items-center justify-center bg-[#EFCA8A]">
+                    <span className="material-symbols-outlined text-brand-dark text-xl" style={{ fontVariationSettings: "'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}>warning_circle</span>
+                  </div>
+                </div>
+                <div>
+                  <h2 className="font-bold text-xl leading-tight mb-1">AI Stock<br/>Analysis</h2>
+                </div>
+              </div>
+              <button className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center hover:bg-white/10 transition-colors" onClick={handleCTA}>
+                <span className="material-symbols-outlined text-lg">arrow_up_right</span>
+              </button>
+            </div>
+            <p className="text-gray-400 text-sm mb-6 max-w-[200px] leading-relaxed relative z-10">
+              Real-time market insights and predictive trends for your portfolio.
+            </p>
+            <div className="flex gap-3 relative z-10">
+              <div className="bg-[#EAEAEA] text-gray-800 px-4 py-2.5 rounded-xl font-medium text-sm">
+                AI Diagnosis
+              </div>
+              <button className="bg-brand-orange text-white px-5 py-2.5 rounded-xl font-bold text-sm hover:opacity-90 active:scale-95 transition-all" onClick={handleCTA}>
+                Run Now
+              </button>
+            </div>
+          </section>
+
+          {/* ── Market Overview Orange Card ── */}
+          <section className="bg-brand-orange rounded-[32px] p-5 text-white relative">
+            <div className="flex justify-between items-start mb-6">
+              <h2 className="font-bold text-2xl leading-tight">Market<br/>Overview</h2>
+              <div className="bg-white/20 backdrop-blur-[10px] rounded-full px-3 py-1.5 flex items-center gap-1 text-sm font-medium border border-white/20">
+                This week <span className="material-symbols-outlined text-sm">expand_more</span>
+              </div>
+            </div>
+
+            {/* Stock Circles Row */}
+            <div className="flex justify-between items-center mb-8 px-1 overflow-x-auto no-scrollbar">
+              {!hotLoading && hotStocks.length > 0 ? hotStocks.slice(0, 7).map((stock, i) => {
+                const pct = Math.min(99, Math.max(50, Math.round(70 + stock.change_percent * 3)))
+                const isActive = i === 2
+                return (
+                  <button
+                    key={stock.symbol}
+                    className={`flex flex-col items-center gap-2 flex-shrink-0 ${isActive ? 'relative' : ''} cursor-pointer`}
+                    onClick={() => { setQuery(stock.symbol); startStream(stock.symbol); openModal() }}
+                  >
+                    {isActive && (
+                      <>
+                        <div className="absolute -inset-2 bg-white/20 rounded-full blur-sm z-0"></div>
+                        <div className="absolute top-0 bottom-0 left-1/2 -translate-x-1/2 w-12 bg-white/10 rounded-t-full h-32 -z-0"></div>
+                      </>
+                    )}
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-xs relative z-10 ${isActive ? 'bg-brand-dark text-white shadow-lg border-2 border-white/20' : 'bg-white text-gray-800'}`}>
+                      {pct}
                     </div>
-                  )}
+                    <span className={`text-[10px] relative z-10 ${isActive ? 'font-bold text-white' : 'font-medium opacity-80'}`}>{stock.symbol.slice(0, 4)}</span>
+                  </button>
+                )
+              }) : (
+                <>
+                  {['AAPL', 'NVDA', 'TSLA', 'MSFT', 'GOOGL', 'AMZN', 'META'].map((sym, i) => {
+                    const pcts = ['79%', '82%', '90%', '91%', '93%', '79%', '69%']
+                    const isActive = i === 2
+                    return (
+                      <div key={sym} className={`flex flex-col items-center gap-2 ${isActive ? 'relative' : ''}`}>
+                        {isActive && <div className="absolute -inset-2 bg-white/20 rounded-full blur-sm z-0"></div>}
+                        <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-xs relative z-10 ${isActive ? 'bg-brand-dark text-white shadow-lg border-2 border-white/20' : 'bg-white text-gray-800'}`}>
+                          {pcts[i]}
+                        </div>
+                        <span className={`text-[10px] relative z-10 ${isActive ? 'font-bold text-white' : 'font-medium opacity-80'}`}>{sym}</span>
+                      </div>
+                    )
+                  })}
                 </>
-              ) : searching ? (
-                <div className="px-4 py-6 flex items-center justify-center gap-2">
-                  <div className="w-4 h-4 border-2 border-primary/30 border-t-primary rounded-full animate-spin"></div>
-                  <span className="text-xs text-on-surface-variant">Searching...</span>
-                </div>
-              ) : (
-                <div className="px-4 py-6 text-center">
-                  <span className="material-symbols-outlined text-on-surface-variant/40 text-2xl block mb-1">search_off</span>
-                  <p className="text-xs text-on-surface-variant">No results for &quot;{query}&quot;</p>
-                </div>
               )}
             </div>
-          )}
-        </div>
 
-        {/* ── Trending Stocks Carousel ── */}
-        <div className="mt-4 mb-8 w-full">
-          <div className="flex items-center justify-between mb-4 px-2">
-            <h3 className="font-headline font-bold text-on-surface text-lg">Trending Stocks</h3>
-            <button className="text-primary font-body text-sm font-semibold hover:underline">View all</button>
-          </div>
-          <div className="carousel-container px-2 pb-4">
-            {!hotLoading && hotStocks.length > 0 ? hotStocks.slice(0, 6).map(stock => (
-              <div key={stock.symbol} className="carousel-item">
-                <div className="bg-surface-container-lowest p-5 rounded-2xl shadow-[0_4px_20px_rgba(44,42,81,0.08)] border border-outline-variant/20 h-full flex flex-col justify-between cursor-pointer hover:shadow-[0_8px_30px_rgba(44,42,81,0.12)] transition-all" onClick={() => { setQuery(stock.symbol); startStream(stock.symbol); openModal() }}>
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center font-bold text-on-surface">{stock.symbol.slice(0, 1)}</div>
-                    <div>
-                      <h4 className="font-headline font-bold text-on-surface text-base">{stock.symbol}</h4>
-                      <p className="font-label text-on-surface-variant text-xs">{stock.name}</p>
-                    </div>
-                  </div>
-                  <div>
-                    <div className="font-headline font-extrabold text-2xl text-on-surface mb-1">${fmtPrice(stock.price)}</div>
-                    <div className={`flex items-center font-body text-sm font-semibold ${stock.change_percent >= 0 ? 'text-green-600' : 'text-red-500'}`}>
-                      <span className="material-symbols-outlined text-sm mr-1">{stock.change_percent >= 0 ? 'trending_up' : 'trending_down'}</span>
-                      {stock.change_percent >= 0 ? '+' : ''}{stock.change_percent.toFixed(2)}%
-                    </div>
-                  </div>
-                </div>
+            {/* Chart Area */}
+            <div className="relative h-32 mt-6">
+              <div className="absolute top-0 left-1/3 -translate-x-1/2 bg-brand-dark text-white text-[10px] font-bold px-3 py-1.5 rounded-full z-20 whitespace-nowrap shadow-xl flex items-center gap-1">
+                $22,250.88
               </div>
-            )) : (
-              <>
-                <div className="carousel-item z-[3]">
-                  <div className="bg-surface-container-lowest p-5 rounded-2xl shadow-[0_4px_20px_rgba(44,42,81,0.08)] border border-outline-variant/20 h-full flex flex-col justify-between">
-                    <div className="flex items-center gap-3 mb-4"><div className="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center font-bold text-on-surface">T</div><div><h4 className="font-headline font-bold text-on-surface text-base">TSLA</h4><p className="font-label text-on-surface-variant text-xs">Tesla Inc.</p></div></div>
-                    <div><div className="font-headline font-extrabold text-2xl text-on-surface mb-1">$185.34</div><div className="flex items-center text-green-600 font-body text-sm font-semibold"><span className="material-symbols-outlined text-sm mr-1">trending_up</span>+2.45%</div></div>
-                  </div>
-                </div>
-                <div className="carousel-item z-[2]">
-                  <div className="bg-surface-container-lowest p-5 rounded-2xl shadow-[0_4px_20px_rgba(44,42,81,0.08)] border border-outline-variant/20 h-full flex flex-col justify-between">
-                    <div className="flex items-center gap-3 mb-4"><div className="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center font-bold text-on-surface">A</div><div><h4 className="font-headline font-bold text-on-surface text-base">AAPL</h4><p className="font-label text-on-surface-variant text-xs">Apple Inc.</p></div></div>
-                    <div><div className="font-headline font-extrabold text-2xl text-on-surface mb-1">$173.50</div><div className="flex items-center text-red-500 font-body text-sm font-semibold"><span className="material-symbols-outlined text-sm mr-1">trending_down</span>-0.82%</div></div>
-                  </div>
-                </div>
-                <div className="carousel-item z-[1]">
-                  <div className="bg-surface-container-lowest p-5 rounded-2xl shadow-[0_4px_20px_rgba(44,42,81,0.08)] border border-outline-variant/20 h-full flex flex-col justify-between">
-                    <div className="flex items-center gap-3 mb-4"><div className="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center font-bold text-on-surface">N</div><div><h4 className="font-headline font-bold text-on-surface text-base">NVDA</h4><p className="font-label text-on-surface-variant text-xs">NVIDIA Corp.</p></div></div>
-                    <div><div className="font-headline font-extrabold text-2xl text-on-surface mb-1">$892.81</div><div className="flex items-center text-green-600 font-body text-sm font-semibold"><span className="material-symbols-outlined text-sm mr-1">trending_up</span>+4.12%</div></div>
-                  </div>
-                </div>
-              </>
-            )}
-          </div>
-        </div>
-
-        {/* ── Stock Data Module (code param) ── */}
-        {tickerParam && (
-          <section className="w-full max-w-lg mx-auto mb-8 space-y-4">
-            <div className="flex items-center gap-2 mb-2 px-2">
-              <span className="material-symbols-outlined text-primary text-sm">analytics</span>
-              <h2 className="font-headline text-sm font-bold text-on-surface uppercase tracking-wider">AI Diagnosis Result</h2>
+              <div className="absolute top-5 left-[33%] w-8 h-full bg-gradient-to-t from-white/80 to-white/10 rounded-t-full blur-sm z-10"></div>
+              <div className="absolute top-6 left-[37%] w-3 h-3 bg-white rounded-full border-2 border-brand-orange z-20 shadow-md"></div>
+              <svg className="absolute bottom-0 w-full h-full text-white drop-shadow-md z-10" preserveAspectRatio="none" viewBox="0 0 100 100">
+                <defs>
+                  <linearGradient id="chartGrad" x1="0%" x2="0%" y1="0%" y2="100%">
+                    <stop offset="0%" stopColor="rgba(255,255,255,0.4)"></stop>
+                    <stop offset="100%" stopColor="rgba(255,255,255,0)"></stop>
+                  </linearGradient>
+                </defs>
+                <path d="M0,70 Q15,85 30,30 T60,60 T90,40 T100,20 L100,100 L0,100 Z" fill="url(#chartGrad)"></path>
+                <path d="M0,70 Q15,85 30,30 T60,60 T90,40 T100,20" fill="none" stroke="currentColor" strokeWidth="2"></path>
+              </svg>
+              <div className="absolute bottom-2 w-full flex justify-between px-2 text-[10px] font-medium opacity-70 z-20">
+                <span>Sep</span><span>Oct</span><span>Nov</span>
+                <span className="font-bold opacity-100 text-white bg-white/20 px-1.5 rounded-sm">Dec</span>
+                <span>Jan</span><span>Feb</span><span>Mar</span><span>Apr</span><span>May</span><span>Jun</span>
+              </div>
             </div>
-            {stockLoading ? (
-              <div className="flex items-center justify-center py-12">
-                <div className="w-6 h-6 border-2 border-primary/30 border-t-primary rounded-full animate-spin"></div>
-              </div>
-            ) : stockData ? (
-              <div className="flex flex-col gap-3">
-                <div className="bg-surface-container-lowest p-4 rounded-2xl shadow-[0_4px_20px_rgba(44,42,81,0.08)] border border-outline-variant/20 border-l-4 border-l-primary">
-                  <p className="text-on-surface-variant font-headline text-xs uppercase tracking-widest mb-2">Market Sentiment</p>
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-2xl font-headline font-extrabold text-primary">{stockData.change >= 0 ? 'Positive' : 'Negative'}</span>
-                    <span className="text-primary/60 font-headline text-sm">({stockData.change >= 0 ? 'Bullish' : 'Bearish'} Sentiment)</span>
-                  </div>
-                </div>
-                <div className="bg-surface-container-lowest p-4 rounded-2xl shadow-[0_4px_20px_rgba(44,42,81,0.08)] border border-outline-variant/20 border-l-4 border-l-secondary">
-                  <p className="text-on-surface-variant font-headline text-xs uppercase tracking-widest mb-2">AI Analysis</p>
-                  <div className={`${stockData.change_percent >= 0 ? 'bg-green-50' : 'bg-red-50'} inline-block px-4 py-1 rounded-full mb-2`}>
-                    <span className={`${stockData.change_percent >= 0 ? 'text-green-600' : 'text-error'} font-headline font-bold text-sm uppercase`}>
-                      {stockData.change_percent >= 0 ? 'Positive Outlook' : 'Negative Outlook'}
-                    </span>
-                  </div>
-                  <p className="text-sm text-on-surface leading-relaxed font-body">
-                    AI analysis observes {stockData.change >= 0 ? 'recent upward momentum' : 'recent downward pressure'} at {fmtPrice(stockData.price)} with recent change of {Math.abs(stockData.change_percent).toFixed(1)}%.
-                  </p>
-                </div>
-              </div>
-            ) : null}
           </section>
-        )}
-      </main>
 
-      {/* ── Footer ── */}
-      <footer className="mt-auto py-8 text-center">
-        <p className="font-body text-sm text-on-surface-variant/60 mb-2">
-          © 2024 Fidex AI
-        </p>
-        <div className="flex justify-center gap-4">
-          <Link className="font-body text-xs text-on-surface-variant/40 hover:text-primary transition-colors hover:underline" href="/privacy">Privacy Policy</Link>
-          <Link className="font-body text-xs text-on-surface-variant/40 hover:text-primary transition-colors hover:underline" href="/terms">Terms of Service</Link>
+          {/* ── Stock Data Module (code param) ── */}
+          {tickerParam && (
+            <section className="space-y-3">
+              <div className="flex items-center gap-2">
+                <span className="material-symbols-outlined text-primary text-sm">analytics</span>
+                <h2 className="text-sm font-bold text-on-surface uppercase tracking-wider">AI Diagnosis Result</h2>
+              </div>
+              {stockLoading ? (
+                <div className="flex items-center justify-center py-12">
+                  <div className="w-6 h-6 border-2 border-primary/30 border-t-primary rounded-full animate-spin"></div>
+                </div>
+              ) : stockData ? (
+                <div className="flex flex-col gap-3">
+                  <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-200 border-l-4 border-l-primary">
+                    <p className="text-on-surface-variant text-xs uppercase tracking-widest mb-2">Market Sentiment</p>
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-2xl font-bold text-primary">{stockData.change >= 0 ? 'Positive' : 'Negative'}</span>
+                      <span className="text-primary/60 text-sm">({stockData.change >= 0 ? 'Bullish' : 'Bearish'})</span>
+                    </div>
+                  </div>
+                  <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-200 border-l-4 border-l-brand-dark">
+                    <p className="text-on-surface-variant text-xs uppercase tracking-widest mb-2">AI Analysis</p>
+                    <div className={`${stockData.change_percent >= 0 ? 'bg-green-50' : 'bg-red-50'} inline-block px-4 py-1 rounded-full mb-2`}>
+                      <span className={`${stockData.change_percent >= 0 ? 'text-green-600' : 'text-error'} font-bold text-sm uppercase`}>
+                        {stockData.change_percent >= 0 ? 'Positive Outlook' : 'Negative Outlook'}
+                      </span>
+                    </div>
+                    <p className="text-sm text-on-surface leading-relaxed">
+                      AI analysis observes {stockData.change >= 0 ? 'recent upward momentum' : 'recent downward pressure'} at {fmtPrice(stockData.price)} with recent change of {Math.abs(stockData.change_percent).toFixed(1)}%.
+                    </p>
+                  </div>
+                </div>
+              ) : null}
+            </section>
+          )}
+        </main>
+
+        {/* ── Bottom Navigation ── */}
+        <div className="absolute bottom-4 left-4 right-4 z-50">
+          <nav className="bg-brand-dark rounded-3xl p-2 shadow-2xl border border-gray-800">
+            <ul className="flex justify-between items-center">
+              <li className="flex-1">
+                <a className="flex items-center justify-center gap-2 bg-brand-orange text-white py-3 px-4 rounded-2xl w-full" href="#">
+                  <span className="material-symbols-outlined text-xl" style={{ fontVariationSettings: "'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}>home</span>
+                  <span className="font-bold text-sm">Home</span>
+                </a>
+              </li>
+              <li className="flex-1">
+                <a className="flex items-center justify-center text-gray-400 py-3 w-full relative" href="#">
+                  <span className="material-symbols-outlined text-2xl">monitoring</span>
+                  <div className="absolute right-0 top-1/2 -translate-y-1/2 h-6 w-px bg-gray-700"></div>
+                </a>
+              </li>
+              <li className="flex-1">
+                <a className="flex items-center justify-center text-gray-400 py-3 w-full relative bg-gray-800/50 rounded-xl mx-1" href="#">
+                  <span className="material-symbols-outlined text-2xl">account_balance_wallet</span>
+                  <div className="absolute right-[-4px] top-1/2 -translate-y-1/2 h-6 w-px bg-gray-700"></div>
+                </a>
+              </li>
+              <li className="flex-1">
+                <a className="flex items-center justify-center text-gray-400 py-3 w-full bg-gray-800/50 rounded-xl" href="#">
+                  <span className="material-symbols-outlined text-2xl">settings</span>
+                </a>
+              </li>
+            </ul>
+          </nav>
+
+          {/* Footer Links */}
+          <div className="flex justify-center gap-4 mt-3">
+            <Link className="text-[10px] text-gray-400 hover:text-primary transition-colors" href="/privacy">Privacy Policy</Link>
+            <Link className="text-[10px] text-gray-400 hover:text-primary transition-colors" href="/terms">Terms of Service</Link>
+          </div>
         </div>
-      </footer>
+      </div>
 
       {/* ── Sticky CTA ── */}
       <div className="fixed bottom-6 left-0 w-full px-4 z-[80]" id="sticky-cta">
-        <div className="max-w-lg mx-auto">
+        <div className="max-w-[400px] mx-auto">
           <button
-            className="w-full bg-gradient-to-br from-primary to-primary-dim text-on-primary font-headline font-bold py-4 rounded-2xl text-base tracking-tight shadow-[0_12px_40px_rgba(38,71,229,0.25)] hover:opacity-90 active:scale-95 transition-all flex items-center justify-center gap-2"
+            className="w-full bg-brand-orange text-white font-bold py-4 rounded-2xl text-base tracking-tight shadow-[0_12px_40px_rgba(240,93,35,0.3)] hover:opacity-90 active:scale-95 transition-all flex items-center justify-center gap-2"
             onClick={handleCTA}
           >
-            <span className="material-symbols-outlined font-bold" style={{ fontVariationSettings: "'FILL' 1, 'wght' 300, 'GRAD' 0, 'opsz' 24" }}>auto_awesome</span>
+            <span className="material-symbols-outlined font-bold" style={{ fontVariationSettings: "'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}>auto_awesome</span>
             RUN AI DIAGNOSIS
           </button>
         </div>

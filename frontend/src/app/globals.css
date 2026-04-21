@@ -3,45 +3,38 @@
 @tailwind utilities;
 
 /* ═══════════════════════════════════════════════════════
-   Fidex AI — Stitch ai.stockai888.com Design System
-   Light Purple · Material Design 3 · Manrope
+   AI Stock Diagnosis — Stitch ai.stockainow.com Design System
+   Orange+Dark · Inter · Rounded Cards
    ═══════════════════════════════════════════════════════ */
 
 /* ── Self-Hosted Fonts ── */
 @font-face {
-  font-family: 'Manrope';
+  font-family: 'Inter';
   font-style: normal;
   font-weight: 400;
   font-display: swap;
-  src: url('/fonts/manrope-400.woff2') format('woff2');
+  src: url('/fonts/inter-400.woff2') format('woff2');
 }
 @font-face {
-  font-family: 'Manrope';
+  font-family: 'Inter';
   font-style: normal;
   font-weight: 500;
   font-display: swap;
-  src: url('/fonts/manrope-500.woff2') format('woff2');
+  src: url('/fonts/inter-500.woff2') format('woff2');
 }
 @font-face {
-  font-family: 'Manrope';
+  font-family: 'Inter';
   font-style: normal;
   font-weight: 600;
   font-display: swap;
-  src: url('/fonts/manrope-600.woff2') format('woff2');
+  src: url('/fonts/inter-600.woff2') format('woff2');
 }
 @font-face {
-  font-family: 'Manrope';
+  font-family: 'Inter';
   font-style: normal;
   font-weight: 700;
   font-display: swap;
-  src: url('/fonts/manrope-700.woff2') format('woff2');
-}
-@font-face {
-  font-family: 'Manrope';
-  font-style: normal;
-  font-weight: 800;
-  font-display: swap;
-  src: url('/fonts/manrope-800.woff2') format('woff2');
+  src: url('/fonts/inter-700.woff2') format('woff2');
 }
 @font-face {
   font-family: 'Material Symbols Outlined';
@@ -52,15 +45,15 @@
 }
 
 body {
-  background-color: #f9f5ff;
-  color: #2c2a51;
-  font-family: 'Manrope', sans-serif;
+  background-color: #F2F2F2;
+  color: #1C1C1C;
+  font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
   overflow-x: hidden;
 }
 
 ::selection {
-  background-color: rgba(38, 71, 229, 0.2);
-  color: #2647e5;
+  background-color: rgba(240, 93, 35, 0.2);
+  color: #F05D23;
 }
 
 /* ── Scrollbar ── */
@@ -68,10 +61,6 @@ body {
 .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: #ddd9ff; border-radius: 10px; }
-::-webkit-scrollbar-thumb:hover { background: #aca8d7; }
 
 /* ── Sticky CTA ── */
 #sticky-cta {
@@ -90,7 +79,7 @@ body {
 .screen-mask {
   position: fixed;
   inset: 0;
-  background: rgba(44, 42, 81, 0.5);
+  background: rgba(28, 28, 28, 0.5);
   backdrop-filter: blur(8px);
   z-index: 90;
   opacity: 0;
@@ -138,32 +127,7 @@ body {
   direction: ltr;
   -webkit-font-smoothing: antialiased;
   font-feature-settings: 'rlig' 1, 'liga' 1 !important;
-  font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
 }
-
-/* ── Carousel ── */
-.carousel-container {
-  display: flex;
-  overflow-x: auto;
-  scroll-snap-type: x mandatory;
-  gap: 0;
-  padding-bottom: 1rem;
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
-.carousel-container::-webkit-scrollbar { display: none; }
-.carousel-item {
-  scroll-snap-align: center;
-  flex: 0 0 70%;
-  margin-right: -10%;
-  transition: transform 0.3s ease, z-index 0.3s ease;
-  position: relative;
-}
-.carousel-item:hover {
-  transform: translateY(-5px);
-  z-index: 10;
-}
-.carousel-item:last-child { margin-right: 0; }
 
 /* ── Loading Bar ── */
 .loading-bar-anim {
@@ -173,15 +137,15 @@ body {
 /* ── Modal Conversion Button ── */
 #modal-submit-btn.animate-btn-activate {
   position: relative;
-  background: #2647e5 !important;
-  color: #f3f1ff !important;
+  background: #F05D23 !important;
+  color: #FFFFFF !important;
   border: none !important;
   animation: btn-breathe 2.5s ease-in-out infinite, btn-activate 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards !important;
   filter: grayscale(0) !important;
   opacity: 1 !important;
   overflow: hidden;
   z-index: 1;
-  box-shadow: 0 0 20px rgba(38, 71, 229, 0.3);
+  box-shadow: 0 0 20px rgba(240, 93, 35, 0.3);
 }
 
 #modal-submit-btn.animate-btn-activate::before {
@@ -189,7 +153,7 @@ body {
   position: absolute;
   inset: -2px;
   border-radius: 14px;
-  background: conic-gradient(from 0deg, #2647e5, #8899ff, #d1ccff, #2647e5, #2647e5);
+  background: conic-gradient(from 0deg, #F05D23, #FF9A6C, #1C1C1C, #F05D23, #F05D23);
   z-index: -2;
   animation: border-spin 3s linear infinite;
 }
@@ -199,18 +163,18 @@ body {
   position: absolute;
   inset: 2px;
   border-radius: 12px;
-  background: #2647e5;
+  background: #F05D23;
   z-index: -1;
 }
 
 /* ── Animations ── */
 @keyframes btn-breathe {
   0%, 100% {
-    box-shadow: 0 0 15px rgba(38, 71, 229, 0.3), 0 0 30px rgba(38, 71, 229, 0.1);
+    box-shadow: 0 0 15px rgba(240, 93, 35, 0.3), 0 0 30px rgba(240, 93, 35, 0.1);
     transform: scale(1);
   }
   50% {
-    box-shadow: 0 0 25px rgba(38, 71, 229, 0.5), 0 0 50px rgba(136, 153, 255, 0.2), 0 0 80px rgba(84, 77, 182, 0.1);
+    box-shadow: 0 0 25px rgba(240, 93, 35, 0.5), 0 0 50px rgba(255, 154, 108, 0.2), 0 0 80px rgba(240, 93, 35, 0.1);
     transform: scale(1.02);
   }
 }

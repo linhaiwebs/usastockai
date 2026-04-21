@@ -5,13 +5,13 @@ import Link from 'next/link'
 export default function PrivacyPage() {
   return (
     <div className="min-h-screen bg-background text-on-background">
-      <header className="bg-surface-container-lowest/80 backdrop-blur-xl shadow-sm px-4 py-4 flex items-center justify-between">
-        <Link href="/" className="text-primary font-headline font-bold text-sm">Fidex AI</Link>
-        <Link href="/" className="text-on-surface-variant hover:text-primary transition-colors text-xs font-headline">← Back</Link>
+      <header className="bg-white/80 backdrop-blur-xl shadow-sm px-4 py-4 flex items-center justify-between">
+        <Link href="/" className="text-primary font-bold text-sm">AI Stock Diagnosis</Link>
+        <Link href="/" className="text-gray-500 hover:text-primary transition-colors text-xs font-headline">← Back</Link>
       </header>
       <main className="max-w-2xl mx-auto px-6 py-12">
-        <h1 className="text-3xl font-headline font-extrabold text-on-surface mb-8">Privacy Policy</h1>
-        <div className="space-y-6 font-body text-on-surface-variant leading-relaxed text-sm">
+        <h1 className="text-3xl font-headline font-bold text-on-surface mb-8">Privacy Policy</h1>
+        <div className="space-y-6 font-body text-gray-500 leading-relaxed text-sm">
           <section>
             <h2 className="font-headline font-bold text-on-surface text-lg mb-3">1. Information We Collect</h2>
             <p>We collect information you provide directly, such as stock symbols entered for AI diagnosis and any data submitted through contact forms. We also automatically collect usage data including page views, interaction patterns, and device information to improve our AI analysis services.</p>
@@ -36,7 +36,7 @@ export default function PrivacyPage() {
             <h2 className="font-headline font-bold text-on-surface text-lg mb-3">6. Cookies</h2>
             <p>We use essential cookies for platform functionality and analytics cookies to improve our services. You may manage cookie preferences through your browser settings.</p>
           </section>
-          <p className="text-xs text-on-surface-variant/60 pt-8">Last updated: April 2026</p>
+          <p className="text-xs text-gray-500/60 pt-8">Last updated: April 2026</p>
         </div>
       </main>
     </div>
