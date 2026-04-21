@@ -2,21 +2,16 @@ import type { Metadata, Viewport } from 'next'
 import './globals.css'
 import GoogleAnalytics from '../components/GoogleAnalytics'
 
-const BUILD_VER = process.env.NEXT_BUILD_VER || `b${Date.now()}`
-
 export const metadata: Metadata = {
-  title: 'AI Stock Diagnosis | Real-Time Market Analysis',
-  description: 'AI-powered stock diagnosis and predictive analysis. Get real-time market insights and risk assessment for any stock.',
-  other: {
-    'x-ver': BUILD_VER,
-  },
+  title: 'AI Stock Diagnosis | Free Market Analysis via WhatsApp',
+  description: 'Get free AI stock diagnosis and market analysis content via WhatsApp. Trading strategies, technical analysis, risk management, and more.',
 }
 
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
   maximumScale: 1,
-  themeColor: '#F2F2F2',
+  themeColor: '#ffffff',
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -26,9 +21,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="preload" href="/fonts/inter-500.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
         <link rel="preload" href="/fonts/inter-600.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
         <link rel="preload" href="/fonts/inter-700.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
-        <link rel="preload" href="/fonts/material-symbols-outlined.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
       </head>
-      <body className="min-h-screen selection:bg-primary/20 selection:text-primary antialiased">
+      <body className="antialiased">
         <GoogleAnalytics />
         {children}
       </body>
