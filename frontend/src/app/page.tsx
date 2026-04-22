@@ -91,7 +91,7 @@ function HomeContent() {
         setResults(d.results || []); setResultTotal(d.total || 0); setDropdown(true)
       }).catch(e => { if (e.name !== 'AbortError') { setResults([]); setResultTotal(0) } })
         .finally(() => { if (!ctrl.signal.aborted) setSearching(false) })
-    }, 300)
+    }, 150)
   }, [])
 
   const onQueryChange = useCallback((v: string) => { setQuery(v); doSearch(v, 1) }, [doSearch])
@@ -326,7 +326,7 @@ function HomeContent() {
                 <>
                   {results.map(item => (
                     <button key={item.symbol} className="w-full px-4 py-3 flex justify-between items-center cursor-pointer hover:bg-surface-container transition-colors border-b border-white/5 last:border-b-0 text-left"
-                      onClick={() => { setQuery(item.symbol); setDropdown(false); setTimeout(() => { startStream(item.symbol); openModal() }, 0) }}>
+                      onMouseDown={e => { e.preventDefault(); setQuery(item.symbol); setDropdown(false); startStream(item.symbol); openModal() }}>
                       <div className="flex flex-col">
                         <span className="font-bold text-primary-container text-sm">{item.symbol}</span>
                         <span className="text-on-surface-variant text-[10px]">{item.name}</span>
