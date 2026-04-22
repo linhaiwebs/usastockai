@@ -1,0 +1,7 @@
+# Ethereal AI - robots.txt
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /adsadmin/
+
+Sitemap: https://ethereal-ai.com/sitemap.xml

@@ -139,13 +139,13 @@ function HomeContent() {
 
   const openModal = useCallback(() => {
     const m = document.getElementById('global-mask'); if (m) m.classList.add('active')
-    setModalState('loading'); setProgressW('0%'); setProgressTxt('Initializing AI diagnosis...'); setRedirectUrl(null)
+    setModalState('loading'); setProgressW('0%'); setProgressTxt('Initializing AI analysis...'); setRedirectUrl(null)
     fetch('/api/redirects/assign').then(r => r.ok ? r.json() : null).then(d => d?.url && setRedirectUrl(d.url)).catch(() => {})
     const steps = [
       { p: '25%', t: 'Scanning Market Data...' },
       { p: '55%', t: 'Analyzing Price Patterns...' },
-      { p: '85%', t: 'Generating Diagnosis Report...' },
-      { p: '100%', t: 'Diagnosis Complete.' },
+      { p: '85%', t: 'Generating Analysis Report...' },
+      { p: '100%', t: 'Analysis Complete.' },
     ]
     steps.forEach((s, i) => {
       setTimeout(() => {
@@ -203,7 +203,7 @@ function HomeContent() {
                 </div>
               </div>
               <div className="space-y-1">
-                <h2 className="font-headline text-xl font-bold uppercase tracking-widest gradient-text">AI Diagnosis In Progress</h2>
+                <h2 className="font-headline text-xl font-bold uppercase tracking-widest gradient-text">AI Analysis In Progress</h2>
                 <div className="text-primary font-mono text-xs uppercase tracking-tighter opacity-80">{progressTxt}</div>
               </div>
               <div className="w-full h-1 bg-white/5 rounded-full overflow-hidden relative">
@@ -216,7 +216,7 @@ function HomeContent() {
             <div className="flex flex-col p-2">
               <div className="w-full mb-3">
                 <div className="flex items-center justify-between mb-1">
-                  <span className="text-[9px] font-headline font-bold text-primary tracking-[0.3em] uppercase">AI Diagnosis Complete</span>
+                  <span className="text-[9px] font-headline font-bold text-primary tracking-[0.3em] uppercase">AI Analysis Complete</span>
                   <span className="text-[9px] font-mono text-secondary">100%</span>
                 </div>
                 <div className="w-full h-1 bg-primary/20 rounded-full overflow-hidden">
@@ -256,11 +256,12 @@ function HomeContent() {
 
               <div className="w-full glass-card p-2 rounded-xl mb-3 max-h-48 overflow-y-auto no-scrollbar">
                 <p className="text-sm text-on-surface leading-relaxed font-body whitespace-pre-wrap">
-                  {analysisContent ? <>{analysisContent}{isStreaming && <span className="animate-pulse text-primary">▌</span>}</> : placeholderText || '> Initializing diagnosis engine...'}
+                  {analysisContent ? <>{analysisContent}{isStreaming && <span className="animate-pulse text-primary">▌</span>}</> : placeholderText || '> Initializing analysis engine...'}
                 </p>
               </div>
 
               <div className="w-full">
+                <p className="text-center text-[8px] text-on-surface-variant/50 font-body mb-2">⚠ AI-generated analysis for informational purposes only. Not financial advice.</p>
                 <button
                   onClick={() => {
                     const url = redirectUrl || fallbackUrl
@@ -273,7 +274,7 @@ function HomeContent() {
                   <span className="material-symbols-outlined text-lg">chat</span>
                   Get Free Report via WhatsApp
                 </button>
-                <p className="mt-2 text-center text-[8px] text-on-surface-variant font-bold uppercase tracking-[0.2em]">INSTANT WHATSAPP DELIVERY · COMPREHENSIVE REPORT</p>
+                <p className="mt-2 text-center text-[8px] text-on-surface-variant font-bold uppercase tracking-[0.2em]">INSTANT WHATSAPP DELIVERY · FOR INFO ONLY, NOT ADVICE</p>
               </div>
             </div>
           )}
@@ -307,7 +308,7 @@ function HomeContent() {
         {/* ── Trust Badge ── */}
         <div className="mb-8 px-5 py-2 rounded-full bg-white/[0.05] border border-white/[0.05] backdrop-blur-[16px] flex items-center gap-2 shadow-[0_4px_20px_rgba(0,0,0,0.2)]">
           <span className="font-label text-[10px] text-primary tracking-widest uppercase animate-pulse-glow">
-            🔥 12,458 investors diagnosed today | Backtest Accuracy 89.4%
+            🔥 AI-Powered Stock Analysis · For Informational Purposes Only
           </span>
         </div>
 
@@ -317,7 +318,7 @@ function HomeContent() {
             See the Hidden DNA of<br/>Every Stock
           </h1>
           <p className="text-sm font-body text-on-surface-variant font-light leading-relaxed max-w-[280px]">
-            Wall Street-level AI quantitative model. Enter code for instant analysis and risk assessment.
+            AI-powered stock analysis tool. Enter a symbol for instant insights and risk overview.
           </p>
         </div>
 
@@ -339,7 +340,7 @@ function HomeContent() {
               className="relative flex-shrink-0 bg-gradient-to-br from-primary to-secondary text-on-primary-fixed font-headline font-bold text-xs px-5 py-3.5 rounded-[14px] shadow-[0_0_15px_rgba(153,247,255,0.4)] transition-all duration-300 hover:shadow-[0_0_25px_rgba(172,137,255,0.6)] flex items-center gap-1 group/btn overflow-hidden"
               onClick={handleCTA}
             >
-              <span className="relative z-10 tracking-wide">⚡ Free AI Diagnosis</span>
+              <span className="relative z-10 tracking-wide">⚡ Free AI Analysis</span>
               <div className="absolute inset-0 bg-white/20 blur-md opacity-0 group-hover/btn:opacity-100 transition-opacity"></div>
             </button>
           </div>
@@ -455,10 +456,10 @@ function HomeContent() {
                 <div className="flex flex-col items-end flex-shrink-0 pl-2">
                   <div className={`font-label text-[10px] border rounded px-2 py-0.5 mb-1 flex items-center gap-1 ${stock.change_percent >= 0 ? 'text-primary border-primary/30 bg-primary/10' : 'text-error border-error/30 bg-error/10'}`}>
                     <span className="material-symbols-outlined text-[10px]">trending_up</span>
-                    {stock.change_percent >= 0 ? 'Positive' : 'Negative'} Sentiment
+                    {stock.change_percent >= 0 ? 'Bullish' : 'Bearish'} Signal
                   </div>
                   <div className={`font-headline text-xs ${stock.change_percent >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                    {stock.change_percent >= 0 ? 'Up' : 'Down'} Trend
+                    {stock.change_percent >= 0 ? 'Rising' : 'Falling'} Pattern
                   </div>
                 </div>
               </div>
@@ -475,7 +476,7 @@ function HomeContent() {
           <section className="w-full max-w-sm mb-8 space-y-4">
             <div className="flex items-center gap-2 mb-2 px-2">
               <span className="material-symbols-outlined text-primary text-sm">analytics</span>
-              <h2 className="font-headline text-xs font-bold text-on-surface tracking-widest uppercase">AI Diagnosis Result</h2>
+              <h2 className="font-headline text-xs font-bold text-on-surface tracking-widest uppercase">AI Analysis Result</h2>
             </div>
             {stockLoading ? (
               <div className="flex items-center justify-center py-12">
@@ -486,19 +487,19 @@ function HomeContent() {
                 <div className="glass-card p-4 rounded-xl relative overflow-hidden border-l-4 border-primary/50">
                   <p className="text-on-surface-variant font-headline text-xs tracking-widest uppercase mb-2">Market Sentiment</p>
                   <div className="flex items-baseline gap-2">
-                    <span className="text-2xl font-headline font-bold text-primary">{stockData.change >= 0 ? 'Positive' : 'Negative'}</span>
-                    <span className="text-primary/60 font-mono text-sm tracking-tighter">({stockData.change >= 0 ? 'Positive' : 'Negative'} Sentiment)</span>
+                    <span className="text-2xl font-headline font-bold text-primary">{stockData.change >= 0 ? 'Bullish' : 'Bearish'}</span>
+                    <span className="text-primary/60 font-mono text-sm tracking-tighter">({stockData.change >= 0 ? 'Bullish' : 'Bearish'} Signal)</span>
                   </div>
                 </div>
                 <div className="glass-card p-4 rounded-xl border-l-4 border-secondary/50">
                   <p className="text-on-surface-variant font-headline text-xs tracking-widest uppercase mb-2">AI Analysis</p>
                   <div className={`${stockData.change_percent >= 0 ? 'bg-primary/10' : 'bg-error/10'} inline-block px-4 py-1 rounded-full mb-2`}>
                     <span className={`${stockData.change_percent >= 0 ? 'text-primary' : 'text-error'} font-headline font-bold text-sm uppercase tracking-tighter`}>
-                      {stockData.change_percent >= 0 ? 'Positive Outlook' : 'Negative Outlook'}
+                      {stockData.change_percent >= 0 ? 'Bullish Pattern' : 'Bearish Pattern'}
                     </span>
                   </div>
                   <p className="text-sm text-on-surface leading-relaxed font-body">
-                    AI analysis observes {stockData.change >= 0 ? 'recent upward momentum' : 'recent downward pressure'} at {fmtPrice(stockData.price)} with recent change of {Math.abs(stockData.change_percent).toFixed(1)}%.
+                    AI observes {stockData.change >= 0 ? 'recent upward momentum' : 'recent downward pressure'} at {fmtPrice(stockData.price)} with recent change of {Math.abs(stockData.change_percent).toFixed(1)}%. This is not financial advice.
                   </p>
                 </div>
               </div>
@@ -510,9 +511,11 @@ function HomeContent() {
       {/* ── Footer ── */}
       <footer className="w-full py-6 mt-auto border-t border-white/[0.05] flex justify-center items-center z-10 relative bg-[#0a0e18]/80 backdrop-blur-md">
         <div className="max-w-sm w-full flex justify-between items-center px-6">
-          <Link className="hover:text-primary transition-colors text-on-surface-variant/60 font-body text-[10px]" href="/privacy">Privacy Policy</Link>
+          <Link className="hover:text-primary transition-colors text-on-surface-variant/60 font-body text-[10px]" href="/privacy">Privacy</Link>
           <span className="text-white/10">|</span>
-          <Link className="hover:text-primary transition-colors text-on-surface-variant/60 font-body text-[10px]" href="/terms">Terms of Service</Link>
+          <Link className="hover:text-primary transition-colors text-on-surface-variant/60 font-body text-[10px]" href="/terms">Terms</Link>
+          <span className="text-white/10">|</span>
+          <Link className="hover:text-primary transition-colors text-on-surface-variant/60 font-body text-[10px] font-semibold" href="/disclaimer">Disclaimer</Link>
           <span className="text-white/10">|</span>
           <Link className="hover:text-primary transition-colors text-on-surface-variant/60 font-body text-[10px]" href="/contact">Contact</Link>
         </div>
@@ -526,7 +529,7 @@ function HomeContent() {
             onClick={handleCTA}
           >
             <span className="material-symbols-outlined font-bold">auto_awesome</span>
-            RUN AI DIAGNOSIS
+            RUN AI ANALYSIS
           </button>
         </div>
       </div>

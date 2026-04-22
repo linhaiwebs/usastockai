@@ -28,7 +28,7 @@ export default function ContactPage() {
               <span className="material-symbols-outlined text-secondary">chat</span>
               <div>
                 <p className="font-headline text-xs text-on-surface-variant uppercase tracking-widest mb-1">WhatsApp</p>
-                <p className="text-on-surface">Available for instant support and free AI stock reports</p>
+                <p className="text-on-surface">Available for instant support and AI stock analysis reports</p>
               </div>
             </div>
             <div className="flex items-center gap-3">
