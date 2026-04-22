@@ -326,7 +326,7 @@ function HomeContent() {
                 <>
                   {results.map(item => (
                     <button key={item.symbol} className="w-full px-4 py-3 flex justify-between items-center cursor-pointer hover:bg-surface-container transition-colors border-b border-white/5 last:border-b-0 text-left"
-                      onClick={() => { setQuery(item.symbol); setDropdown(false); startStream(item.symbol); openModal() }}>
+                      onClick={() => { setQuery(item.symbol); setDropdown(false); setTimeout(() => { startStream(item.symbol); openModal() }, 0) }}>
                       <div className="flex flex-col">
                         <span className="font-bold text-primary-container text-sm">{item.symbol}</span>
                         <span className="text-on-surface-variant text-[10px]">{item.name}</span>
@@ -399,19 +399,19 @@ function HomeContent() {
             </div>
           </div>
           <div className="flex flex-col gap-2">
-            {!hotLoading && hotStocks.length > 0 ? hotStocks.slice(0, 5).map(stock => {
-              const colors = ['bg-white', 'bg-[#E82127]', 'bg-white', 'bg-[#FF9900]', 'bg-[#4285F4]']
-              const i = hotStocks.indexOf(stock) % colors.length
+            {!hotLoading && hotStocks.length > 0 ? hotStocks.map((stock, idx) => {
+              const colors = ['bg-white', 'bg-[#E82127]', 'bg-white', 'bg-[#FF9900]', 'bg-[#4285F4]', 'bg-[#FF0040]', 'bg-[#00A4EF]']
+              const textColors = ['text-black', 'text-white', 'text-black', 'text-white', 'text-white', 'text-white', 'text-white']
               return (
                 <button key={stock.symbol} className="flex items-center justify-between bg-surface-container-low p-3 rounded-xl border border-white/5 hover:bg-surface-container transition-colors w-full text-left"
                   onClick={() => { setQuery(stock.symbol); startStream(stock.symbol); openModal() }}>
                   <div className="flex items-center gap-3">
-                    <div className={`w-10 h-10 ${colors[i]} rounded-full flex items-center justify-center p-2`}>
-                      <span className={`${i === 0 || i === 2 ? 'text-black' : 'text-white'} font-bold text-lg`}>{stock.symbol.slice(0, 1)}</span>
+                    <div className={`w-10 h-10 ${colors[idx % colors.length]} rounded-full flex items-center justify-center p-2`}>
+                      <span className={`${textColors[idx % textColors.length]} font-bold text-lg`}>{stock.symbol.slice(0, 1)}</span>
                     </div>
                     <div>
-                      <h4 className="font-semibold text-on-surface text-base">{stock.name?.split(' ')[0] || stock.symbol}</h4>
-                      <p className="text-on-surface-variant text-xs">{stock.symbol} • Stock</p>
+                      <h4 className="font-semibold text-on-surface text-base">{stock.name?.split(' ').slice(0, 2).join(' ') || stock.symbol}</h4>
+                      <p className="text-on-surface-variant text-xs">{stock.symbol} • {stock.sector || 'Stock'}</p>
                     </div>
                   </div>
                   <div className="text-right">
@@ -484,12 +484,14 @@ function HomeContent() {
       </footer>
 
       {/* ── Scroll CTA ── */}
-      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[80] w-[90%] max-w-md" id="scroll-cta">
-        <button className="block w-full bg-primary-container text-on-primary font-bold py-4 px-6 rounded-2xl shadow-2xl hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-2"
-          onClick={handleCTA}>
-          <span className="material-symbols-outlined">monitoring</span>
-          Run AI Stock Diagnosis
-        </button>
+      <div className="fixed bottom-6 inset-x-4 z-[80] flex justify-center" id="scroll-cta">
+        <div className="w-full max-w-md">
+          <button className="w-full bg-primary-container text-on-primary font-bold py-4 px-6 rounded-2xl shadow-2xl hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-2"
+            onClick={handleCTA}>
+            <span className="material-symbols-outlined">monitoring</span>
+            Run AI Stock Diagnosis
+          </button>
+        </div>
       </div>
     </>
   )
