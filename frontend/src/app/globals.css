@@ -1,0 +1,157 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ═══════════════════════════════════════════════════════
+   AI Stock Diagnosis — Stitch usa-1 (Dark Lime MD3)
+   #c3f400 Lime · #131313 Dark · Inter
+   ═══════════════════════════════════════════════════════ */
+
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/inter-400.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('/fonts/inter-500.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('/fonts/inter-600.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/inter-700.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Material Symbols Outlined';
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  src: url('/fonts/material-symbols-outlined.woff2') format('woff2');
+}
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  background-color: #131313;
+  color: #e5e2e1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+::selection {
+  background-color: rgba(195, 244, 0, 0.25);
+  color: #c3f400;
+}
+
+.material-symbols-outlined {
+  font-family: 'Material Symbols Outlined' !important;
+  font-weight: 400 !important;
+  font-style: normal !important;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-smoothing: antialiased;
+  font-feature-settings: 'rlig' 1, 'liga' 1 !important;
+}
+
+/* ── Lime Glow ── */
+.lime-glow {
+  box-shadow: 0 0 15px rgba(195, 244, 0, 0.15);
+}
+
+/* ── Hide Scrollbar ── */
+.hide-scrollbar::-webkit-scrollbar { display: none; }
+.hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* ── Screen Mask ── */
+.screen-mask {
+  position: fixed;
+  inset: 0;
+  background: rgba(14, 14, 14, 0.7);
+  backdrop-filter: blur(8px);
+  z-index: 90;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+.screen-mask.active {
+  opacity: 1;
+  pointer-events: auto;
+  cursor: default;
+}
+
+/* ── Modal ── */
+.modal-container {
+  position: fixed;
+  inset: 0;
+  z-index: 110;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  overflow-y: auto;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+.modal-container.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* ── Scroll CTA ── */
+#scroll-cta {
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  transform: translateY(20px);
+}
+#scroll-cta.visible {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+/* ── Conversion Button ── */
+#modal-submit-btn.animate-btn-activate {
+  position: relative;
+  background: #25D366 !important;
+  color: #FFFFFF !important;
+  border: none !important;
+  animation: btn-breathe 2.5s ease-in-out infinite;
+  box-shadow: 0 0 20px rgba(37, 211, 102, 0.3);
+}
+
+@keyframes btn-breathe {
+  0%, 100% {
+    box-shadow: 0 0 15px rgba(37, 211, 102, 0.3), 0 0 30px rgba(37, 211, 102, 0.1);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 25px rgba(37, 211, 102, 0.5), 0 0 50px rgba(37, 211, 102, 0.2);
+    transform: scale(1.02);
+  }
+}
+
+@keyframes loadingProgress {
+  0% { width: 0%; }
+  100% { width: 100%; }
+}
