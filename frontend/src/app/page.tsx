@@ -1,61 +1,173 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useRef, useCallback, useState, Suspense } from 'react'
+import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
+import { getStockQuote, getHotStocks, searchStocks, StockQuote, SearchResult, SearchResponse } from '../lib/api'
 
-const TOPICS = [
-  { emoji: '📊', title: 'Trading strategies', desc: 'AI-powered strategy analysis and basic market structure patterns.' },
-  { emoji: '📈', title: 'Technical analysis', desc: 'Understandable insights on market structure, technical tools & typical observations.' },
-  { emoji: '🧠', title: 'Market psychology', desc: 'Insights into emotions, psychology and behavioral aspects in market decisions.' },
-  { emoji: '⚖️', title: 'Risk management', desc: 'Basics on handling uncertainty, volatility and general risk factors.' },
-  { emoji: '💱', title: 'Forex & Stocks', desc: 'Introduction to currency markets, equity markets and essential terminology.' },
-  { emoji: '📉', title: 'Chart analysis', desc: 'Basics of charts, patterns and visual market observation for better classification.' },
-]
+function fmtNum(n: number): string {
+  if (n >= 1e9) return (n / 1e9).toFixed(2) + 'B'
+  if (n >= 1e6) return (n / 1e6).toFixed(2) + 'M'
+  if (n >= 1e3) return (n / 1e3).toFixed(1) + 'K'
+  return n.toLocaleString()
+}
 
-const DETAIL_TOPICS = [
-  { n: '1', title: 'Trading strategies', desc: 'AI-assisted insights into different approaches. The content shows how various strategy types are built and considerations that play a role in planning.', items: ['Short- and medium-term strategy approaches', 'Entry/exit scenarios basics', 'Structured preparation of trading ideas'] },
-  { n: '2', title: 'Technical analysis', desc: 'Helps better understand how to use technical analysis to assess market movements. General info on common tools and market structure.', items: ['Trends, zones & market phases', 'Support and resistance areas', 'Simple classification of signals'] },
-  { n: '3', title: 'Market psychology', desc: 'One of the most important topics for decision-making. Content shows how emotions, uncertainty and discipline affect behavior.', items: ['Emotions & decisions in markets', 'Dealing with uncertainty & pressure', 'Discipline & consistent behavior'] },
-  { n: '4', title: 'Risk management', desc: 'Core component of a responsible approach to financial markets. General info on how to better assess risks.', items: ['Basic principles of risk awareness', 'Relationship risk & possible outcomes', 'Handling uncertainty and volatility'] },
-  { n: '5', title: 'Forex trading', desc: 'Initial essential knowledge about forex markets. Understandable insights into typical terms, mechanisms and influencing factors.', items: ['Forex market basics', 'Currency pairs & movements', 'Impact of news & macro conditions'] },
-  { n: '6', title: 'Stock trading', desc: 'General learning content on equity markets, price action and typical market mechanisms.', items: ['Stock market fundamentals', 'Price behavior & market action', 'Important terms for beginners'] },
-  { n: '7', title: 'Chart analysis', desc: 'Helps visualize market movements. General info on charts, formations and structures.', items: ['Basics of charts & displays', 'Common observation patterns', 'Visual classification of movements'] },
-]
-
-const REVIEWS = [
-  { text: 'The AI diagnosis was well structured, I immediately knew which topics I could request via WhatsApp.', name: 'Michael K.' },
-  { text: 'I liked that the content is described in an understandable way, not like typical advertising.', name: 'Sarah M.' },
-  { text: 'Contact process was simple. First I received a topic overview and could review everything in peace.', name: 'Thomas B.' },
-  { text: 'Especially helpful that trading strategies, risk and market psychology were explained separately.', name: 'Anna W.' },
-]
+function fmtPrice(n: number): string {
+  return n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+}
 
 export default function HomePage() {
+  return <Suspense><HomeContent /></Suspense>
+}
+
+function HomeContent() {
+  const isAnalyzingRef = useRef(false)
+  const searchParams = useSearchParams()
+  const tickerParam = searchParams.get('code') || ''
+
+  const [stockData, setStockData] = useState<StockQuote | null>(null)
+  const [stockLoading, setStockLoading] = useState(false)
+  const [hotStocks, setHotStocks] = useState<StockQuote[]>([])
+  const [hotLoading, setHotLoading] = useState(true)
+  const [analysisContent, setAnalysisContent] = useState('')
+  const [isStreaming, setIsStreaming] = useState(false)
   const [redirectUrl, setRedirectUrl] = useState<string | null>(null)
   const [fallbackUrl, setFallbackUrl] = useState('https://wa.me/1234567890')
+  const [placeholderText, setPlaceholderText] = useState('')
+  const [query, setQuery] = useState('')
+  const [results, setResults] = useState<SearchResult[]>([])
+  const [resultTotal, setResultTotal] = useState(0)
+  const [resultPage, setResultPage] = useState(1)
+  const [searching, setSearching] = useState(false)
+  const [dropdown, setDropdown] = useState(false)
+  const [modalState, setModalState] = useState<'closed' | 'loading' | 'result'>('closed')
+  const [modalStock, setModalStock] = useState<StockQuote | null>(null)
+
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const abortRef = useRef<AbortController | null>(null)
+  const streamRef = useRef<AbortController | null>(null)
+  const [progressW, setProgressW] = useState('0%')
+  const [progressTxt, setProgressTxt] = useState('')
+
+  // ── Effects ──
+  useEffect(() => { if (tickerParam) setQuery(tickerParam.toUpperCase()) }, [tickerParam])
+
+  useEffect(() => {
+    if (!tickerParam) { setStockData(null); return }
+    let c = false
+    setStockLoading(true)
+    getStockQuote(tickerParam).then(d => { if (!c) { setStockData(d); setModalStock(d) } }).catch(() => { if (!c) { setStockData(null); setModalStock(null) } }).finally(() => { if (!c) setStockLoading(false) })
+    return () => { c = true }
+  }, [tickerParam])
+
+  useEffect(() => {
+    let c = false
+    setHotLoading(true)
+    getHotStocks().then(d => { if (!c) setHotStocks(d) }).catch(() => { if (!c) setHotStocks([]) }).finally(() => { if (!c) setHotLoading(false) })
+    return () => { c = true }
+  }, [])
 
   useEffect(() => {
     fetch('/api/config/public').then(r => r.json()).then(data => {
       const s = data.settings || []
       const fb = s.find((x: { key: string }) => x.key === 'fallback_redirect_url')
       if (fb?.value) setFallbackUrl(fb.value)
+      const ph = s.find((x: { key: string }) => x.key === 'diagnostic_placeholder_text')
+      if (ph?.value) setPlaceholderText(ph.value)
     }).catch(() => {})
   }, [])
 
-  const handleConvert = useCallback(() => {
-    const url = redirectUrl || fallbackUrl
-    if (typeof window !== 'undefined' && typeof (window as any).gtag_report_conversion === 'function') {
-      (window as any).gtag_report_conversion(url)
-    } else {
-      window.location.href = url
-    }
-  }, [redirectUrl, fallbackUrl])
-
-  // Assign redirect on mount
-  useEffect(() => {
-    fetch('/api/redirects/assign').then(r => r.ok ? r.json() : null).then(d => d?.url && setRedirectUrl(d.url)).catch(() => {})
+  // ── Search ──
+  const doSearch = useCallback((q: string, pg: number = 1) => {
+    if (debounceRef.current) { clearTimeout(debounceRef.current); debounceRef.current = null }
+    if (abortRef.current) { abortRef.current.abort(); abortRef.current = null }
+    if (!q.trim()) { setResults([]); setResultTotal(0); setDropdown(false); return }
+    debounceRef.current = setTimeout(() => {
+      const ctrl = new AbortController()
+      abortRef.current = ctrl
+      setSearching(true); setResultPage(pg)
+      searchStocks(q, pg, 5).then((d: SearchResponse) => {
+        if (ctrl.signal.aborted) return
+        setResults(d.results || []); setResultTotal(d.total || 0); setDropdown(true)
+      }).catch(e => { if (e.name !== 'AbortError') { setResults([]); setResultTotal(0) } })
+        .finally(() => { if (!ctrl.signal.aborted) setSearching(false) })
+    }, 300)
   }, [])
 
-  // Scroll CTA
+  const onQueryChange = useCallback((v: string) => { setQuery(v); doSearch(v, 1) }, [doSearch])
+  const onPageChange = useCallback((p: number) => { doSearch(query, p) }, [doSearch, query])
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => { if (!(e.target as HTMLElement).closest('.search-portal')) setDropdown(false) }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [])
+
+  // ── Stream ──
+  const startStream = useCallback((symbol: string) => {
+    if (streamRef.current) streamRef.current.abort()
+    const ctrl = new AbortController()
+    streamRef.current = ctrl
+    setIsStreaming(true); setAnalysisContent('')
+    if (typeof window !== 'undefined' && typeof (window as any).gtag === 'function') (window as any).gtag('event', 'Bdd')
+    setModalStock(null)
+    getStockQuote(symbol).then(d => setModalStock(d)).catch(() => setModalStock(null))
+    fetch(`/api/analyze/${encodeURIComponent(symbol)}`, { signal: ctrl.signal })
+      .then(async res => {
+        if (!res.ok) { setIsStreaming(false); return }
+        const reader = res.body?.getReader()
+        if (!reader) { setIsStreaming(false); return }
+        const dec = new TextDecoder()
+        let txt = '', evt = ''
+        while (true) {
+          const { done, value } = await reader.read()
+          if (done) break
+          for (const line of dec.decode(value, { stream: true }).split('\n')) {
+            if (line.startsWith('event: ')) evt = line.slice(7).trim()
+            else if (line.startsWith('data: ')) {
+              if (evt === 'error') { txt = ''; setAnalysisContent(''); evt = '' }
+              else { txt += line.slice(6); setAnalysisContent(txt) }
+            }
+          }
+        }
+        setIsStreaming(false)
+      })
+      .catch(e => { if (e.name !== 'AbortError') setIsStreaming(false) })
+  }, [])
+
+  // ── Modal ──
+  const openModal = useCallback(() => {
+    const m = document.getElementById('global-mask'); if (m) m.classList.add('active')
+    setModalState('loading'); setProgressW('0%'); setProgressTxt('Initializing AI diagnosis...'); setRedirectUrl(null)
+    fetch('/api/redirects/assign').then(r => r.ok ? r.json() : null).then(d => d?.url && setRedirectUrl(d.url)).catch(() => {})
+    const steps = [
+      { p: '25%', t: 'Scanning Market Data...' },
+      { p: '55%', t: 'Analyzing Price Patterns...' },
+      { p: '85%', t: 'Generating Diagnosis Report...' },
+      { p: '100%', t: 'Diagnosis Complete.' },
+    ]
+    steps.forEach((s, i) => {
+      setTimeout(() => {
+        setProgressW(s.p); setProgressTxt(s.t)
+        if (i === steps.length - 1) setTimeout(() => setModalState('result'), 800)
+      }, (i + 1) * 800)
+    })
+  }, [])
+
+  const closeModal = useCallback(() => {
+    if (streamRef.current) { streamRef.current.abort(); streamRef.current = null }
+    setIsStreaming(false); setModalState('closed')
+    const m = document.getElementById('global-mask'); if (m) m.classList.remove('active')
+  }, [])
+
+  const handleCTA = useCallback(() => {
+    if (isAnalyzingRef.current) return
+    isAnalyzingRef.current = true
+    const sym = tickerParam && stockData ? tickerParam : query.trim() || 'AAPL'
+    startStream(sym); openModal(); isAnalyzingRef.current = false
+  }, [openModal, tickerParam, stockData, query, startStream])
+
+  // ── Scroll CTA ──
   useEffect(() => {
     const onScroll = () => {
       const el = document.getElementById('scroll-cta')
@@ -67,240 +179,318 @@ export default function HomePage() {
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
+  const activeSym = tickerParam && stockData ? tickerParam : query.trim() || 'AAPL'
+
   return (
     <>
-      {/* ── Top Banner ── */}
-      <div className="bg-slate-900 text-white text-xs py-2 px-4 text-center">
-        <p>🚀 Now get free AI stock diagnosis content via WhatsApp — trading strategies, technical analysis, market psychology, risk management, forex, stocks &amp; chart analysis.</p>
+      <div className="screen-mask" id="global-mask" onClick={closeModal}></div>
+
+      {/* ── Diagnostic Modal ── */}
+      <div className={`modal-container ${modalState !== 'closed' ? 'active' : ''}`}>
+        <div className="fixed inset-0 bg-[#0e0e0e]/70 backdrop-blur-sm" onClick={closeModal}></div>
+        <div className="relative w-full max-w-sm bg-surface-container rounded-[1.5rem] border border-white/5 p-6 shadow-2xl overflow-hidden">
+          <button className="absolute top-3 right-3 text-on-surface-variant hover:text-primary-fixed transition-colors z-20" onClick={closeModal}>
+            <span className="material-symbols-outlined text-xl">close</span>
+          </button>
+
+          {modalState === 'loading' && (
+            <div className="flex flex-col items-center justify-center min-h-[280px] text-center space-y-6">
+              <div className="relative w-20 h-20">
+                <div className="absolute inset-0 rounded-full border-2 border-primary-container/20 animate-ping"></div>
+                <div className="absolute inset-3 rounded-full border-2 border-primary-container/40 animate-pulse"></div>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <span className="material-symbols-outlined text-3xl text-primary-container animate-pulse">auto_awesome</span>
+                </div>
+              </div>
+              <div className="space-y-1">
+                <h2 className="font-bold text-lg text-on-surface">AI Diagnosis In Progress</h2>
+                <div className="text-primary-container text-xs font-semibold">{progressTxt}</div>
+              </div>
+              <div className="w-full h-1.5 bg-surface-container-highest rounded-full overflow-hidden">
+                <div className="h-full bg-gradient-to-r from-primary-container to-primary-fixed-dim transition-all duration-500 ease-out rounded-full" style={{ width: progressW }}></div>
+              </div>
+            </div>
+          )}
+
+          {modalState === 'result' && (
+            <div className="flex flex-col">
+              <div className="w-full mb-4">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-[10px] font-bold text-primary-container tracking-[0.2em] uppercase">AI Diagnosis Complete</span>
+                  <span className="text-[10px] font-bold text-on-surface-variant">100%</span>
+                </div>
+                <div className="w-full h-1 bg-surface-container-highest rounded-full overflow-hidden">
+                  <div className="h-full bg-primary-container w-full"></div>
+                </div>
+              </div>
+
+              <div className="text-center mb-4">
+                <h2 className="font-bold text-2xl text-on-surface mb-2">{modalStock?.name || activeSym}</h2>
+                {modalStock ? (
+                  <div className="flex items-center justify-center gap-3">
+                    <span className="font-bold text-3xl text-primary-container">${fmtPrice(modalStock.price)}</span>
+                    <span className={`text-sm font-bold px-3 py-1 rounded-full ${modalStock.change_percent >= 0 ? 'text-primary-fixed bg-primary-container/10' : 'text-error bg-error-container/30'}`}>
+                      {modalStock.change_percent >= 0 ? '+' : ''}{modalStock.change_percent.toFixed(2)}%
+                    </span>
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-center gap-2">
+                    <div className="w-3 h-3 border-2 border-primary-container/30 border-t-primary-container rounded-full animate-spin"></div>
+                    <span className="text-xs text-on-surface-variant">Loading price...</span>
+                  </div>
+                )}
+              </div>
+
+              {modalStock && (
+                <div className="bg-surface-container-low rounded-xl p-4 mb-4">
+                  <div className="grid grid-cols-3 gap-x-4 gap-y-3">
+                    <div><p className="text-[9px] text-on-surface-variant uppercase tracking-widest mb-0.5">Change</p><p className={`text-xs font-bold ${modalStock.change >= 0 ? 'text-primary-fixed' : 'text-error'}`}>{modalStock.change >= 0 ? '+' : ''}{modalStock.change.toFixed(2)}</p></div>
+                    <div><p className="text-[9px] text-on-surface-variant uppercase tracking-widest mb-0.5">Volume</p><p className="text-xs font-bold text-on-surface">{fmtNum(modalStock.volume)}</p></div>
+                    <div><p className="text-[9px] text-on-surface-variant uppercase tracking-widest mb-0.5">Mkt Cap</p><p className="text-xs font-bold text-on-surface">{modalStock.market_cap ? fmtNum(modalStock.market_cap) : '—'}</p></div>
+                    <div><p className="text-[9px] text-on-surface-variant uppercase tracking-widest mb-0.5">P/E</p><p className="text-xs font-bold text-on-surface">{modalStock.pe_ratio != null ? modalStock.pe_ratio.toFixed(1) : '—'}</p></div>
+                    <div><p className="text-[9px] text-on-surface-variant uppercase tracking-widest mb-0.5">52W High</p><p className="text-xs font-bold text-on-surface">{modalStock.fifty_two_week_high != null ? '$' + fmtPrice(modalStock.fifty_two_week_high) : '—'}</p></div>
+                    <div><p className="text-[9px] text-on-surface-variant uppercase tracking-widest mb-0.5">EPS</p><p className="text-xs font-bold text-on-surface">{modalStock.eps != null ? modalStock.eps.toFixed(2) : '—'}</p></div>
+                  </div>
+                </div>
+              )}
+
+              <div className="w-full bg-surface-container-low p-3 rounded-xl mb-4 max-h-40 overflow-y-auto hide-scrollbar">
+                <p className="text-sm text-on-surface leading-relaxed whitespace-pre-wrap">
+                  {analysisContent ? <>{analysisContent}{isStreaming && <span className="animate-pulse text-primary-container">▌</span>}</> : placeholderText || '> Initializing diagnosis engine...'}
+                </p>
+              </div>
+
+              {/* ── Trust Badges ── */}
+              <div className="flex items-center justify-center gap-4 mb-4 text-[10px] text-on-surface-variant">
+                <div className="flex items-center gap-1"><span className="material-symbols-outlined text-primary-container text-sm">verified</span> 50K+ Users</div>
+                <div className="flex items-center gap-1"><span className="material-symbols-outlined text-primary-container text-sm">shield</span> Secure</div>
+                <div className="flex items-center gap-1"><span className="material-symbols-outlined text-primary-container text-sm">block</span> No Spam</div>
+              </div>
+
+              <div className="w-full">
+                <button
+                  onClick={() => {
+                    const url = redirectUrl || fallbackUrl
+                    if (typeof window !== 'undefined' && typeof (window as any).gtag_report_conversion === 'function') (window as any).gtag_report_conversion(url)
+                    else window.location.href = url
+                  }}
+                  className="w-full inline-flex items-center justify-center gap-3 bg-[#25D366] text-white px-6 py-3.5 rounded-full font-bold text-base tracking-tight hover:scale-[1.02] active:scale-95 transition-all shadow-lg shadow-green-500/20"
+                  id="modal-submit-btn"
+                >
+                  <span className="material-symbols-outlined text-lg">chat</span>
+                  Get the report for free via WhatsApp
+                </button>
+                <p className="mt-2 text-center text-[9px] text-on-surface-variant font-bold uppercase tracking-[0.15em]">INSTANT WHATSAPP DELIVERY · COMPREHENSIVE REPORT</p>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* ── Header ── */}
-      <header className="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-100 py-4 px-4 sm:px-6 flex items-center justify-between">
-        <div className="font-bold text-xl tracking-tight">AI Stock Diagnosis</div>
-        <button className="bg-brand text-white text-sm font-medium py-2 px-4 rounded-full hover:bg-brand-dark transition-colors" onClick={handleConvert}>
-          Get free content
-        </button>
-      </header>
+      {/* ── Main Layout ── */}
+      <main className="max-w-3xl mx-auto w-full">
 
-      <main>
-        {/* ── Hero Section ── */}
-        <section className="py-10 px-4 sm:px-6">
-          <div className="inline-flex items-center gap-2 bg-slate-100 text-slate-700 text-xs font-semibold px-3 py-1.5 rounded-full mb-6">
-            <span>📱</span> Free via WhatsApp
-          </div>
-          <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight mb-4 leading-tight">
-            Free AI stock <span className="text-brand">diagnosis</span> content — right on WhatsApp
-          </h1>
-          <p className="text-brand-light text-base mb-8">
-            Contact us via WhatsApp and receive free initial content on trading strategies, technical analysis, market psychology, risk management, forex trading, stock trading, and chart analysis.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-3 mb-8">
-            <button className="bg-brand text-white text-center font-medium py-3 px-6 rounded-full hover:bg-brand-dark transition-colors w-full sm:w-auto" onClick={handleConvert}>
-              Get free AI diagnosis now
-            </button>
-            <a className="bg-white text-slate-700 border border-slate-200 text-center font-medium py-3 px-6 rounded-full hover:bg-slate-50 transition-colors w-full sm:w-auto" href="#topics">
-              Learn more
-            </a>
-          </div>
-          <div className="flex flex-wrap gap-4 text-sm text-slate-600 mb-8">
-            <div className="flex items-center gap-1.5 bg-slate-50 px-3 py-1.5 rounded-full border border-slate-100">
-              <svg className="w-4 h-4 text-brand" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path></svg>
-              Free topic overview
+        {/* ── Hero Section (Lime Container) ── */}
+        <section className="bg-primary-container px-5 pt-6 pb-6 rounded-b-[2rem] relative z-10">
+          <div className="flex flex-col items-center text-center gap-2 mb-4">
+            <div className="w-12 h-12 rounded-full bg-surface-container-lowest flex items-center justify-center shadow-lg border-2 border-on-primary-container">
+              <span className="material-symbols-outlined text-[28px] text-primary-fixed">smart_toy</span>
             </div>
-            <div className="flex items-center gap-1.5 bg-slate-50 px-3 py-1.5 rounded-full border border-slate-100">
-              <svg className="w-4 h-4 text-brand" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path></svg>
-              Directly via WhatsApp
-            </div>
-            <div className="flex items-center gap-1.5 bg-slate-50 px-3 py-1.5 rounded-full border border-slate-100">
-              <svg className="w-4 h-4 text-brand" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path></svg>
-              Clear risk notice
-            </div>
-          </div>
-          <div className="text-xs text-slate-500 flex items-center gap-2">
-            <span>🎓</span> Free · No strings · General educational content only
-          </div>
-          <div className="mt-8 bg-blue-50/50 border border-blue-100 rounded-xl p-4 text-sm text-slate-700 flex gap-3">
-            <div className="text-blue-500 mt-0.5">ℹ️</div>
             <div>
-              <span className="font-semibold">Initial overview at no cost:</span> Receive a first glimpse of content, topic areas, and learning focuses on strategies, technicals, psychology, risk, forex, stocks &amp; charting.
+              <p className="text-sm font-medium text-on-primary-container opacity-80">AI-Powered</p>
+              <h1 className="text-xl font-bold text-on-primary">Stock Diagnosis</h1>
             </div>
           </div>
-        </section>
 
-        {/* ── Quick Access Banner ── */}
-        <section className="bg-slate-50 border-y border-slate-100 py-8 px-4 sm:px-6">
-          <div className="text-brand text-xs font-bold uppercase tracking-wider mb-2">Free Access</div>
-          <h2 className="text-xl font-bold mb-3">Get AI stock diagnosis directly via WhatsApp — at no cost</h2>
-          <p className="text-brand-light text-sm mb-6">Reach out via WhatsApp and receive a free initial overview of our content and topic areas.</p>
-          <button className="block w-full bg-brand text-white text-center text-sm font-medium py-3 rounded-full hover:bg-brand-dark transition-colors" onClick={handleConvert}>
-            Request free AI diagnosis
-          </button>
-        </section>
+          {/* AI Search Bar */}
+          <div className="relative w-full shadow-lg rounded-full search-portal">
+            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+              <span className="material-symbols-outlined text-primary-container">auto_awesome</span>
+            </div>
+            <input
+              autoComplete="off"
+              className="w-full bg-surface-container-lowest text-on-surface rounded-full py-3 pl-12 pr-4 border-none focus:ring-2 focus:ring-primary-container outline-none font-semibold text-lg placeholder-on-surface/50"
+              placeholder="Enter stock code (e.g., AAPL)"
+              type="text"
+              value={query}
+              onChange={e => onQueryChange(e.target.value)}
+              onFocus={() => { if (results.length > 0) setDropdown(true) }}
+              onKeyDown={e => { if (e.key === 'Enter' && query.trim()) handleCTA() }}
+            />
+          </div>
 
-        {/* ── Topics Overview ── */}
-        <section className="py-10 px-4 sm:px-6 bg-white" id="topics">
-          <h2 className="text-2xl font-bold mb-3 tracking-tight">These topics you can get for free</h2>
-          <p className="text-brand-light text-sm mb-8">Initial overviews on key market areas — easy to understand, delivered free via WhatsApp.</p>
-          <div className="space-y-4">
-            {TOPICS.map(t => (
-              <div key={t.title} className="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm">
-                <div className="flex items-center gap-3 mb-2">
-                  <span className="text-xl">{t.emoji}</span>
-                  <h3 className="font-bold">{t.title}</h3>
+          {/* Search Dropdown */}
+          {dropdown && query.trim() && (
+            <div className="absolute left-0 right-0 mt-2 mx-5 rounded-2xl bg-surface-container-lowest border border-white/5 overflow-hidden shadow-2xl z-20">
+              {results.length > 0 ? (
+                <>
+                  {results.map(item => (
+                    <button key={item.symbol} className="w-full px-4 py-3 flex justify-between items-center cursor-pointer hover:bg-surface-container transition-colors border-b border-white/5 last:border-b-0 text-left"
+                      onClick={() => { setQuery(item.symbol); setDropdown(false); startStream(item.symbol); openModal() }}>
+                      <div className="flex flex-col">
+                        <span className="font-bold text-primary-container text-sm">{item.symbol}</span>
+                        <span className="text-on-surface-variant text-[10px]">{item.name}</span>
+                      </div>
+                      <span className="text-[10px] text-on-surface-variant border border-outline-variant/30 rounded-full px-2.5 py-0.5 bg-surface-container">{item.type}</span>
+                    </button>
+                  ))}
+                  {resultTotal > 5 && (
+                    <div className="flex items-center justify-between px-4 py-3 border-t border-white/5">
+                      <span className="text-[10px] text-on-surface-variant">{(resultPage - 1) * 5 + 1}–{Math.min(resultPage * 5, resultTotal)} of {resultTotal}</span>
+                      <div className="flex gap-2">
+                        <button className="px-3 py-1 rounded-lg text-[10px] font-medium bg-surface-container text-on-surface-variant hover:bg-primary-container/10 hover:text-primary-fixed transition-all disabled:opacity-30" disabled={resultPage <= 1} onClick={() => onPageChange(resultPage - 1)}>← Prev</button>
+                        <button className="px-3 py-1 rounded-lg text-[10px] font-medium bg-surface-container text-on-surface-variant hover:bg-primary-container/10 hover:text-primary-fixed transition-all disabled:opacity-30" disabled={resultPage * 5 >= resultTotal} onClick={() => onPageChange(resultPage + 1)}>Next →</button>
+                      </div>
+                    </div>
+                  )}
+                </>
+              ) : searching ? (
+                <div className="px-4 py-6 flex items-center justify-center gap-2">
+                  <div className="w-4 h-4 border-2 border-primary-container/30 border-t-primary-container rounded-full animate-spin"></div>
+                  <span className="text-xs text-on-surface-variant">Searching...</span>
                 </div>
-                <p className="text-sm text-brand-light leading-relaxed">{t.desc}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* ── Detailed Content List ── */}
-        <section className="py-10 px-4 sm:px-6 bg-slate-50 border-y border-slate-100">
-          <h2 className="text-2xl font-bold mb-3 tracking-tight">Topic overview — in more detail</h2>
-          <p className="text-brand-light text-sm mb-8">A closer look at the areas for which you can receive initial information via WhatsApp.</p>
-          <div className="space-y-8">
-            {DETAIL_TOPICS.map(t => (
-              <div key={t.n}>
-                <h3 className="font-bold text-lg mb-2">{t.n}. {t.title}</h3>
-                <p className="text-sm text-brand-light mb-3">{t.desc}</p>
-                <ul className="text-sm text-brand-light space-y-1.5 list-disc pl-5">
-                  {t.items.map(item => <li key={item}>{item}</li>)}
-                </ul>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* ── What You Receive ── */}
-        <section className="py-10 px-4 sm:px-6 bg-white">
-          <h2 className="text-2xl font-bold mb-3 tracking-tight">What you receive free via WhatsApp</h2>
-          <p className="text-brand-light text-sm mb-6">After your WhatsApp request, you&apos;ll get a free initial overview of our learning content, topic areas and general information material.</p>
-          <ul className="space-y-4 mb-8">
-            {[
-              { emoji: '📋', label: 'Topic overview' },
-              { emoji: '📚', label: 'Introductory material' },
-              { emoji: '🧩', label: 'Content structure explanation' },
-              { emoji: '⚠️', label: 'Important notes' },
-            ].map(item => (
-              <li key={item.label} className="flex items-center gap-3">
-                <span className="bg-slate-100 p-2 rounded-lg text-lg">{item.emoji}</span>
-                <span className="text-sm font-medium">{item.label}</span>
-              </li>
-            ))}
-          </ul>
-          <div className="bg-brand-bg rounded-2xl p-5 mb-8">
-            <h4 className="font-bold text-sm mb-4">Specifically included (free items):</h4>
-            <ul className="space-y-3">
-              {[
-                { bold: 'Free trading strategies', after: ' overview' },
-                { bold: 'Technical analysis', after: ' introduction' },
-                { bold: '', before: 'General content on ', boldMid: 'market psychology' },
-                { bold: 'Risk management', after: ' fundamentals' },
-                { bold: '', before: 'Initial information on ', boldMid: 'forex & stocks' },
-                { bold: '', before: 'Request free via WhatsApp' },
-              ].map((item, i) => (
-                <li key={i} className="flex items-start gap-2 text-sm">
-                  <svg className="w-5 h-5 text-brand shrink-0" fill="currentColor" viewBox="0 0 20 20"><path clipRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" fillRule="evenodd"></path></svg>
-                  <span>{item.before}<span className="font-medium">{item.bold || item.boldMid}</span>{item.after}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-          <button className="block w-full bg-brand text-white text-center text-sm font-medium py-3 rounded-full hover:bg-brand-dark transition-colors" onClick={handleConvert}>
-            Request free AI diagnosis
-          </button>
-        </section>
-
-        {/* ── How To Request ── */}
-        <section className="py-10 px-4 sm:px-6 bg-slate-50 border-y border-slate-100">
-          <h2 className="text-2xl font-bold mb-2 tracking-tight">How to request</h2>
-          <p className="text-brand-light text-sm mb-8">Transparent, simple, no registration.</p>
-          <div className="space-y-6">
-            {[
-              { n: '1', title: 'Send a WhatsApp message', desc: '— you contact us via WhatsApp and request a free overview of available topics.' },
-              { n: '2', title: 'Receive content for free', desc: '— directly via WhatsApp you get the initial overview of our learning content and topic areas.' },
-              { n: '3', title: 'Review at your own pace', desc: '— look through the information calmly and decide which topics interest you more.' },
-            ].map(step => (
-              <div key={step.n} className="flex gap-4">
-                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-brand text-white flex items-center justify-center font-bold text-sm">{step.n}</div>
-                <div>
-                  <h4 className="font-bold text-sm mb-1">{step.title}</h4>
-                  <p className="text-sm text-brand-light leading-relaxed">{step.desc}</p>
+              ) : (
+                <div className="px-4 py-6 text-center">
+                  <span className="material-symbols-outlined text-on-surface-variant/40 text-2xl block mb-1">search_off</span>
+                  <p className="text-xs text-on-surface-variant">No results for &quot;{query}&quot;</p>
                 </div>
+              )}
+            </div>
+          )}
+
+          {/* Stock Analysis Button */}
+          <div className="mt-3">
+            <button className="w-full flex items-center justify-center gap-2 bg-surface-container-lowest text-primary-fixed px-6 py-3 rounded-full font-semibold text-lg hover:bg-surface-container transition-colors shadow-lg shadow-black/10" onClick={handleCTA}>
+              <span className="material-symbols-outlined text-2xl">monitoring</span>
+              <span>Stock Analysis</span>
+            </button>
+          </div>
+        </section>
+
+        {/* ── AI Stock Analysis Card ── */}
+        <section className="px-5 mt-6">
+          <div className="flex justify-between items-center mb-3">
+            <h2 className="text-xl font-bold text-on-surface">AI Stock Analysis</h2>
+          </div>
+          <div className="bg-surface-container border border-white/5 rounded-[1.5rem] p-4 lime-glow w-full">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="p-2 rounded-lg bg-primary-container/10 text-primary-fixed flex items-center justify-center">
+                <span className="material-symbols-outlined text-xl">psychology</span>
               </div>
-            ))}
+              <h3 className="font-bold text-on-surface text-lg">Introduction to AI Stock Analysis</h3>
+            </div>
+            <p className="text-on-surface-variant leading-relaxed text-sm">
+              Our AI continuously evaluates market trends, analyzes financial health, and assesses growth potential to provide you with intelligent, data-driven recommendations and insights.
+            </p>
           </div>
         </section>
 
-        {/* ── Testimonials ── */}
-        <section className="py-10 px-4 sm:px-6 bg-white">
-          <h2 className="text-2xl font-bold mb-2 tracking-tight">Feedback from users</h2>
-          <p className="text-brand-light text-sm mb-8">Impressions on clarity and the simple WhatsApp process.</p>
-          <div className="space-y-4">
-            {REVIEWS.map(r => (
-              <div key={r.name} className="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm italic text-sm text-slate-700">
-                &ldquo;{r.text}&rdquo;
-                <div className="mt-3 font-semibold not-italic text-xs text-slate-900">— {r.name}</div>
+        {/* ── Your Stocks Section (Hot Stocks) ── */}
+        <section className="px-5 mt-6 mb-4">
+          <div className="flex justify-between items-center mb-3">
+            <div className="w-full flex flex-col items-center gap-1">
+              <span className="inline-block bg-primary-container/10 border border-primary-container/30 text-primary-fixed text-[10px] font-bold tracking-widest px-3 py-1 rounded-full uppercase">
+                Your Watchlist
+              </span>
+              <div className="flex justify-between items-center w-full mt-1">
+                <h2 className="text-xl font-bold text-on-surface">Your Stocks</h2>
+                <span className="text-sm font-medium text-primary-fixed hover:text-primary-container transition-colors cursor-pointer">View all</span>
               </div>
-            ))}
+            </div>
+          </div>
+          <div className="flex flex-col gap-2">
+            {!hotLoading && hotStocks.length > 0 ? hotStocks.slice(0, 5).map(stock => {
+              const colors = ['bg-white', 'bg-[#E82127]', 'bg-white', 'bg-[#FF9900]', 'bg-[#4285F4]']
+              const i = hotStocks.indexOf(stock) % colors.length
+              return (
+                <button key={stock.symbol} className="flex items-center justify-between bg-surface-container-low p-3 rounded-xl border border-white/5 hover:bg-surface-container transition-colors w-full text-left"
+                  onClick={() => { setQuery(stock.symbol); startStream(stock.symbol); openModal() }}>
+                  <div className="flex items-center gap-3">
+                    <div className={`w-10 h-10 ${colors[i]} rounded-full flex items-center justify-center p-2`}>
+                      <span className={`${i === 0 || i === 2 ? 'text-black' : 'text-white'} font-bold text-lg`}>{stock.symbol.slice(0, 1)}</span>
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-on-surface text-base">{stock.name?.split(' ')[0] || stock.symbol}</h4>
+                      <p className="text-on-surface-variant text-xs">{stock.symbol} • Stock</p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-bold text-primary text-lg">${fmtPrice(stock.price)}</p>
+                    <p className={`font-medium text-xs ${stock.change_percent >= 0 ? 'text-primary-fixed' : 'text-error'}`}>
+                      {stock.change_percent >= 0 ? '+' : ''}{stock.change_percent.toFixed(1)}%
+                    </p>
+                  </div>
+                </button>
+              )
+            }) : (
+              <>
+                {[
+                  { name: 'Apple', sym: 'AAPL', sector: 'Technology', price: '$212.69', change: '+3.5%', up: true, color: 'bg-white', tc: 'text-black' },
+                  { name: 'Tesla', sym: 'TSLA', sector: 'Automotive', price: '$185.40', change: '+1.2%', up: true, color: 'bg-[#E82127]', tc: 'text-white' },
+                  { name: 'Amazon', sym: 'AMZN', sector: 'Retail', price: '$145.20', change: '-0.8%', up: false, color: 'bg-white', tc: 'text-black' },
+                ].map(s => (
+                  <div key={s.sym} className="flex items-center justify-between bg-surface-container-low p-3 rounded-xl border border-white/5">
+                    <div className="flex items-center gap-3">
+                      <div className={`w-10 h-10 ${s.color} rounded-full flex items-center justify-center p-2`}>
+                        <span className={`${s.tc} font-bold text-lg`}>{s.sym.slice(0, 1)}</span>
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-on-surface text-base">{s.name}</h4>
+                        <p className="text-on-surface-variant text-xs">{s.sym} • {s.sector}</p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-bold text-primary text-lg">{s.price}</p>
+                      <p className={`font-medium text-xs ${s.up ? 'text-primary-fixed' : 'text-error'}`}>{s.change}</p>
+                    </div>
+                  </div>
+                ))}
+              </>
+            )}
           </div>
         </section>
 
-        {/* ── Final CTA ── */}
-        <section className="py-12 px-4 sm:px-6 bg-slate-50 border-t border-slate-100 text-center" id="request">
-          <div className="inline-flex items-center justify-center gap-2 text-brand text-xs font-bold uppercase tracking-wider mb-4">
-            <span>📱</span> FREE VIA WHATSAPP
-          </div>
-          <h2 className="text-2xl font-bold mb-4 tracking-tight">Request free AI stock diagnosis now</h2>
-          <p className="text-brand-light text-sm mb-8 max-w-md mx-auto">
-            Receive a free initial overview on trading strategies, technical analysis, market psychology, risk management, forex, stocks &amp; chart analysis — directly via WhatsApp.
-          </p>
-          <button className="inline-block w-full sm:w-auto bg-brand text-white text-center font-medium py-3 px-8 rounded-full hover:bg-brand-dark transition-colors mb-6 shadow-md shadow-brand/20" onClick={handleConvert}>
-            Get the report for free via WhatsApp
-          </button>
-          <div className="text-xs text-slate-500 flex items-center justify-center gap-2">
-            <span>🎓</span> Free · Direct via WhatsApp · General educational content
-          </div>
-        </section>
-
-        {/* ── Important Notice ── */}
-        <section className="py-10 px-4 sm:px-6 bg-white">
-          <div className="bg-slate-50 border border-slate-100 rounded-2xl p-5 text-xs text-slate-600 space-y-4">
-            <h4 className="font-bold text-sm text-slate-800">Important notice</h4>
-            <p><strong className="font-semibold text-slate-700">General information:</strong> The content provided on this website is for general informational and educational purposes only.</p>
-            <p><strong className="font-semibold text-slate-700">Not investment advice:</strong> The content does not constitute financial or investment advice, nor a personal recommendation or solicitation to buy/sell financial instruments.</p>
-            <p><strong className="font-semibold text-slate-700">Risk:</strong> Capital investments involve risk. Past performance is not a reliable indicator of future results.</p>
-            <p><strong className="font-semibold text-slate-700">WhatsApp contact:</strong> Contact via WhatsApp is solely for requesting free general learning content and topic overviews.</p>
-          </div>
-        </section>
+        {/* ── Stock Data Module (code param) ── */}
+        {tickerParam && stockData && (
+          <section className="px-5 mt-4 mb-6">
+            <div className="bg-surface-container border border-white/5 rounded-[1.5rem] p-4">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="p-2 rounded-lg bg-primary-container/10 text-primary-fixed flex items-center justify-center">
+                  <span className="material-symbols-outlined text-xl">analytics</span>
+                </div>
+                <h3 className="font-bold text-on-surface">AI Diagnosis Result</h3>
+              </div>
+              <div className="flex items-center gap-4 mb-3">
+                <span className="text-2xl font-bold text-primary-container">${fmtPrice(stockData.price)}</span>
+                <span className={`text-sm font-bold px-3 py-1 rounded-full ${stockData.change_percent >= 0 ? 'text-primary-fixed bg-primary-container/10' : 'text-error bg-error-container/30'}`}>
+                  {stockData.change_percent >= 0 ? '+' : ''}{stockData.change_percent.toFixed(2)}%
+                </span>
+              </div>
+              <p className="text-on-surface-variant text-sm leading-relaxed">
+                AI analysis observes {stockData.change >= 0 ? 'recent upward momentum' : 'recent downward pressure'} with a {stockData.change >= 0 ? 'bullish' : 'bearish'} outlook.
+              </p>
+            </div>
+          </section>
+        )}
       </main>
 
-      {/* ── Sticky Footer Banner ── */}
-      <div className="sticky bottom-0 z-50 bg-white border-t border-slate-200 py-3 px-4 sm:px-6 flex items-center justify-between shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
-        <div>
-          <div className="font-bold text-sm">Want free AI diagnosis?</div>
-          <div className="text-xs text-brand-light">Contact us via WhatsApp for an initial topic overview</div>
-        </div>
-        <button className="shrink-0 bg-brand text-white text-xs font-medium py-2 px-4 rounded-full hover:bg-brand-dark transition-colors" onClick={handleConvert}>
-          Get free content
-        </button>
-      </div>
-
-      {/* ── Scroll CTA ── */}
-      <div className="fixed bottom-24 left-1/2 -translate-x-1/2 z-[60] w-[90%] max-w-md" id="scroll-cta">
-        <button className="block w-full bg-brand text-white text-center font-bold py-4 px-6 rounded-2xl shadow-2xl hover:bg-brand-dark transition-colors" onClick={handleConvert}>
-          Get the report for free via WhatsApp
-        </button>
-      </div>
-
-      {/* ── Footer Links ── */}
-      <footer className="py-6 text-center bg-white border-t border-slate-100">
-        <p className="text-xs text-slate-400 mb-2">© 2026 AI Stock Diagnosis</p>
-        <div className="flex justify-center gap-4">
-          <Link className="text-xs text-slate-400 hover:text-brand transition-colors" href="/privacy">Privacy Policy</Link>
-          <Link className="text-xs text-slate-400 hover:text-brand transition-colors" href="/terms">Terms of Service</Link>
+      {/* ── Footer ── */}
+      <footer className="w-full text-on-surface-variant opacity-60 text-center py-4">
+        <p className="mb-2 text-xs">© 2026 AI Stock Diagnosis. All rights reserved.</p>
+        <div className="flex justify-center gap-4 text-xs">
+          <Link className="hover:text-primary-container transition-colors" href="/privacy">Privacy Policy</Link>
+          <Link className="hover:text-primary-container transition-colors" href="/terms">Terms of Service</Link>
         </div>
       </footer>
+
+      {/* ── Scroll CTA ── */}
+      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[80] w-[90%] max-w-md" id="scroll-cta">
+        <button className="block w-full bg-primary-container text-on-primary font-bold py-4 px-6 rounded-2xl shadow-2xl hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-2"
+          onClick={handleCTA}>
+          <span className="material-symbols-outlined">monitoring</span>
+          Run AI Stock Diagnosis
+        </button>
+      </div>
     </>
   )
 }
