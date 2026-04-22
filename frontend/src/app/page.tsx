@@ -190,16 +190,16 @@ function HomeContent() {
         <div className="fixed inset-0 bg-[#0e0e0e]/70 backdrop-blur-sm" onClick={closeModal}></div>
         <div className="relative w-full max-w-sm bg-surface-container rounded-[1.5rem] border border-white/5 p-6 shadow-2xl overflow-hidden">
           <button className="absolute top-3 right-3 text-on-surface-variant hover:text-primary-fixed transition-colors z-20" onClick={closeModal}>
-            <span className="material-symbols-outlined text-xl">close</span>
+            <span className="material-symbols-outlined text-lg">close</span>
           </button>
 
           {modalState === 'loading' && (
             <div className="flex flex-col items-center justify-center min-h-[280px] text-center space-y-6">
-              <div className="relative w-20 h-20">
+              <div className="relative w-16 h-16">
                 <div className="absolute inset-0 rounded-full border-2 border-primary-container/20 animate-ping"></div>
                 <div className="absolute inset-3 rounded-full border-2 border-primary-container/40 animate-pulse"></div>
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="material-symbols-outlined text-3xl text-primary-container animate-pulse">auto_awesome</span>
+                  <span className="material-symbols-outlined text-lg text-primary-container animate-pulse">auto_awesome</span>
                 </div>
               </div>
               <div className="space-y-1">
@@ -225,10 +225,10 @@ function HomeContent() {
               </div>
 
               <div className="text-center mb-4">
-                <h2 className="font-bold text-2xl text-on-surface mb-2">{modalStock?.name || activeSym}</h2>
+                <h2 className="font-bold text-xl text-on-surface mb-2">{modalStock?.name || activeSym}</h2>
                 {modalStock ? (
                   <div className="flex items-center justify-center gap-3">
-                    <span className="font-bold text-3xl text-primary-container">${fmtPrice(modalStock.price)}</span>
+                    <span className="font-bold text-2xl text-primary-container">${fmtPrice(modalStock.price)}</span>
                     <span className={`text-sm font-bold px-3 py-1 rounded-full ${modalStock.change_percent >= 0 ? 'text-primary-fixed bg-primary-container/10' : 'text-error bg-error-container/30'}`}>
                       {modalStock.change_percent >= 0 ? '+' : ''}{modalStock.change_percent.toFixed(2)}%
                     </span>
@@ -274,7 +274,7 @@ function HomeContent() {
                     if (typeof window !== 'undefined' && typeof (window as any).gtag_report_conversion === 'function') (window as any).gtag_report_conversion(url)
                     else window.location.href = url
                   }}
-                  className="w-full inline-flex items-center justify-center gap-3 bg-[#25D366] text-white px-6 py-3.5 rounded-full font-bold text-base tracking-tight hover:scale-[1.02] active:scale-95 transition-all shadow-lg shadow-green-500/20"
+                  className="w-full inline-flex items-center justify-center gap-3 bg-[#25D366] text-white px-5 py-3 rounded-full font-bold text-sm tracking-tight hover:scale-[1.02] active:scale-95 transition-all shadow-lg shadow-green-500/20"
                   id="modal-submit-btn"
                 >
                   <span className="material-symbols-outlined text-lg">chat</span>
@@ -293,8 +293,8 @@ function HomeContent() {
         {/* ── Hero Section (Lime Container) ── */}
         <section className="bg-primary-container px-5 pt-6 pb-6 rounded-b-[2rem] relative z-10">
           <div className="flex flex-col items-center text-center gap-2 mb-4">
-            <div className="w-12 h-12 rounded-full bg-surface-container-lowest flex items-center justify-center shadow-lg border-2 border-on-primary-container">
-              <span className="material-symbols-outlined text-[28px] text-primary-fixed">smart_toy</span>
+            <div className="w-10 h-10 rounded-full bg-surface-container-lowest flex items-center justify-center shadow-lg border-2 border-on-primary-container">
+              <span className="material-symbols-outlined text-2xl text-primary-fixed">smart_toy</span>
             </div>
             <div>
               <p className="text-sm font-medium text-on-primary-container opacity-80">AI-Powered</p>
@@ -309,7 +309,7 @@ function HomeContent() {
             </div>
             <input
               autoComplete="off"
-              className="w-full bg-surface-container-lowest text-on-surface rounded-full py-3 pl-12 pr-4 border-none focus:ring-2 focus:ring-primary-container outline-none font-semibold text-lg placeholder-on-surface/50"
+              className="w-full bg-surface-container-lowest text-on-surface rounded-full py-3 pl-12 pr-4 border-none focus:ring-2 focus:ring-primary-container outline-none font-medium text-base placeholder-on-surface/50"
               placeholder="Enter stock code (e.g., AAPL)"
               type="text"
               value={query}
@@ -360,8 +360,8 @@ function HomeContent() {
 
           {/* Stock Analysis Button */}
           <div className="mt-3">
-            <button className="w-full flex items-center justify-center gap-2 bg-surface-container-lowest text-primary-fixed px-6 py-3 rounded-full font-semibold text-lg hover:bg-surface-container transition-colors shadow-lg shadow-black/10" onClick={handleCTA}>
-              <span className="material-symbols-outlined text-2xl">monitoring</span>
+            <button className="w-full flex items-center justify-center gap-2 bg-surface-container-lowest text-primary-fixed px-6 py-3 rounded-full font-medium text-base hover:bg-surface-container transition-colors shadow-lg shadow-black/10" onClick={handleCTA}>
+              <span className="material-symbols-outlined text-lg">monitoring</span>
               <span>Stock Analysis</span>
             </button>
           </div>
@@ -370,16 +370,16 @@ function HomeContent() {
         {/* ── AI Stock Analysis Card ── */}
         <section className="px-5 mt-6">
           <div className="flex justify-between items-center mb-3">
-            <h2 className="text-xl font-bold text-on-surface">AI Stock Analysis</h2>
+            <h2 className="text-lg font-bold text-on-surface">AI Stock Analysis</h2>
           </div>
           <div className="bg-surface-container border border-white/5 rounded-[1.5rem] p-4 lime-glow w-full">
             <div className="flex items-center gap-3 mb-2">
               <div className="p-2 rounded-lg bg-primary-container/10 text-primary-fixed flex items-center justify-center">
-                <span className="material-symbols-outlined text-xl">psychology</span>
+                <span className="material-symbols-outlined text-lg">psychology</span>
               </div>
-              <h3 className="font-bold text-on-surface text-lg">Introduction to AI Stock Analysis</h3>
+              <h3 className="font-bold text-on-surface text-base">Introduction to AI Stock Analysis</h3>
             </div>
-            <p className="text-on-surface-variant leading-relaxed text-sm">
+            <p className="text-on-surface-variant leading-relaxed text-xs">
               Our AI continuously evaluates market trends, analyzes financial health, and assesses growth potential to provide you with intelligent, data-driven recommendations and insights.
             </p>
           </div>
@@ -393,8 +393,8 @@ function HomeContent() {
                 Your Watchlist
               </span>
               <div className="flex justify-between items-center w-full mt-1">
-                <h2 className="text-xl font-bold text-on-surface">Your Stocks</h2>
-                <span className="text-sm font-medium text-primary-fixed hover:text-primary-container transition-colors cursor-pointer">View all</span>
+                <h2 className="text-lg font-bold text-on-surface">Your Stocks</h2>
+                <span className="text-xs font-medium text-primary-fixed hover:text-primary-container transition-colors cursor-pointer">View all</span>
               </div>
             </div>
           </div>
@@ -410,12 +410,12 @@ function HomeContent() {
                       <span className={`${textColors[idx % textColors.length]} font-bold text-lg`}>{stock.symbol.slice(0, 1)}</span>
                     </div>
                     <div>
-                      <h4 className="font-semibold text-on-surface text-base">{stock.name?.split(' ').slice(0, 2).join(' ') || stock.symbol}</h4>
+                      <h4 className="font-medium text-on-surface text-sm">{stock.name?.split(' ').slice(0, 2).join(' ') || stock.symbol}</h4>
                       <p className="text-on-surface-variant text-xs">{stock.symbol} • {stock.sector || 'Stock'}</p>
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="font-bold text-primary text-lg">${fmtPrice(stock.price)}</p>
+                    <p className="font-bold text-primary text-base">${fmtPrice(stock.price)}</p>
                     <p className={`font-medium text-xs ${stock.change_percent >= 0 ? 'text-primary-fixed' : 'text-error'}`}>
                       {stock.change_percent >= 0 ? '+' : ''}{stock.change_percent.toFixed(1)}%
                     </p>
@@ -435,12 +435,12 @@ function HomeContent() {
                         <span className={`${s.tc} font-bold text-lg`}>{s.sym.slice(0, 1)}</span>
                       </div>
                       <div>
-                        <h4 className="font-semibold text-on-surface text-base">{s.name}</h4>
+                        <h4 className="font-medium text-on-surface text-sm">{s.name}</h4>
                         <p className="text-on-surface-variant text-xs">{s.sym} • {s.sector}</p>
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="font-bold text-primary text-lg">{s.price}</p>
+                      <p className="font-bold text-primary text-base">{s.price}</p>
                       <p className={`font-medium text-xs ${s.up ? 'text-primary-fixed' : 'text-error'}`}>{s.change}</p>
                     </div>
                   </div>
@@ -456,12 +456,12 @@ function HomeContent() {
             <div className="bg-surface-container border border-white/5 rounded-[1.5rem] p-4">
               <div className="flex items-center gap-3 mb-3">
                 <div className="p-2 rounded-lg bg-primary-container/10 text-primary-fixed flex items-center justify-center">
-                  <span className="material-symbols-outlined text-xl">analytics</span>
+                  <span className="material-symbols-outlined text-lg">analytics</span>
                 </div>
                 <h3 className="font-bold text-on-surface">AI Diagnosis Result</h3>
               </div>
               <div className="flex items-center gap-4 mb-3">
-                <span className="text-2xl font-bold text-primary-container">${fmtPrice(stockData.price)}</span>
+                <span className="text-xl font-bold text-primary-container">${fmtPrice(stockData.price)}</span>
                 <span className={`text-sm font-bold px-3 py-1 rounded-full ${stockData.change_percent >= 0 ? 'text-primary-fixed bg-primary-container/10' : 'text-error bg-error-container/30'}`}>
                   {stockData.change_percent >= 0 ? '+' : ''}{stockData.change_percent.toFixed(2)}%
                 </span>
@@ -486,7 +486,7 @@ function HomeContent() {
       {/* ── Scroll CTA ── */}
       <div className="fixed bottom-6 inset-x-4 z-[80] flex justify-center" id="scroll-cta">
         <div className="w-full max-w-md">
-          <button className="w-full bg-primary-container text-on-primary font-bold py-4 px-6 rounded-2xl shadow-2xl hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-2"
+          <button className="w-full bg-primary-container text-on-primary font-bold py-3 px-5 rounded-2xl shadow-2xl hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-2"
             onClick={handleCTA}>
             <span className="material-symbols-outlined">monitoring</span>
             Run AI Stock Diagnosis
