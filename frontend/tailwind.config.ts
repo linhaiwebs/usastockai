@@ -59,6 +59,20 @@ const config: Config = {
         'outline': '#8e9379',
         'outline-variant': '#444933',
       },
+      spacing: {
+        'container-padding': '20px',
+        'stack-gap': '12px',
+        'section-margin': '32px',
+        'gutter': '16px',
+      },
+      fontSize: {
+        'headline-lg': ['28px', { lineHeight: '34px', letterSpacing: '-0.02em', fontWeight: '700' }],
+        'headline-md': ['20px', { lineHeight: '28px', letterSpacing: '-0.01em', fontWeight: '600' }],
+        'body-lg': ['18px', { lineHeight: '24px', fontWeight: '600' }],
+        'body-md': ['16px', { lineHeight: '22px', fontWeight: '400' }],
+        'label-md': ['14px', { lineHeight: '20px', fontWeight: '500' }],
+        'data-lg': ['20px', { lineHeight: '24px', letterSpacing: '0.02em', fontWeight: '700' }],
+      },
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
         headline: ['Inter', 'sans-serif'],

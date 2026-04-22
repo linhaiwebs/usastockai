@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 /* ═══════════════════════════════════════════════════════
-   AI Stock Diagnosis — Stitch usa-1 (Dark Lime MD3)
+   AI Stock Diagnosis — Stitch usa-2 (Dark Lime MD3)
    #c3f400 Lime · #131313 Dark · Inter
    ═══════════════════════════════════════════════════════ */
 
@@ -36,6 +36,13 @@
   src: url('/fonts/inter-700.woff2') format('woff2');
 }
 @font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 900;
+  font-display: swap;
+  src: url('/fonts/inter-900.woff2') format('woff2');
+}
+@font-face {
   font-family: 'Material Symbols Outlined';
   font-style: normal;
   font-weight: 400;
@@ -49,6 +56,7 @@ body {
   color: #e5e2e1;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  min-height: max(884px, 100dvh);
 }
 
 ::selection {
@@ -72,11 +80,6 @@ body {
   font-feature-settings: 'rlig' 1, 'liga' 1 !important;
 }
 
-/* ── Lime Glow ── */
-.lime-glow {
-  box-shadow: 0 0 15px rgba(195, 244, 0, 0.15);
-}
-
 /* ── Hide Scrollbar ── */
 .hide-scrollbar::-webkit-scrollbar { display: none; }
 .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
@@ -95,7 +98,6 @@ body {
 .screen-mask.active {
   opacity: 1;
   pointer-events: auto;
-  cursor: default;
 }
 
 /* ── Modal ── */

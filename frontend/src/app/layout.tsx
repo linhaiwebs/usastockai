@@ -3,7 +3,7 @@ import './globals.css'
 import GoogleAnalytics from '../components/GoogleAnalytics'
 
 export const metadata: Metadata = {
-  title: 'AI Stock Diagnosis | Intelligent Market Analysis',
+  title: 'StockAI - AI Stock Diagnosis & Analysis',
   description: 'AI-powered stock diagnosis and predictive analysis. Get real-time market insights and risk assessment for any stock.',
 }
 
@@ -21,9 +21,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="preload" href="/fonts/inter-500.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
         <link rel="preload" href="/fonts/inter-600.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
         <link rel="preload" href="/fonts/inter-700.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
+        <link rel="preload" href="/fonts/inter-900.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
         <link rel="preload" href="/fonts/material-symbols-outlined.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
       </head>
-      <body className="antialiased min-h-screen">
+      <body className="antialiased">
         <GoogleAnalytics />
         {children}
       </body>
