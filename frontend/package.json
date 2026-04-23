@@ -9,12 +9,12 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "autoprefixer": "file:../../../../tmp/autoprefixer.tgz",
-    "next": "file:../../../../tmp/next.tgz",
-    "postcss": "file:../../../../tmp/postcss.tgz",
-    "react": "file:../../../../tmp/react.tgz",
-    "react-dom": "file:../../../../tmp/react-dom.tgz",
-    "tailwindcss": "file:../../../../tmp/tailwindcss.tgz"
+    "autoprefixer": "10.4.17",
+    "next": "14.1.0",
+    "postcss": "8.4.35",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "tailwindcss": "3.4.1"
   },
   "devDependencies": {
     "@types/node": "^20.11.16",
